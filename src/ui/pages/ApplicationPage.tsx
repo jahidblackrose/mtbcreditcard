@@ -2,18 +2,16 @@
  * MTB Credit Card Application - Application Form Page
  * 
  * Multi-step form for credit card application.
- * Supports both SELF and ASSISTED modes.
- * 
- * API: Uses application.api.ts ONLY
+ * Supports both SELF and ASSISTED modes with Redis-backed state management.
  */
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { MainLayout } from '../layouts';
-import { ErrorMessage } from '../components';
+import { ErrorMessage, SaveStatusIndicator, SessionExpiryWarning } from '../components';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, ArrowRight, Check, Save, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Loader2, Send } from 'lucide-react';
 import { FormStepIndicator, PreApplicationForm, SubmissionSuccess } from '../application/components';
 import { 
   CardSelectionStep,
@@ -28,23 +26,18 @@ import {
   ImageSignatureStep,
   AutoDebitStep,
   MIDStep,
-  DeclarationSubmitStep,
+  FinalReviewStep,
 } from '../application/components/steps';
 import { useApplicationForm } from '../application/hooks';
+import { useSession } from '@/hooks/useSession';
+import { useDraft } from '@/hooks/useDraft';
 import { APPLICATION_STEPS, type ApplicationMode } from '@/types/application-form.types';
 import { toast } from 'sonner';
+import * as submissionApi from '@/api/submission.api';
 
 interface LocationState {
   mode?: ApplicationMode;
 }
-
-// Generate application reference number
-const generateApplicationId = (): string => {
-  const date = new Date();
-  const datePart = date.toISOString().slice(0, 10).replace(/-/g, '');
-  const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
-  return `MTB-CC-${datePart}-${randomPart}`;
-};
 
 export function ApplicationPage() {
   const location = useLocation();
@@ -57,6 +50,24 @@ export function ApplicationPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedApplicationId, setSubmittedApplicationId] = useState<string>('');
+  const [livePhoto, setLivePhoto] = useState<string | null>(null);
+
+  // Session management
+  const {
+    session,
+    isExpired: isSessionExpired,
+    isWarning: isSessionWarning,
+    ttlSeconds,
+    createSession,
+    extendSession,
+  } = useSession();
+
+  // Draft management
+  const {
+    saveStatus,
+    saveDraftStep,
+    getHighestCompletedStep,
+  } = useDraft(session?.sessionId || null);
 
   const {
     applicationData,
@@ -67,10 +78,8 @@ export function ApplicationPage() {
     updateProfessionalInfo,
     updateMonthlyIncome,
     addBankAccount,
-    updateBankAccount,
     removeBankAccount,
     addCreditFacility,
-    updateCreditFacility,
     removeCreditFacility,
     updateNominee,
     updateSupplementaryCard,
@@ -86,11 +95,25 @@ export function ApplicationPage() {
     clearDraft,
   } = useApplicationForm(mode);
 
+  // Create session on component mount
+  useEffect(() => {
+    if (!session && showOnboarding === false) {
+      createSession(mode);
+    }
+  }, [session, showOnboarding, mode, createSession]);
+
+  // Auto-save draft when step data changes
+  useEffect(() => {
+    if (session?.sessionId && applicationData.currentStep > 0 && !showOnboarding) {
+      const stepName = APPLICATION_STEPS[applicationData.currentStep - 1]?.title || 'Unknown';
+      saveDraftStep(applicationData.currentStep, stepName, applicationData as unknown as Record<string, unknown>);
+    }
+  }, [session?.sessionId, applicationData, showOnboarding, saveDraftStep]);
+
   // Calculate completed steps based on form data validation
   const completedSteps = useMemo(() => {
     const completed: number[] = [];
     
-    // Step 1: Card Selection - check if all required fields are filled
     if (applicationData.cardSelection.cardNetwork && 
         applicationData.cardSelection.cardTier && 
         applicationData.cardSelection.cardCategory &&
@@ -98,7 +121,6 @@ export function ApplicationPage() {
       completed.push(1);
     }
     
-    // Step 2: Personal Info
     if (applicationData.personalInfo.nameOnCard && 
         applicationData.personalInfo.nidNumber &&
         applicationData.personalInfo.fatherName &&
@@ -106,49 +128,41 @@ export function ApplicationPage() {
       completed.push(2);
     }
     
-    // Step 3: Professional Info
     if (applicationData.professionalInfo.organizationName && 
         applicationData.professionalInfo.designation) {
       completed.push(3);
     }
     
-    // Step 4: Monthly Income
     if (applicationData.monthlyIncome.salariedIncome?.grossSalary || 
         applicationData.monthlyIncome.businessIncome?.grossIncome) {
       completed.push(4);
     }
     
-    // Step 5 & 6: Optional - always mark as complete
+    // Optional steps are always complete
     completed.push(5, 6);
     
-    // Step 7: Nominee
     if (applicationData.nominee.nomineeName && 
         applicationData.nominee.declarationAccepted) {
       completed.push(7);
     }
     
-    // Step 8: Supplementary - Optional
-    completed.push(8);
+    completed.push(8); // Supplementary is optional
     
-    // Step 9: References
     if (applicationData.references.reference1.refereeName && 
         applicationData.references.reference2.refereeName) {
       completed.push(9);
     }
     
-    // Step 10: Image & Signature
     if (applicationData.imageSignature.primaryApplicantPhoto && 
         applicationData.imageSignature.primaryApplicantSignature) {
       completed.push(10);
     }
     
-    // Step 11: Auto Debit
     if (applicationData.autoDebit.accountName && 
         applicationData.autoDebit.mtbAccountNumber) {
       completed.push(11);
     }
     
-    // Step 12: MID
     const allDeclarationsAnswered = applicationData.mid.declarations.every(d => d.answer !== null);
     const requiredDocsUploaded = applicationData.mid.documentChecklist
       .filter(d => d.required)
@@ -160,41 +174,38 @@ export function ApplicationPage() {
     return completed;
   }, [applicationData]);
 
-  // Check if current step is valid for navigation
-  const isCurrentStepValid = useCallback((): boolean => {
-    const step = applicationData.currentStep;
-    
-    // Optional steps are always valid
-    if (APPLICATION_STEPS[step - 1]?.isOptional) {
-      return true;
-    }
-    
-    return completedSteps.includes(step);
-  }, [applicationData.currentStep, completedSteps]);
-
   // Check if ready for final submission
   const canSubmit = useMemo(() => {
-    return applicationData.termsAccepted && applicationData.declarationAccepted;
-  }, [applicationData.termsAccepted, applicationData.declarationAccepted]);
+    return applicationData.termsAccepted && applicationData.declarationAccepted && livePhoto !== null;
+  }, [applicationData.termsAccepted, applicationData.declarationAccepted, livePhoto]);
 
-  const handleOnboardingSubmit = (data: any) => {
+  const handleOnboardingSubmit = async (data: any) => {
     updatePreApplication(data);
   };
 
-  const handleOtpVerified = () => {
+  const handleOtpVerified = async () => {
     setOtpVerified(true);
     setShowOnboarding(false);
     goToStep(1);
+    
+    // Create session after OTP verification
+    await createSession(mode);
+  };
+
+  const handleResumeApplication = async (mobileNumber: string) => {
+    // In a real implementation, this would fetch the draft from backend
+    toast.info('Resume feature will fetch your saved application', {
+      description: `Looking up application for ${mobileNumber}...`,
+    });
+    // For demo, just proceed to onboarding
   };
 
   const handleNext = () => {
-    // If on final step (step 13), submit
     if (applicationData.currentStep === 13) {
       handleSubmit();
       return;
     }
     
-    // Regular step navigation
     if (applicationData.currentStep < 13) {
       nextStep();
     }
@@ -209,7 +220,6 @@ export function ApplicationPage() {
   };
 
   const handleSaveDraft = () => {
-    // Draft is auto-saved, but show confirmation
     toast.success('Application saved as draft', {
       description: 'You can resume your application anytime.',
     });
@@ -217,7 +227,12 @@ export function ApplicationPage() {
 
   const handleSubmit = async () => {
     if (!canSubmit) {
-      toast.error('Please accept the terms and declaration to submit');
+      toast.error('Please complete all requirements to submit');
+      return;
+    }
+
+    if (!session?.sessionId) {
+      toast.error('Session expired. Please refresh and try again.');
       return;
     }
 
@@ -225,17 +240,20 @@ export function ApplicationPage() {
     setError(null);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const response = await submissionApi.submitApplication(session.sessionId);
       
-      const applicationId = generateApplicationId();
-      setSubmittedApplicationId(applicationId);
-      setIsSubmitted(true);
-      clearDraft();
-      
-      toast.success('Application submitted successfully!');
+      if (response.status === 200 && response.data) {
+        setSubmittedApplicationId(response.data.referenceNumber);
+        setIsSubmitted(true);
+        clearDraft();
+        toast.success('Application submitted successfully!');
+      } else {
+        setError(response.message);
+        toast.error(response.message);
+      }
     } catch (err) {
       setError('Failed to submit application. Please try again.');
+      toast.error('Submission failed. Your draft is saved.');
     } finally {
       setIsSubmitting(false);
     }
@@ -249,9 +267,19 @@ export function ApplicationPage() {
     navigate('/');
   };
 
+  const handleExtendSession = async (): Promise<boolean> => {
+    const success = await extendSession();
+    if (success) {
+      toast.success('Session extended');
+    } else {
+      toast.error('Failed to extend session');
+    }
+    return success;
+  };
+
   const currentStepInfo = applicationData.currentStep <= 12 
     ? APPLICATION_STEPS[applicationData.currentStep - 1]
-    : { title: 'Declaration & Submit', description: 'Review and submit your application', isOptional: false };
+    : { title: 'Final Review & Submit', description: 'Review and submit your application', isOptional: false };
 
   // Show success screen after submission
   if (isSubmitted) {
@@ -276,22 +304,16 @@ export function ApplicationPage() {
     return (
       <MainLayout>
         <div className="container mx-auto px-4 py-8">
-          {/* Mode Indicator */}
-          <div className="text-center mb-6">
-            <span className="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium bg-primary/10 text-primary">
-              {mode === 'SELF' ? 'Self Application' : 'Assisted Application'}
-            </span>
-          </div>
-
           <PreApplicationForm
             mode={mode}
             initialData={applicationData.preApplication}
             onSubmit={handleOnboardingSubmit}
             onOtpVerified={handleOtpVerified}
+            onResumeApplication={handleResumeApplication}
           />
 
           <div className="text-center mt-6">
-            <Button variant="ghost" onClick={handleCancel}>
+            <Button variant="ghost" onClick={handleCancel} className="text-muted-foreground hover:text-foreground">
               Cancel Application
             </Button>
           </div>
@@ -336,7 +358,6 @@ export function ApplicationPage() {
           <BankAccountsStep
             initialData={applicationData.bankAccounts}
             onSave={(accounts) => {
-              // Clear existing and set new accounts
               applicationData.bankAccounts.forEach(acc => removeBankAccount(acc.id));
               accounts.forEach(acc => addBankAccount(acc));
             }}
@@ -347,7 +368,6 @@ export function ApplicationPage() {
           <CreditFacilitiesStep
             initialData={applicationData.creditFacilities}
             onSave={(facilities) => {
-              // Clear existing and set new facilities
               applicationData.creditFacilities.forEach(fac => removeCreditFacility(fac.id));
               facilities.forEach(fac => addCreditFacility(fac));
             }}
@@ -404,11 +424,15 @@ export function ApplicationPage() {
         );
       case 13:
         return (
-          <DeclarationSubmitStep
+          <FinalReviewStep
             termsAccepted={applicationData.termsAccepted}
             declarationAccepted={applicationData.declarationAccepted}
             onTermsChange={setTermsAccepted}
             onDeclarationChange={setDeclarationAccepted}
+            livePhoto={livePhoto}
+            onLivePhotoCapture={setLivePhoto}
+            supplementaryCard={applicationData.supplementaryCard}
+            hasSupplementaryCard={applicationData.hasSupplementaryCard}
           />
         );
       default:
@@ -421,12 +445,20 @@ export function ApplicationPage() {
 
   return (
     <MainLayout>
+      {/* Session Expiry Warning */}
+      {isSessionWarning && (
+        <SessionExpiryWarning
+          ttlSeconds={ttlSeconds}
+          onExtend={handleExtendSession}
+          isExpired={isSessionExpired}
+          isWarning={isSessionWarning}
+        />
+      )}
+
       <div className="container mx-auto px-4 py-8">
-        {/* Mode Indicator */}
-        <div className="text-center mb-6">
-          <span className="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium bg-primary/10 text-primary">
-            {mode === 'SELF' ? 'Self Application' : 'Assisted Application'}
-          </span>
+        {/* Save Status Indicator */}
+        <div className="fixed top-20 right-4 z-40">
+          <SaveStatusIndicator status={saveStatus} />
         </div>
 
         {/* Progress Steps */}
@@ -450,7 +482,7 @@ export function ApplicationPage() {
                 <CardTitle>
                   {applicationData.currentStep <= 12 
                     ? `Step ${applicationData.currentStep}: ${currentStepInfo?.title}`
-                    : 'Final Step: Declaration & Submit'
+                    : 'Final Step: Review & Submit'
                   }
                 </CardTitle>
                 <CardDescription>{currentStepInfo?.description}</CardDescription>
@@ -465,12 +497,12 @@ export function ApplicationPage() {
           </CardContent>
         </Card>
 
-        {/* Navigation - Vertical Stack */}
+        {/* Navigation - Vertical Stack with MTB colors */}
         <div className="max-w-3xl mx-auto mt-6 flex flex-col gap-3">
           <Button 
             onClick={handleNext} 
             size="lg" 
-            className="w-full"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
             disabled={isSubmitting || (isFinalSubmitStep && !canSubmit)}
           >
             {isSubmitting ? (
@@ -480,8 +512,8 @@ export function ApplicationPage() {
               </>
             ) : isFinalSubmitStep ? (
               <>
+                <Send className="mr-2 h-4 w-4" />
                 Submit Application
-                <Check className="ml-2 h-4 w-4" />
               </>
             ) : (
               <>
@@ -494,7 +526,7 @@ export function ApplicationPage() {
           <Button 
             variant="outline" 
             size="lg" 
-            className="w-full gap-2"
+            className="w-full gap-2 border-primary text-primary hover:bg-primary/5"
             onClick={handleSaveDraft}
             disabled={isSubmitting}
           >
@@ -506,7 +538,7 @@ export function ApplicationPage() {
             variant="ghost" 
             size="lg" 
             onClick={handleBack} 
-            className="w-full"
+            className="w-full text-muted-foreground hover:text-foreground"
             disabled={isSubmitting}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
