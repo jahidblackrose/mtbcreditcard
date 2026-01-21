@@ -7,28 +7,20 @@
  * API: Uses application.api.ts ONLY
  */
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { MainLayout } from '../layouts';
-import { LoadingSpinner, ErrorMessage } from '../components';
+import { ErrorMessage } from '../components';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
-import type { ApplicationMode } from '@/types';
+import { ArrowLeft, ArrowRight, Check, Save } from 'lucide-react';
+import { FormStepIndicator, PreApplicationForm } from '../application/components';
+import { useApplicationForm } from '../application/hooks';
+import { APPLICATION_STEPS, type ApplicationMode } from '@/types/application-form.types';
 
 interface LocationState {
   mode?: ApplicationMode;
-  eligibleCards?: unknown[];
 }
-
-const STEPS = [
-  { id: 'card', title: 'Select Card', description: 'Choose your preferred credit card' },
-  { id: 'personal', title: 'Personal Info', description: 'Your basic information' },
-  { id: 'address', title: 'Address', description: 'Present and permanent address' },
-  { id: 'employment', title: 'Employment', description: 'Your employment details' },
-  { id: 'documents', title: 'Documents', description: 'Upload required documents' },
-  { id: 'review', title: 'Review', description: 'Review and submit' },
-];
 
 export function ApplicationPage() {
   const location = useLocation();
@@ -36,22 +28,81 @@ export function ApplicationPage() {
   const state = location.state as LocationState | null;
   
   const mode: ApplicationMode = state?.mode || 'SELF';
-  const [currentStep, setCurrentStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(true);
+
+  const {
+    applicationData,
+    updatePreApplication,
+    setOtpVerified,
+    nextStep,
+    prevStep,
+    goToStep,
+  } = useApplicationForm(mode);
+
+  const completedSteps = useMemo(() => {
+    // For now, mark steps before current as completed
+    return Array.from({ length: applicationData.currentStep }, (_, i) => i + 1);
+  }, [applicationData.currentStep]);
+
+  const handleOnboardingSubmit = (data: any) => {
+    updatePreApplication(data);
+  };
+
+  const handleOtpVerified = () => {
+    setOtpVerified(true);
+    setShowOnboarding(false);
+    goToStep(1);
+  };
 
   const handleNext = () => {
-    if (currentStep < STEPS.length - 1) {
-      setCurrentStep(currentStep + 1);
+    if (applicationData.currentStep < APPLICATION_STEPS.length) {
+      nextStep();
     }
   };
 
   const handleBack = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+    if (applicationData.currentStep > 1) {
+      prevStep();
     } else {
-      navigate('/');
+      setShowOnboarding(true);
     }
   };
+
+  const handleCancel = () => {
+    navigate('/');
+  };
+
+  const currentStepInfo = APPLICATION_STEPS[applicationData.currentStep - 1];
+
+  // Show onboarding/pre-application form first
+  if (showOnboarding || !applicationData.otpVerified) {
+    return (
+      <MainLayout>
+        <div className="container mx-auto px-4 py-8">
+          {/* Mode Indicator */}
+          <div className="text-center mb-6">
+            <span className="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium bg-primary/10 text-primary">
+              {mode === 'SELF' ? 'Self Application' : 'Assisted Application'}
+            </span>
+          </div>
+
+          <PreApplicationForm
+            mode={mode}
+            initialData={applicationData.preApplication}
+            onSubmit={handleOnboardingSubmit}
+            onOtpVerified={handleOtpVerified}
+          />
+
+          <div className="text-center mt-6">
+            <Button variant="ghost" onClick={handleCancel}>
+              Cancel Application
+            </Button>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>
@@ -64,43 +115,12 @@ export function ApplicationPage() {
         </div>
 
         {/* Progress Steps */}
-        <div className="max-w-4xl mx-auto mb-8">
-          <div className="flex items-center justify-between">
-            {STEPS.map((step, index) => (
-              <div key={step.id} className="flex flex-col items-center flex-1">
-                <div className="flex items-center w-full">
-                  <div
-                    className={`
-                      w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium
-                      ${index < currentStep 
-                        ? 'bg-success text-success-foreground' 
-                        : index === currentStep 
-                          ? 'bg-primary text-primary-foreground' 
-                          : 'bg-muted text-muted-foreground'
-                      }
-                    `}
-                  >
-                    {index < currentStep ? (
-                      <Check className="h-4 w-4" />
-                    ) : (
-                      index + 1
-                    )}
-                  </div>
-                  {index < STEPS.length - 1 && (
-                    <div
-                      className={`
-                        flex-1 h-0.5 mx-2
-                        ${index < currentStep ? 'bg-success' : 'bg-muted'}
-                      `}
-                    />
-                  )}
-                </div>
-                <span className="text-xs mt-2 text-muted-foreground hidden md:block">
-                  {step.title}
-                </span>
-              </div>
-            ))}
-          </div>
+        <div className="max-w-5xl mx-auto mb-8">
+          <FormStepIndicator
+            currentStep={applicationData.currentStep}
+            completedSteps={completedSteps}
+            onStepClick={goToStep}
+          />
         </div>
 
         {error && (
@@ -108,35 +128,53 @@ export function ApplicationPage() {
         )}
 
         {/* Step Content */}
-        <Card className="max-w-2xl mx-auto">
+        <Card className="max-w-3xl mx-auto">
           <CardHeader>
-            <CardTitle>{STEPS[currentStep].title}</CardTitle>
-            <CardDescription>{STEPS[currentStep].description}</CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>{currentStepInfo?.title}</CardTitle>
+                <CardDescription>{currentStepInfo?.description}</CardDescription>
+              </div>
+              {currentStepInfo?.isOptional && (
+                <span className="text-xs bg-muted px-2 py-1 rounded">Optional</span>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             {/* Placeholder content for each step */}
-            <div className="min-h-[300px] flex items-center justify-center text-muted-foreground">
-              <p>Form content for "{STEPS[currentStep].title}" will be implemented in the next phase.</p>
+            <div className="min-h-[400px] flex items-center justify-center text-muted-foreground border-2 border-dashed border-muted rounded-lg">
+              <div className="text-center p-8">
+                <p className="text-lg font-medium mb-2">Step {applicationData.currentStep}: {currentStepInfo?.title}</p>
+                <p className="text-sm">Form fields for this step will be implemented here.</p>
+                <p className="text-xs mt-4 text-muted-foreground/60">
+                  This includes all fields as per the official MTB Credit Card Application Form.
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Navigation */}
-        <div className="max-w-2xl mx-auto mt-6 flex justify-between">
+        <div className="max-w-3xl mx-auto mt-6 flex justify-between items-center">
           <Button variant="outline" onClick={handleBack}>
             <ArrowLeft className="mr-2 h-4 w-4" />
-            {currentStep === 0 ? 'Cancel' : 'Back'}
+            {applicationData.currentStep === 1 ? 'Back to Start' : 'Previous'}
+          </Button>
+          
+          <Button variant="ghost" size="sm" className="gap-2">
+            <Save className="h-4 w-4" />
+            Save Draft
           </Button>
           
           <Button onClick={handleNext}>
-            {currentStep === STEPS.length - 1 ? (
+            {applicationData.currentStep === APPLICATION_STEPS.length ? (
               <>
                 Submit Application
                 <Check className="ml-2 h-4 w-4" />
               </>
             ) : (
               <>
-                Continue
+                {currentStepInfo?.isOptional ? 'Skip / Continue' : 'Continue'}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </>
             )}
