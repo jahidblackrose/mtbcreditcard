@@ -2,13 +2,14 @@
  * MTB Credit Card Application - Pre-Application / Onboarding Form
  * 
  * Collects initial information and handles OTP verification for Self mode.
+ * Supports new applicant and resume existing application flows.
  */
 
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, subYears } from 'date-fns';
-import { CalendarIcon, Loader2, Mail, Phone, User, CreditCard, Shield } from 'lucide-react';
+import { CalendarIcon, Loader2, Mail, Phone, User, CreditCard, Shield, FileText, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { preApplicationSchema, type PreApplicationFormData } from '@/lib/validation-schemas';
 import type { ApplicationMode } from '@/types/application-form.types';
@@ -38,6 +39,7 @@ interface PreApplicationFormProps {
   initialData?: Partial<PreApplicationFormData>;
   onSubmit: (data: PreApplicationFormData) => void;
   onOtpVerified: () => void;
+  onResumeApplication?: (mobileNumber: string) => void;
   isLoading?: boolean;
 }
 
@@ -46,14 +48,20 @@ export function PreApplicationForm({
   initialData,
   onSubmit,
   onOtpVerified,
+  onResumeApplication,
   isLoading = false,
 }: PreApplicationFormProps) {
+  const [applicationType, setApplicationType] = useState<'new' | 'resume' | null>(mode === 'ASSISTED' ? 'new' : null);
   const [showOtp, setShowOtp] = useState(false);
   const [otpValue, setOtpValue] = useState('');
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [otpError, setOtpError] = useState<string | null>(null);
-  const [otpSent, setOtpSent] = useState(false);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [resumeMobile, setResumeMobile] = useState('');
+  const [remainingAttempts, setRemainingAttempts] = useState(5);
+  const [isLocked, setIsLocked] = useState(false);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
 
   // Calculate the maximum allowed date (18 years ago from today)
   const maxDateOfBirth = subYears(new Date(), 18);
@@ -80,33 +88,154 @@ export function PreApplicationForm({
     } else {
       // Self mode requires OTP
       onSubmit(data);
+      setIsSendingOtp(true);
+      // Simulate OTP sending
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setIsSendingOtp(false);
       setShowOtp(true);
-      setOtpSent(true);
-      // In real implementation, this would trigger OTP sending via API
     }
   };
 
   const handleResendOtp = async () => {
     setOtpError(null);
-    setOtpSent(true);
-    // Mock resend - in real implementation, call API
+    setIsSendingOtp(true);
+    // Simulate resend
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setIsSendingOtp(false);
   };
 
   const handleVerifyOtp = async () => {
     setIsVerifyingOtp(true);
     setOtpError(null);
     
-    // Mock verification - in real implementation, call API
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // Mock verification
+    await new Promise(resolve => setTimeout(resolve, 1000));
     
     if (otpValue === '123456') {
       onOtpVerified();
     } else {
-      setOtpError('Invalid OTP. Please try again.');
+      const newAttempts = remainingAttempts - 1;
+      setRemainingAttempts(newAttempts);
+      
+      if (newAttempts <= 0) {
+        setIsLocked(true);
+        setCooldownSeconds(30);
+        setOtpError('Too many attempts. Please wait 30 seconds.');
+        // Start countdown
+        const interval = setInterval(() => {
+          setCooldownSeconds(prev => {
+            if (prev <= 1) {
+              clearInterval(interval);
+              setIsLocked(false);
+              setRemainingAttempts(5);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      } else {
+        setOtpError(`Invalid OTP. ${newAttempts} attempts remaining.`);
+      }
     }
     
     setIsVerifyingOtp(false);
   };
+
+  const handleResumeSubmit = async () => {
+    if (resumeMobile.length === 11 && onResumeApplication) {
+      onResumeApplication(resumeMobile);
+    }
+  };
+
+  // Application type selection for Self mode
+  if (mode === 'SELF' && applicationType === null) {
+    return (
+      <Card className="max-w-md mx-auto">
+        <CardHeader className="text-center">
+          <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+            <CreditCard className="h-6 w-6 text-primary" />
+          </div>
+          <CardTitle className="text-2xl">Credit Card Application</CardTitle>
+          <CardDescription>
+            Start a new application or resume an existing one
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Button
+            onClick={() => setApplicationType('new')}
+            className="w-full h-auto py-4 flex flex-col items-center gap-2 bg-primary hover:bg-primary/90"
+            size="lg"
+          >
+            <CreditCard className="h-6 w-6" />
+            <span className="font-semibold">New Application</span>
+            <span className="text-xs opacity-90">Start a fresh credit card application</span>
+          </Button>
+          
+          <Button
+            onClick={() => setApplicationType('resume')}
+            variant="outline"
+            className="w-full h-auto py-4 flex flex-col items-center gap-2 border-primary text-primary hover:bg-primary/5"
+            size="lg"
+          >
+            <RefreshCw className="h-6 w-6" />
+            <span className="font-semibold">Resume Application</span>
+            <span className="text-xs text-muted-foreground">Continue your saved application</span>
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Resume application form
+  if (applicationType === 'resume') {
+    return (
+      <Card className="max-w-md mx-auto">
+        <CardHeader className="text-center">
+          <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+            <FileText className="h-6 w-6 text-primary" />
+          </div>
+          <CardTitle>Resume Application</CardTitle>
+          <CardDescription>
+            Enter your registered mobile number to continue
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Mobile Number</label>
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="01XXXXXXXXX"
+                className="pl-10"
+                maxLength={11}
+                value={resumeMobile}
+                onChange={(e) => setResumeMobile(e.target.value.replace(/\D/g, ''))}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Enter the mobile number you used to start your application
+            </p>
+          </div>
+          
+          <Button
+            onClick={handleResumeSubmit}
+            disabled={resumeMobile.length !== 11}
+            className="w-full bg-primary hover:bg-primary/90"
+          >
+            Continue Application
+          </Button>
+          
+          <Button
+            variant="ghost"
+            onClick={() => setApplicationType(null)}
+            className="w-full"
+          >
+            ← Back
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (showOtp) {
     return (
@@ -121,58 +250,83 @@ export function PreApplicationForm({
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="flex justify-center">
-            <InputOTP
-              maxLength={6}
-              value={otpValue}
-              onChange={(value) => {
-                setOtpValue(value);
-                setOtpError(null);
-              }}
-            >
-              <InputOTPGroup>
-                <InputOTPSlot index={0} />
-                <InputOTPSlot index={1} />
-                <InputOTPSlot index={2} />
-                <InputOTPSlot index={3} />
-                <InputOTPSlot index={4} />
-                <InputOTPSlot index={5} />
-              </InputOTPGroup>
-            </InputOTP>
-          </div>
-          
-          {otpError && (
-            <p className="text-sm text-destructive text-center">{otpError}</p>
+          {/* Attempt Indicator */}
+          {remainingAttempts < 5 && !isLocked && (
+            <div className={cn(
+              "flex items-center gap-2 text-sm",
+              remainingAttempts <= 2 ? "text-destructive" : "text-warning"
+            )}>
+              <Shield className="h-4 w-4" />
+              <span>{remainingAttempts} attempts remaining</span>
+            </div>
           )}
-          
-          <p className="text-xs text-muted-foreground text-center">
-            For demo: use OTP <span className="font-mono font-bold">123456</span>
-          </p>
-          
-          <Button
-            onClick={handleVerifyOtp}
-            disabled={otpValue.length !== 6 || isVerifyingOtp}
-            className="w-full"
-          >
-            {isVerifyingOtp ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Verifying...
-              </>
-            ) : (
-              'Verify & Continue'
-            )}
-          </Button>
-          
-          <div className="text-center">
-            <button
-              type="button"
-              onClick={handleResendOtp}
-              className="text-sm text-primary hover:underline"
-            >
-              Didn't receive OTP? Resend
-            </button>
-          </div>
+
+          {isLocked ? (
+            <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/5 p-3">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-destructive">Too many attempts</p>
+                <p className="text-xs text-muted-foreground">
+                  Please wait <span className="font-mono font-semibold">{cooldownSeconds}s</span> before trying again
+                </p>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="flex justify-center">
+                <InputOTP
+                  maxLength={6}
+                  value={otpValue}
+                  onChange={(value) => {
+                    setOtpValue(value);
+                    setOtpError(null);
+                  }}
+                >
+                  <InputOTPGroup>
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                    <InputOTPSlot index={2} />
+                    <InputOTPSlot index={3} />
+                    <InputOTPSlot index={4} />
+                    <InputOTPSlot index={5} />
+                  </InputOTPGroup>
+                </InputOTP>
+              </div>
+              
+              {otpError && (
+                <p className="text-sm text-destructive text-center">{otpError}</p>
+              )}
+              
+              <p className="text-xs text-muted-foreground text-center">
+                For demo: use OTP <span className="font-mono font-bold">123456</span>
+              </p>
+              
+              <Button
+                onClick={handleVerifyOtp}
+                disabled={otpValue.length !== 6 || isVerifyingOtp}
+                className="w-full bg-primary hover:bg-primary/90"
+              >
+                {isVerifyingOtp ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Verifying...
+                  </>
+                ) : (
+                  'Verify & Continue'
+                )}
+              </Button>
+              
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={handleResendOtp}
+                  disabled={isSendingOtp}
+                  className="text-sm text-primary hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSendingOtp ? 'Sending...' : "Didn't receive OTP? Resend"}
+                </button>
+              </div>
+            </>
+          )}
           
           <Button
             variant="ghost"
@@ -192,7 +346,9 @@ export function PreApplicationForm({
         <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
           <CreditCard className="h-6 w-6 text-primary" />
         </div>
-        <CardTitle className="text-2xl">Start Your Application</CardTitle>
+        <CardTitle className="text-2xl">
+          {applicationType === 'new' ? 'New Application' : 'Start Your Application'}
+        </CardTitle>
         <CardDescription>
           {mode === 'SELF' 
             ? 'Please provide your basic information to begin. OTP verification required.'
@@ -355,38 +511,13 @@ export function PreApplicationForm({
               )}
             />
 
-            {/* Mode Indicator */}
-            <div className="p-4 rounded-lg bg-muted/50 border border-border">
-              <div className="flex items-center gap-3">
-                <div className={cn(
-                  'w-8 h-8 rounded-full flex items-center justify-center',
-                  mode === 'SELF' ? 'bg-primary/10' : 'bg-success/10'
-                )}>
-                  <Shield className={cn(
-                    'h-4 w-4',
-                    mode === 'SELF' ? 'text-primary' : 'text-success'
-                  )} />
-                </div>
-                <div>
-                  <p className="text-sm font-medium">
-                    {mode === 'SELF' ? 'Self Application Mode' : 'Assisted Mode'}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {mode === 'SELF'
-                      ? 'OTP verification will be required'
-                      : 'Banker-assisted, no OTP required'}
-                  </p>
-                </div>
-              </div>
-            </div>
-
             <Button
               type="submit"
-              className="w-full"
+              className="w-full bg-primary hover:bg-primary/90"
               size="lg"
-              disabled={!isFormValid || isLoading}
+              disabled={!isFormValid || isLoading || isSendingOtp}
             >
-              {isLoading ? (
+              {isLoading || isSendingOtp ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Processing...
@@ -397,6 +528,17 @@ export function PreApplicationForm({
                 'Start Application'
               )}
             </Button>
+
+            {mode === 'SELF' && applicationType === 'new' && (
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full"
+                onClick={() => setApplicationType(null)}
+              >
+                ← Back
+              </Button>
+            )}
           </form>
         </Form>
       </CardContent>

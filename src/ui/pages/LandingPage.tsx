@@ -123,7 +123,7 @@ export function LandingPage() {
                     Track status online
                   </li>
                 </ul>
-                <Button className="w-full mt-6" variant="default">
+                <Button className="w-full mt-6 bg-primary hover:bg-primary/90 text-primary-foreground">
                   Start Self Application
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -159,7 +159,7 @@ export function LandingPage() {
                     No OTP required for customer
                   </li>
                 </ul>
-                <Button className="w-full mt-6" variant="outline">
+                <Button className="w-full mt-6 border-accent text-accent hover:bg-accent/10" variant="outline">
                   RM Portal Login
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -190,7 +190,7 @@ export function LandingPage() {
                   />
                 </div>
                 <Button 
-                  className="w-full" 
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" 
                   onClick={handleEligibilityCheck}
                   disabled={checkingEligibility || !monthlyIncome}
                 >
