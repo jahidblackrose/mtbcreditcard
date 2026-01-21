@@ -17,6 +17,10 @@ const statusConfig: Record<ApplicationStatus, { label: string; className: string
     label: 'Draft',
     className: 'bg-muted text-muted-foreground',
   },
+  PENDING_OTP: {
+    label: 'Pending OTP',
+    className: 'bg-warning/10 text-warning',
+  },
   SUBMITTED: {
     label: 'Submitted',
     className: 'bg-info/10 text-info',
