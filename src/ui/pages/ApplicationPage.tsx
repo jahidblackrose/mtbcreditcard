@@ -8,7 +8,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { MainLayout } from '../layouts';
-import { ErrorMessage, SaveStatusIndicator, SessionExpiryWarning } from '../components';
+import { ErrorMessage, SessionExpiryWarning } from '../components';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, ArrowRight, Save, Loader2, Send } from 'lucide-react';
@@ -281,10 +281,26 @@ export function ApplicationPage() {
     ? APPLICATION_STEPS[applicationData.currentStep - 1]
     : { title: 'Final Review & Submit', description: 'Review and submit your application', isOptional: false };
 
+  // Handle supplementary card only flow
+  const handleSupplementaryOnly = () => {
+    // Skip to supplementary card step directly
+    toast.info('Supplementary Card Application', {
+      description: 'Please enter your existing card details first.',
+    });
+    // For demo, proceed to onboarding then jump to supplementary step
+  };
+
+  // Handle check status
+  const handleCheckStatus = (referenceNumber: string) => {
+    toast.info('Status Check', {
+      description: `Checking status for ${referenceNumber}...`,
+    });
+  };
+
   // Show success screen after submission
   if (isSubmitted) {
     return (
-      <MainLayout>
+      <MainLayout saveStatus={saveStatus}>
         <div className="container mx-auto px-4 py-8">
           <SubmissionSuccess
             applicationId={submittedApplicationId}
@@ -302,7 +318,7 @@ export function ApplicationPage() {
   // Show onboarding/pre-application form first
   if (showOnboarding || !applicationData.otpVerified) {
     return (
-      <MainLayout>
+      <MainLayout saveStatus={saveStatus}>
         <div className="container mx-auto px-4 py-8">
           <PreApplicationForm
             mode={mode}
@@ -310,6 +326,8 @@ export function ApplicationPage() {
             onSubmit={handleOnboardingSubmit}
             onOtpVerified={handleOtpVerified}
             onResumeApplication={handleResumeApplication}
+            onSupplementaryOnly={handleSupplementaryOnly}
+            onCheckStatus={handleCheckStatus}
           />
 
           <div className="text-center mt-6">
@@ -444,7 +462,7 @@ export function ApplicationPage() {
   const isFinalSubmitStep = isLastStep;
 
   return (
-    <MainLayout>
+    <MainLayout saveStatus={saveStatus}>
       {/* Session Expiry Warning */}
       {isSessionWarning && (
         <SessionExpiryWarning
@@ -456,11 +474,6 @@ export function ApplicationPage() {
       )}
 
       <div className="container mx-auto px-4 py-8">
-        {/* Save Status Indicator */}
-        <div className="fixed top-20 right-4 z-40">
-          <SaveStatusIndicator status={saveStatus} />
-        </div>
-
         {/* Progress Steps */}
         <div className="max-w-5xl mx-auto mb-8">
           <FormStepIndicator

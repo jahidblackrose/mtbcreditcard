@@ -2,14 +2,14 @@
  * MTB Credit Card Application - Pre-Application / Onboarding Form
  * 
  * Collects initial information and handles OTP verification for Self mode.
- * Supports new applicant and resume existing application flows.
+ * Supports new applicant and resume existing application flows via dashboard.
  */
 
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, subYears } from 'date-fns';
-import { CalendarIcon, Loader2, Mail, Phone, User, CreditCard, Shield, FileText, RefreshCw } from 'lucide-react';
+import { CalendarIcon, Loader2, Mail, Phone, User, CreditCard, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { preApplicationSchema, type PreApplicationFormData } from '@/lib/validation-schemas';
 import type { ApplicationMode } from '@/types/application-form.types';
@@ -33,6 +33,7 @@ import {
   InputOTPSlot,
 } from '@/components/ui/input-otp';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ResumeDashboard } from './ResumeDashboard';
 
 interface PreApplicationFormProps {
   mode: ApplicationMode;
@@ -40,6 +41,8 @@ interface PreApplicationFormProps {
   onSubmit: (data: PreApplicationFormData) => void;
   onOtpVerified: () => void;
   onResumeApplication?: (mobileNumber: string) => void;
+  onSupplementaryOnly?: () => void;
+  onCheckStatus?: (referenceNumber: string) => void;
   isLoading?: boolean;
 }
 
@@ -49,6 +52,8 @@ export function PreApplicationForm({
   onSubmit,
   onOtpVerified,
   onResumeApplication,
+  onSupplementaryOnly,
+  onCheckStatus,
   isLoading = false,
 }: PreApplicationFormProps) {
   const [applicationType, setApplicationType] = useState<'new' | 'resume' | null>(mode === 'ASSISTED' ? 'new' : null);
@@ -58,7 +63,6 @@ export function PreApplicationForm({
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [otpError, setOtpError] = useState<string | null>(null);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
-  const [resumeMobile, setResumeMobile] = useState('');
   const [remainingAttempts, setRemainingAttempts] = useState(5);
   const [isLocked, setIsLocked] = useState(false);
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
@@ -141,10 +145,16 @@ export function PreApplicationForm({
     setIsVerifyingOtp(false);
   };
 
-  const handleResumeSubmit = async () => {
-    if (resumeMobile.length === 11 && onResumeApplication) {
-      onResumeApplication(resumeMobile);
-    }
+  const handleResumeFromDashboard = (mobileNumber: string) => {
+    onResumeApplication?.(mobileNumber);
+  };
+
+  const handleSupplementaryOnly = () => {
+    onSupplementaryOnly?.();
+  };
+
+  const handleCheckStatus = (referenceNumber: string) => {
+    onCheckStatus?.(referenceNumber);
   };
 
   // Application type selection for Self mode
@@ -157,7 +167,7 @@ export function PreApplicationForm({
           </div>
           <CardTitle className="text-2xl">Credit Card Application</CardTitle>
           <CardDescription>
-            Start a new application or resume an existing one
+            Start a new application or manage existing ones
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -177,63 +187,25 @@ export function PreApplicationForm({
             className="w-full h-auto py-4 flex flex-col items-center gap-2 border-primary text-primary hover:bg-primary/5"
             size="lg"
           >
-            <RefreshCw className="h-6 w-6" />
-            <span className="font-semibold">Resume Application</span>
-            <span className="text-xs text-muted-foreground">Continue your saved application</span>
+            <User className="h-6 w-6" />
+            <span className="font-semibold">Existing Applicant</span>
+            <span className="text-xs text-muted-foreground">Resume, add supplementary, or check status</span>
           </Button>
         </CardContent>
       </Card>
     );
   }
 
-  // Resume application form
+  // Resume Dashboard for existing applicants
   if (applicationType === 'resume') {
     return (
-      <Card className="max-w-md mx-auto">
-        <CardHeader className="text-center">
-          <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-            <FileText className="h-6 w-6 text-primary" />
-          </div>
-          <CardTitle>Resume Application</CardTitle>
-          <CardDescription>
-            Enter your registered mobile number to continue
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Mobile Number</label>
-            <div className="relative">
-              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="01XXXXXXXXX"
-                className="pl-10"
-                maxLength={11}
-                value={resumeMobile}
-                onChange={(e) => setResumeMobile(e.target.value.replace(/\D/g, ''))}
-              />
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Enter the mobile number you used to start your application
-            </p>
-          </div>
-          
-          <Button
-            onClick={handleResumeSubmit}
-            disabled={resumeMobile.length !== 11}
-            className="w-full bg-primary hover:bg-primary/90"
-          >
-            Continue Application
-          </Button>
-          
-          <Button
-            variant="ghost"
-            onClick={() => setApplicationType(null)}
-            className="w-full"
-          >
-            ← Back
-          </Button>
-        </CardContent>
-      </Card>
+      <ResumeDashboard
+        onResumeApplication={handleResumeFromDashboard}
+        onSupplementaryOnly={handleSupplementaryOnly}
+        onCheckStatus={handleCheckStatus}
+        onBack={() => setApplicationType(null)}
+        isLoading={isLoading}
+      />
     );
   }
 
