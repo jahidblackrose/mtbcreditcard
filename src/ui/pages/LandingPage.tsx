@@ -133,7 +133,7 @@ export function LandingPage() {
             {/* Assisted Mode */}
             <Card 
               className="cursor-pointer hover:border-accent transition-colors"
-              onClick={() => handleModeSelect('ASSISTED')}
+              onClick={() => navigate('/rm/login')}
             >
               <CardHeader className="text-center">
                 <div className="mx-auto bg-accent/10 w-14 h-14 rounded-full flex items-center justify-center mb-4">
@@ -141,7 +141,7 @@ export function LandingPage() {
                 </div>
                 <CardTitle>Assisted Application</CardTitle>
                 <CardDescription>
-                  Get help from our bank staff
+                  For Bank Staff (RM Login Required)
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -156,11 +156,11 @@ export function LandingPage() {
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-success" />
-                    Instant eligibility check
+                    No OTP required for customer
                   </li>
                 </ul>
                 <Button className="w-full mt-6" variant="outline">
-                  Start Assisted Application
+                  RM Portal Login
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </CardContent>

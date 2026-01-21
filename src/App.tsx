@@ -9,7 +9,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { LandingPage, ApplicationPage, DashboardPage } from "@/ui/pages";
+import { LandingPage, ApplicationPage, DashboardPage, RMLoginPage, RMDashboardPage } from "@/ui/pages";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +25,10 @@ const App = () => (
           <Route path="/" element={<LandingPage />} />
           <Route path="/apply" element={<ApplicationPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          
+          {/* RM (Assisted Mode) Routes */}
+          <Route path="/rm/login" element={<RMLoginPage />} />
+          <Route path="/rm/dashboard" element={<RMDashboardPage />} />
           
           {/* Catch-all 404 */}
           <Route path="*" element={<NotFound />} />
