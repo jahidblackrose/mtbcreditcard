@@ -2,6 +2,7 @@
  * Step 8: Supplementary Card Information (Optional)
  */
 
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { supplementaryCardSchema, type SupplementaryCardFormData } from '@/lib/validation-schemas';
@@ -56,6 +57,10 @@ export function SupplementaryCardStep({
   onToggle, 
   onSave 
 }: SupplementaryCardStepProps) {
+  // Date picker states
+  const [dobOpen, setDobOpen] = useState(false);
+  const [passportExpiryOpen, setPassportExpiryOpen] = useState(false);
+
   const form = useForm<SupplementaryCardFormData>({
     resolver: zodResolver(supplementaryCardSchema),
     defaultValues: {
@@ -220,7 +225,7 @@ export function SupplementaryCardStep({
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Date of Birth</FormLabel>
-                  <Popover>
+                  <Popover open={dobOpen} onOpenChange={setDobOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
@@ -235,14 +240,17 @@ export function SupplementaryCardStep({
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverContent className="w-auto p-0" align="start" sideOffset={4}>
                       <Calendar
                         mode="single"
                         selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => field.onChange(date?.toISOString() || '')}
+                        onSelect={(date) => {
+                          field.onChange(date?.toISOString() || '');
+                          setDobOpen(false);
+                        }}
                         disabled={(date) => date > new Date()}
+                        defaultMonth={field.value ? new Date(field.value) : new Date()}
                         initialFocus
-                        className="p-3 pointer-events-auto"
                       />
                     </PopoverContent>
                   </Popover>
@@ -364,7 +372,7 @@ export function SupplementaryCardStep({
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Passport Expiry</FormLabel>
-                  <Popover>
+                  <Popover open={passportExpiryOpen} onOpenChange={setPassportExpiryOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
@@ -379,14 +387,17 @@ export function SupplementaryCardStep({
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverContent className="w-auto p-0" align="start" sideOffset={4}>
                       <Calendar
                         mode="single"
                         selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => field.onChange(date?.toISOString() || '')}
+                        onSelect={(date) => {
+                          field.onChange(date?.toISOString() || '');
+                          setPassportExpiryOpen(false);
+                        }}
                         disabled={(date) => date < new Date()}
+                        defaultMonth={field.value ? new Date(field.value) : new Date()}
                         initialFocus
-                        className="p-3 pointer-events-auto"
                       />
                     </PopoverContent>
                   </Popover>
