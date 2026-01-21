@@ -11,3 +11,4 @@ export { SessionExpiryWarning } from './SessionExpiryWarning';
 export { OtpAttemptIndicator } from './OtpAttemptIndicator';
 export { RateLimitMessage } from './RateLimitMessage';
 export { StepProgressTracker } from './StepProgressTracker';
+export { PageLoadIndicator } from './PageLoadIndicator';
