@@ -79,3 +79,16 @@ export type {
   UserSession,
   FullUserSession,
 } from './user.types';
+
+// Session & Draft Types (Redis-backed)
+export type {
+  SessionState,
+  DraftState,
+  DraftVersion,
+  DraftSaveRequest,
+  DraftSaveResponse,
+  OtpAttemptState,
+  RateLimitInfo,
+  SubmissionResponse,
+  SessionExtendResponse,
+} from './session.types';

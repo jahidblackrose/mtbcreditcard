@@ -10,3 +10,8 @@ export * from './landing.api';
 export * from './application.api';
 export * from './dashboard.api';
 export * from './auth.api';
+export * from './session.api';
+export * from './draft.api';
+// OTP and submission APIs have name conflicts - import directly from their files
+export { requestOtp as requestOtpTracked, verifyOtp as verifyOtpTracked, getOtpStatus } from './otp.api';
+export { submitApplication as submitApplicationFinal, getSubmissionStatus } from './submission.api';
