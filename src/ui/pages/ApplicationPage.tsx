@@ -154,19 +154,9 @@ export function ApplicationPage() {
           </CardContent>
         </Card>
 
-        {/* Navigation */}
-        <div className="max-w-3xl mx-auto mt-6 flex justify-between items-center">
-          <Button variant="outline" onClick={handleBack}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            {applicationData.currentStep === 1 ? 'Back to Start' : 'Previous'}
-          </Button>
-          
-          <Button variant="ghost" size="sm" className="gap-2">
-            <Save className="h-4 w-4" />
-            Save Draft
-          </Button>
-          
-          <Button onClick={handleNext}>
+        {/* Navigation - Vertical Stack */}
+        <div className="max-w-3xl mx-auto mt-6 flex flex-col gap-3">
+          <Button onClick={handleNext} size="lg" className="w-full">
             {applicationData.currentStep === APPLICATION_STEPS.length ? (
               <>
                 Submit Application
@@ -178,6 +168,16 @@ export function ApplicationPage() {
                 <ArrowRight className="ml-2 h-4 w-4" />
               </>
             )}
+          </Button>
+          
+          <Button variant="outline" size="lg" className="w-full gap-2">
+            <Save className="h-4 w-4" />
+            Save Draft
+          </Button>
+          
+          <Button variant="ghost" size="lg" onClick={handleBack} className="w-full">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            {applicationData.currentStep === 1 ? 'Back to Start' : 'Previous'}
           </Button>
         </div>
       </div>
