@@ -2,6 +2,7 @@
  * Step 2: Personal Information
  */
 
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { personalInfoSchema, type PersonalInfoFormData } from '@/lib/validation-schemas';
@@ -14,7 +15,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, subYears } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { PersonalInfoData } from '@/types/application-form.types';
 
@@ -22,6 +23,7 @@ interface PersonalInfoStepProps {
   initialData?: Partial<PersonalInfoData>;
   onSave: (data: PersonalInfoData) => void;
 }
+
 
 const GENDERS = [
   { value: 'MALE', label: 'Male' },
@@ -67,6 +69,15 @@ const emptyAddress = {
 };
 
 export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps) {
+  // Date picker open states
+  const [dobOpen, setDobOpen] = useState(false);
+  const [passportIssueDateOpen, setPassportIssueDateOpen] = useState(false);
+  const [passportExpiryDateOpen, setPassportExpiryDateOpen] = useState(false);
+
+  // Date constraints
+  const maxDateOfBirth = subYears(new Date(), 18);
+  const minDateOfBirth = new Date('1900-01-01');
+
   const form = useForm<PersonalInfoFormData>({
     resolver: zodResolver(personalInfoSchema),
     defaultValues: {
@@ -189,7 +200,7 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Date of Birth</FormLabel>
-                  <Popover>
+                  <Popover open={dobOpen} onOpenChange={setDobOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
@@ -204,17 +215,25 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverContent className="w-auto p-0" align="start" sideOffset={4}>
                       <Calendar
                         mode="single"
                         selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => field.onChange(date?.toISOString() || '')}
-                        disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                        onSelect={(date) => {
+                          field.onChange(date?.toISOString() || '');
+                          setDobOpen(false);
+                        }}
+                        disabled={(date) => date > maxDateOfBirth || date < minDateOfBirth}
+                        defaultMonth={field.value ? new Date(field.value) : maxDateOfBirth}
+                        fromYear={1900}
+                        toYear={maxDateOfBirth.getFullYear()}
                         initialFocus
-                        className="p-3 pointer-events-auto"
                       />
                     </PopoverContent>
                   </Popover>
+                  <FormDescription>
+                    You must be at least 18 years old
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -408,7 +427,7 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Passport Issue Date</FormLabel>
-                  <Popover>
+                  <Popover open={passportIssueDateOpen} onOpenChange={setPassportIssueDateOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
@@ -423,14 +442,17 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverContent className="w-auto p-0" align="start" sideOffset={4}>
                       <Calendar
                         mode="single"
                         selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => field.onChange(date?.toISOString() || '')}
+                        onSelect={(date) => {
+                          field.onChange(date?.toISOString() || '');
+                          setPassportIssueDateOpen(false);
+                        }}
                         disabled={(date) => date > new Date()}
+                        defaultMonth={field.value ? new Date(field.value) : new Date()}
                         initialFocus
-                        className="p-3 pointer-events-auto"
                       />
                     </PopoverContent>
                   </Popover>
@@ -445,7 +467,7 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Passport Expiry Date</FormLabel>
-                  <Popover>
+                  <Popover open={passportExpiryDateOpen} onOpenChange={setPassportExpiryDateOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
@@ -460,14 +482,17 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverContent className="w-auto p-0" align="start" sideOffset={4}>
                       <Calendar
                         mode="single"
                         selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => field.onChange(date?.toISOString() || '')}
+                        onSelect={(date) => {
+                          field.onChange(date?.toISOString() || '');
+                          setPassportExpiryDateOpen(false);
+                        }}
                         disabled={(date) => date < new Date()}
+                        defaultMonth={field.value ? new Date(field.value) : new Date()}
                         initialFocus
-                        className="p-3 pointer-events-auto"
                       />
                     </PopoverContent>
                   </Popover>

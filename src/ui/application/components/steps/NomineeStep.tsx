@@ -2,6 +2,7 @@
  * Step 7: MTB Protection Plan (MPP) - Nominee
  */
 
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { nomineeSchema, type NomineeFormData } from '@/lib/validation-schemas';
@@ -36,6 +37,8 @@ const RELATIONSHIPS = [
 const MPP_DECLARATION = `I hereby apply for MTB Protection Plan (MPP) and agree to the terms and conditions. I understand that in case of my demise, the outstanding dues on my credit card will be settled by the insurance company as per the MPP policy terms. I authorize MTB to share my personal information with the insurance partner for processing this protection plan.`;
 
 export function NomineeStep({ initialData, onSave }: NomineeStepProps) {
+  const [dobOpen, setDobOpen] = useState(false);
+
   const form = useForm<NomineeFormData>({
     resolver: zodResolver(nomineeSchema),
     defaultValues: {
@@ -114,7 +117,7 @@ export function NomineeStep({ initialData, onSave }: NomineeStepProps) {
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Date of Birth</FormLabel>
-                  <Popover>
+                  <Popover open={dobOpen} onOpenChange={setDobOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
@@ -129,14 +132,17 @@ export function NomineeStep({ initialData, onSave }: NomineeStepProps) {
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverContent className="w-auto p-0" align="start" sideOffset={4}>
                       <Calendar
                         mode="single"
                         selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => field.onChange(date?.toISOString() || '')}
+                        onSelect={(date) => {
+                          field.onChange(date?.toISOString() || '');
+                          setDobOpen(false);
+                        }}
                         disabled={(date) => date > new Date()}
+                        defaultMonth={field.value ? new Date(field.value) : new Date()}
                         initialFocus
-                        className="p-3 pointer-events-auto"
                       />
                     </PopoverContent>
                   </Popover>

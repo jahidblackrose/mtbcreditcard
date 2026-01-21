@@ -7,7 +7,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { format } from 'date-fns';
+import { format, subYears } from 'date-fns';
 import { CalendarIcon, Loader2, Mail, Phone, User, CreditCard, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { preApplicationSchema, type PreApplicationFormData } from '@/lib/validation-schemas';
@@ -53,6 +53,11 @@ export function PreApplicationForm({
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const [otpError, setOtpError] = useState<string | null>(null);
   const [otpSent, setOtpSent] = useState(false);
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
+
+  // Calculate the maximum allowed date (18 years ago from today)
+  const maxDateOfBirth = subYears(new Date(), 18);
+  const minDateOfBirth = new Date('1940-01-01');
 
   const form = useForm<PreApplicationFormData>({
     resolver: zodResolver(preApplicationSchema),
@@ -252,7 +257,7 @@ export function PreApplicationForm({
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Date of Birth</FormLabel>
-                  <Popover>
+                  <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
@@ -271,19 +276,21 @@ export function PreApplicationForm({
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverContent className="w-auto p-0" align="start" sideOffset={4}>
                       <Calendar
                         mode="single"
                         selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => field.onChange(date?.toISOString() || '')}
+                        onSelect={(date) => {
+                          field.onChange(date?.toISOString() || '');
+                          setDatePickerOpen(false);
+                        }}
                         disabled={(date) =>
-                          date > new Date() || date < new Date('1940-01-01')
+                          date > maxDateOfBirth || date < minDateOfBirth
                         }
-                        initialFocus
-                        className={cn('p-3 pointer-events-auto')}
-                        captionLayout="dropdown-buttons"
+                        defaultMonth={field.value ? new Date(field.value) : maxDateOfBirth}
                         fromYear={1940}
-                        toYear={new Date().getFullYear() - 18}
+                        toYear={maxDateOfBirth.getFullYear()}
+                        initialFocus
                       />
                     </PopoverContent>
                   </Popover>
