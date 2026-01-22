@@ -12,6 +12,3 @@ export { OtpAttemptIndicator } from './OtpAttemptIndicator';
 export { RateLimitMessage } from './RateLimitMessage';
 export { StepProgressTracker } from './StepProgressTracker';
 export { PageLoadIndicator } from './PageLoadIndicator';
-export { StepSidebar } from './StepSidebar';
-export { MobileStepHeader } from './MobileStepHeader';
-export { OtpVerification } from './OtpVerification';

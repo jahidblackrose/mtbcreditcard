@@ -238,10 +238,11 @@ export const nomineeSchema = z.object({
 
 export const supplementaryCardSchema = z.object({
   fullName: nameSchema,
-  nameOnCard: z.string().min(2).max(22, 'Name on card must be max 22 characters').regex(/^[A-Z\s.]+$/, 'Must be in BLOCK LETTERS'),
-  relationship: z.enum(['FATHER', 'MOTHER', 'SON', 'DAUGHTER', 'SPOUSE', 'BROTHER', 'SISTER', 'OTHER']),
-  relationshipOther: z.string().max(50).optional(),
-  dateOfBirth: dateStringSchema,
+  nameOnCard: blockLettersNameSchema,
+  relationship: z.enum(['FATHER', 'MOTHER', 'SON', 'DAUGHTER', 'SPOUSE', 'OTHER']),
+  dateOfBirth: dateStringSchema.refine(ageValidator, {
+    message: 'Supplementary card holder must be at least 18 years old',
+  }),
   gender: z.enum(['MALE', 'FEMALE', 'OTHER']),
   fatherName: nameSchema,
   motherName: nameSchema,
@@ -251,8 +252,6 @@ export const supplementaryCardSchema = z.object({
   sameAsPermanent: z.boolean(),
   nidOrBirthCertNo: z.string().min(10).max(20),
   tin: z.string().regex(/^\d{12}$/, 'TIN must be 12 digits').optional().or(z.literal('')),
-  contactNumber: bdMobileSchema,
-  email: emailSchema.optional().or(z.literal('')),
   passportNumber: z.string().max(20).optional().or(z.literal('')),
   passportIssueDate: dateStringSchema.optional().or(z.literal('')),
   passportExpiryDate: dateStringSchema.optional().or(z.literal('')),
@@ -293,6 +292,7 @@ export const imageSignatureSchema = z.object({
 
 export const autoDebitSchema = z.object({
   autoDebitPreference: z.enum(['MINIMUM_AMOUNT_DUE', 'TOTAL_OUTSTANDING']),
+  accountName: z.string().min(2).max(100),
   mtbAccountNumber: z.string().min(10).max(20),
 });
 

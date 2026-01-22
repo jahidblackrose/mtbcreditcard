@@ -22,6 +22,7 @@ export function AutoDebitStep({ initialData, onSave }: AutoDebitStepProps) {
     resolver: zodResolver(autoDebitSchema),
     defaultValues: {
       autoDebitPreference: initialData?.autoDebitPreference || 'MINIMUM_AMOUNT_DUE',
+      accountName: initialData?.accountName || '',
       mtbAccountNumber: initialData?.mtbAccountNumber || '',
     },
     mode: 'onChange',
@@ -123,6 +124,23 @@ export function AutoDebitStep({ initialData, onSave }: AutoDebitStepProps) {
         {/* Account Details */}
         <div className="space-y-4 pt-4">
           <h4 className="font-medium">MTB Account Details</h4>
+          
+          <FormField
+            control={form.control}
+            name="accountName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Account Name</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Name as per bank account" />
+                </FormControl>
+                <FormDescription>
+                  Name of the account holder
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <FormField
             control={form.control}

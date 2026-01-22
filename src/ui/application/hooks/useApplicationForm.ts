@@ -137,6 +137,7 @@ const getInitialApplicationData = (mode: ApplicationMode): FullApplicationData =
   },
   autoDebit: {
     autoDebitPreference: 'MINIMUM_AMOUNT_DUE',
+    accountName: '',
     mtbAccountNumber: '',
   },
   mid: {
@@ -154,13 +155,6 @@ const getInitialApplicationData = (mode: ApplicationMode): FullApplicationData =
       { id: 'tin', documentType: 'TIN_CERTIFICATE', label: 'TIN Certificate (if available)', required: false, uploaded: false },
     ],
   },
-  documentChecklist: [
-    { id: 'nid', documentType: 'NID', label: 'National ID Card (Both Sides)', required: true, uploaded: false },
-    { id: 'photo', documentType: 'PHOTOGRAPH', label: 'Passport Size Photograph', required: true, uploaded: false },
-    { id: 'salary', documentType: 'SALARY_SLIP', label: 'Last 3 Months Salary Slip', required: false, uploaded: false },
-    { id: 'bank_statement', documentType: 'BANK_STATEMENT', label: 'Last 6 Months Bank Statement', required: true, uploaded: false },
-    { id: 'tin', documentType: 'TIN_CERTIFICATE', label: 'TIN Certificate (if available)', required: false, uploaded: false },
-  ],
   termsAccepted: false,
   declarationAccepted: false,
   createdAt: new Date().toISOString(),

@@ -60,7 +60,7 @@ export type DocumentType =
 
 // Relationship Types
 export type NomineeRelationship = 'SPOUSE' | 'PARENT' | 'SON' | 'DAUGHTER' | 'OTHER';
-export type SupplementaryRelationship = 'FATHER' | 'MOTHER' | 'SON' | 'DAUGHTER' | 'SPOUSE' | 'BROTHER' | 'SISTER' | 'OTHER';
+export type SupplementaryRelationship = 'FATHER' | 'MOTHER' | 'SON' | 'DAUGHTER' | 'SPOUSE' | 'OTHER';
 export type RefereeRelationship = 'COLLEAGUE' | 'FRIEND' | 'RELATIVE' | 'EMPLOYER' | 'OTHER';
 
 // Address Type for mailing preference
@@ -219,9 +219,8 @@ export interface NomineeData {
 
 export interface SupplementaryCardData {
   fullName: string;
-  nameOnCard: string; // Max 22 characters
+  nameOnCard: string;
   relationship: SupplementaryRelationship;
-  relationshipOther?: string; // When relationship is OTHER
   dateOfBirth: string;
   gender: Gender;
   fatherName: string;
@@ -232,8 +231,6 @@ export interface SupplementaryCardData {
   sameAsPermanent: boolean;
   nidOrBirthCertNo: string;
   tin?: string;
-  contactNumber: string;
-  email?: string;
   passportNumber?: string;
   passportIssueDate?: string;
   passportExpiryDate?: string;
@@ -258,7 +255,7 @@ export interface ReferencesData {
 }
 
 // ============================================
-// STEP 10: DOCUMENTS (Image & Signature + Document Checklist)
+// STEP 10: IMAGE & SIGNATURE UPLOAD
 // ============================================
 
 export interface ImageSignatureData {
@@ -266,15 +263,6 @@ export interface ImageSignatureData {
   supplementaryApplicantPhoto?: string;
   primaryApplicantSignature?: string;
   supplementaryApplicantSignature?: string;
-}
-
-export interface DocumentChecklistItem {
-  id: string;
-  documentType: DocumentType;
-  label: string;
-  required: boolean;
-  uploaded: boolean;
-  fileUrl?: string;
 }
 
 // ============================================
@@ -285,17 +273,27 @@ export type AutoDebitPreference = 'MINIMUM_AMOUNT_DUE' | 'TOTAL_OUTSTANDING';
 
 export interface AutoDebitData {
   autoDebitPreference: AutoDebitPreference;
+  accountName: string;
   mtbAccountNumber: string;
 }
 
 // ============================================
-// STEP 12: DECLARATION & SUBMISSION
+// STEP 12: MOST IMPORTANT DOCUMENT (MID)
 // ============================================
 
 export interface DeclarationItem {
   id: string;
   question: string;
   answer: boolean | null;
+}
+
+export interface DocumentChecklistItem {
+  id: string;
+  documentType: DocumentType;
+  label: string;
+  required: boolean;
+  uploaded: boolean;
+  fileUrl?: string;
 }
 
 export interface MIDData {
@@ -331,14 +329,12 @@ export interface FullApplicationData {
   hasSupplementaryCard: boolean;
   references: ReferencesData;
   imageSignature: ImageSignatureData;
-  documentChecklist: DocumentChecklistItem[];
   autoDebit: AutoDebitData;
   mid: MIDData;
   
   // Final
   termsAccepted: boolean;
   declarationAccepted: boolean;
-  livePhoto?: string;
   
   // Timestamps
   createdAt: string;
@@ -359,7 +355,6 @@ export interface FormStep {
   isComplete: boolean;
 }
 
-// Updated step names as per requirements
 export const APPLICATION_STEPS: Omit<FormStep, 'isComplete'>[] = [
   { id: 'card-selection', stepNumber: 1, title: 'Card Selection', description: 'Choose your card type and limit', isOptional: false },
   { id: 'personal-info', stepNumber: 2, title: 'Personal Information', description: 'Your personal details', isOptional: false },
@@ -370,7 +365,7 @@ export const APPLICATION_STEPS: Omit<FormStep, 'isComplete'>[] = [
   { id: 'nominee', stepNumber: 7, title: 'MTB Protection Plan', description: 'Nominee details for MPP', isOptional: false },
   { id: 'supplementary', stepNumber: 8, title: 'Supplementary Card', description: 'Add-on card holder details', isOptional: true },
   { id: 'references', stepNumber: 9, title: 'References', description: 'Two mandatory references', isOptional: false },
-  { id: 'documents', stepNumber: 10, title: 'Documents', description: 'Upload photos, signatures & documents', isOptional: false },
+  { id: 'documents', stepNumber: 10, title: 'Documents', description: 'Upload photos & signatures', isOptional: false },
   { id: 'auto-debit', stepNumber: 11, title: 'Auto Debit', description: 'Payment instruction', isOptional: false },
-  { id: 'declaration', stepNumber: 12, title: 'Declaration & Submission', description: 'Final declarations and submit', isOptional: false },
+  { id: 'mid', stepNumber: 12, title: 'Declaration & Documents', description: 'MID declarations and checklist', isOptional: false },
 ];
