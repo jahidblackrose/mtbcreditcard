@@ -1,5 +1,6 @@
 /**
  * Application Submission Success Screen
+ * Dark theme styled success message with prominent Application ID
  */
 
 import { CheckCircle2, Mail, MessageSquare, FileText, Home, Copy } from 'lucide-react';
@@ -32,38 +33,51 @@ export function SubmissionSuccess({
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      {/* Success Header */}
-      <div className="text-center space-y-4">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30">
-          <CheckCircle2 className="h-10 w-10 text-green-600 dark:text-green-400" />
+      {/* Dark Theme Success Message Card */}
+      <div 
+        className="rounded-2xl p-8 text-center"
+        style={{ backgroundColor: '#333333' }}
+      >
+        {/* Success Icon */}
+        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-500/20 mb-6">
+          <CheckCircle2 className="h-12 w-12 text-green-400" />
         </div>
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Application Submitted Successfully!</h1>
-          <p className="text-muted-foreground mt-2">
-            Thank you, {applicantName}. Your credit card application has been received.
+        
+        {/* Success Message - Bold White Text */}
+        <h1 
+          className="text-2xl md:text-3xl font-bold mb-4"
+          style={{ color: '#ffffff' }}
+        >
+          Your application has been successfully submitted!
+        </h1>
+        
+        <p className="text-gray-300 mb-6">
+          Thank you, {applicantName}. Your credit card application has been received.
+        </p>
+        
+        {/* Application ID - Prominent Display */}
+        <div className="bg-black/30 rounded-xl p-6 mb-4">
+          <p className="text-sm text-gray-400 mb-2">Application ID</p>
+          <div className="flex items-center justify-center gap-3">
+            <span 
+              className="text-3xl md:text-4xl font-mono font-bold tracking-wider"
+              style={{ color: '#A1ED6F' }}
+            >
+              {applicationId}
+            </span>
+            <button
+              onClick={handleCopyId}
+              className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+              aria-label="Copy Application ID"
+            >
+              <Copy className="h-5 w-5 text-white" />
+            </button>
+          </div>
+          <p className="text-xs text-gray-500 mt-3">
+            Please save this reference number for future correspondence
           </p>
         </div>
       </div>
-
-      {/* Application Reference */}
-      <Card className="border-primary/20 bg-primary/5">
-        <CardContent className="pt-6">
-          <div className="text-center space-y-2">
-            <p className="text-sm text-muted-foreground">Application Reference Number</p>
-            <div className="flex items-center justify-center gap-2">
-              <span className="text-2xl font-mono font-bold tracking-wider text-primary">
-                {applicationId}
-              </span>
-              <Button variant="ghost" size="icon" onClick={handleCopyId} className="h-8 w-8">
-                <Copy className="h-4 w-4" />
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Please save this reference number for future correspondence
-            </p>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Notifications */}
       <Card>

@@ -46,7 +46,9 @@ export const MobileFloatingInput = forwardRef<HTMLInputElement, MobileFloatingIn
               'w-full bg-white rounded-2xl',
               'border border-gray-200',
               // Large padding with space for floating label
-              'px-5 pt-6 pb-3 text-[15px] font-medium text-foreground',
+              'px-5 pt-6 pb-3 text-[15px] font-medium',
+              // Force dark text color for readability in all themes
+              'text-gray-900 dark:text-gray-900',
               'placeholder-transparent',
               // Focus state with MTB green
               'focus:outline-none focus:ring-2 focus:ring-success/20 focus:border-success',
