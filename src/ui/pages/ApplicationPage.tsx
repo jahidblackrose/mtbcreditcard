@@ -1,18 +1,14 @@
 /**
- * MTB Credit Card Application - Application Form Page
+ * MTB Credit Card Application - Mobile Application Page
  * 
- * Multi-step form for credit card application.
- * Supports both SELF and ASSISTED modes with Redis-backed state management.
+ * Mobile-first redesigned application form matching banking app UI.
  */
 
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { MainLayout } from '../layouts';
-import { ErrorMessage, SessionExpiryWarning } from '../components';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, ArrowRight, Save, Loader2, Send } from 'lucide-react';
-import { FormStepIndicator, PreApplicationForm, SubmissionSuccess } from '../application/components';
+import { MobileStepLayout } from '../mobile/components';
+import { SessionExpiryWarning } from '../components';
+import { PreApplicationForm, SubmissionSuccess } from '../application/components';
 import { 
   CardSelectionStep,
   PersonalInfoStep,
@@ -66,7 +62,6 @@ export function ApplicationPage() {
   const {
     saveStatus,
     saveDraftStep,
-    getHighestCompletedStep,
   } = useDraft(session?.sessionId || null);
 
   const {
@@ -110,7 +105,7 @@ export function ApplicationPage() {
     }
   }, [session?.sessionId, applicationData, showOnboarding, saveDraftStep]);
 
-  // Calculate completed steps based on form data validation
+  // Calculate completed steps
   const completedSteps = useMemo(() => {
     const completed: number[] = [];
     
@@ -138,7 +133,6 @@ export function ApplicationPage() {
       completed.push(4);
     }
     
-    // Optional steps are always complete
     completed.push(5, 6);
     
     if (applicationData.nominee.nomineeName && 
@@ -146,7 +140,7 @@ export function ApplicationPage() {
       completed.push(7);
     }
     
-    completed.push(8); // Supplementary is optional
+    completed.push(8);
     
     if (applicationData.references.reference1.refereeName && 
         applicationData.references.reference2.refereeName) {
@@ -158,8 +152,7 @@ export function ApplicationPage() {
       completed.push(10);
     }
     
-    if (applicationData.autoDebit.accountName && 
-        applicationData.autoDebit.mtbAccountNumber) {
+    if (applicationData.autoDebit.mtbAccountNumber) {
       completed.push(11);
     }
     
@@ -187,17 +180,13 @@ export function ApplicationPage() {
     setOtpVerified(true);
     setShowOnboarding(false);
     goToStep(1);
-    
-    // Create session after OTP verification
     await createSession(mode);
   };
 
   const handleResumeApplication = async (mobileNumber: string) => {
-    // In a real implementation, this would fetch the draft from backend
     toast.info('Resume feature will fetch your saved application', {
       description: `Looking up application for ${mobileNumber}...`,
     });
-    // For demo, just proceed to onboarding
   };
 
   const handleNext = () => {
@@ -217,12 +206,6 @@ export function ApplicationPage() {
     } else {
       setShowOnboarding(true);
     }
-  };
-
-  const handleSaveDraft = () => {
-    toast.success('Application saved as draft', {
-      description: 'You can resume your application anytime.',
-    });
   };
 
   const handleSubmit = async () => {
@@ -263,10 +246,6 @@ export function ApplicationPage() {
     navigate('/');
   };
 
-  const handleCancel = () => {
-    navigate('/');
-  };
-
   const handleExtendSession = async (): Promise<boolean> => {
     const success = await extendSession();
     if (success) {
@@ -277,30 +256,27 @@ export function ApplicationPage() {
     return success;
   };
 
-  const currentStepInfo = applicationData.currentStep <= 12 
-    ? APPLICATION_STEPS[applicationData.currentStep - 1]
-    : { title: 'Final Review & Submit', description: 'Review and submit your application', isOptional: false };
-
-  // Handle supplementary card only flow
   const handleSupplementaryOnly = () => {
-    // Skip to supplementary card step directly
     toast.info('Supplementary Card Application', {
       description: 'Please enter your existing card details first.',
     });
-    // For demo, proceed to onboarding then jump to supplementary step
   };
 
-  // Handle check status
   const handleCheckStatus = (referenceNumber: string) => {
     toast.info('Status Check', {
       description: `Checking status for ${referenceNumber}...`,
     });
   };
 
+  // Get current step info
+  const currentStepInfo = applicationData.currentStep <= 12 
+    ? APPLICATION_STEPS[applicationData.currentStep - 1]
+    : { title: 'Final Review', description: 'Review and submit your application', isOptional: false };
+
   // Show success screen after submission
   if (isSubmitted) {
     return (
-      <MainLayout saveStatus={saveStatus}>
+      <div className="min-h-screen bg-mobile-background">
         <div className="container mx-auto px-4 py-8">
           <SubmissionSuccess
             applicationId={submittedApplicationId}
@@ -311,14 +287,14 @@ export function ApplicationPage() {
             onGoHome={handleGoHome}
           />
         </div>
-      </MainLayout>
+      </div>
     );
   }
 
   // Show onboarding/pre-application form first
   if (showOnboarding || !applicationData.otpVerified) {
     return (
-      <MainLayout saveStatus={saveStatus}>
+      <div className="min-h-screen bg-mobile-background">
         <div className="container mx-auto px-4 py-8">
           <PreApplicationForm
             mode={mode}
@@ -329,16 +305,21 @@ export function ApplicationPage() {
             onSupplementaryOnly={handleSupplementaryOnly}
             onCheckStatus={handleCheckStatus}
           />
-
-          <div className="text-center mt-6">
-            <Button variant="ghost" onClick={handleCancel} className="text-muted-foreground hover:text-foreground">
-              Cancel Application
-            </Button>
-          </div>
         </div>
-      </MainLayout>
+      </div>
     );
   }
+
+  // Determine proceed button label
+  const getProceedLabel = () => {
+    if (applicationData.currentStep === 13) {
+      return 'Submit Application';
+    }
+    if (currentStepInfo?.isOptional) {
+      return 'Skip / Continue';
+    }
+    return 'Proceed';
+  };
 
   // Render step content
   const renderStepContent = () => {
@@ -353,7 +334,12 @@ export function ApplicationPage() {
       case 2:
         return (
           <PersonalInfoStep
-            initialData={applicationData.personalInfo}
+            initialData={{
+              ...applicationData.personalInfo,
+              nidNumber: applicationData.personalInfo.nidNumber || applicationData.preApplication.nidNumber,
+              mobileNumber: applicationData.personalInfo.mobileNumber || applicationData.preApplication.mobileNumber,
+              email: applicationData.personalInfo.email || applicationData.preApplication.email,
+            }}
             onSave={updatePersonalInfo}
           />
         );
@@ -458,11 +444,8 @@ export function ApplicationPage() {
     }
   };
 
-  const isLastStep = applicationData.currentStep === 13;
-  const isFinalSubmitStep = isLastStep;
-
   return (
-    <MainLayout saveStatus={saveStatus}>
+    <>
       {/* Session Expiry Warning */}
       {isSessionWarning && (
         <SessionExpiryWarning
@@ -473,92 +456,25 @@ export function ApplicationPage() {
         />
       )}
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Progress Steps */}
-        <div className="max-w-5xl mx-auto mb-8">
-          <FormStepIndicator
-            currentStep={applicationData.currentStep}
-            completedSteps={completedSteps}
-            onStepClick={goToStep}
-          />
-        </div>
-
+      <MobileStepLayout
+        currentStep={applicationData.currentStep}
+        totalSteps={13}
+        title={currentStepInfo?.title || 'Review & Submit'}
+        description={currentStepInfo?.description}
+        onBack={handleBack}
+        onProceed={handleNext}
+        proceedLabel={getProceedLabel()}
+        proceedDisabled={isSubmitting || (applicationData.currentStep === 13 && !canSubmit)}
+        isLoading={isSubmitting}
+      >
         {error && (
-          <ErrorMessage message={error} className="max-w-2xl mx-auto mb-6" />
+          <div className="mb-4 p-4 bg-destructive/10 border border-destructive/20 rounded-xl">
+            <p className="text-sm text-destructive">{error}</p>
+          </div>
         )}
-
-        {/* Step Content */}
-        <Card className="max-w-3xl mx-auto">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>
-                  {applicationData.currentStep <= 12 
-                    ? `Step ${applicationData.currentStep}: ${currentStepInfo?.title}`
-                    : 'Final Step: Review & Submit'
-                  }
-                </CardTitle>
-                <CardDescription>{currentStepInfo?.description}</CardDescription>
-              </div>
-              {currentStepInfo?.isOptional && (
-                <span className="text-xs bg-muted px-2 py-1 rounded">Optional</span>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent>
-            {renderStepContent()}
-          </CardContent>
-        </Card>
-
-        {/* Navigation - Vertical Stack with MTB colors */}
-        <div className="max-w-3xl mx-auto mt-6 flex flex-col gap-3">
-          <Button 
-            onClick={handleNext} 
-            size="lg" 
-            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-            disabled={isSubmitting || (isFinalSubmitStep && !canSubmit)}
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Submitting...
-              </>
-            ) : isFinalSubmitStep ? (
-              <>
-                <Send className="mr-2 h-4 w-4" />
-                Submit Application
-              </>
-            ) : (
-              <>
-                {currentStepInfo?.isOptional ? 'Skip / Continue' : 'Continue'}
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </>
-            )}
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            size="lg" 
-            className="w-full gap-2 border-primary text-primary hover:bg-primary/5"
-            onClick={handleSaveDraft}
-            disabled={isSubmitting}
-          >
-            <Save className="h-4 w-4" />
-            Save Draft
-          </Button>
-          
-          <Button 
-            variant="ghost" 
-            size="lg" 
-            onClick={handleBack} 
-            className="w-full text-muted-foreground hover:text-foreground"
-            disabled={isSubmitting}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            {applicationData.currentStep === 1 ? 'Back to Start' : 'Previous'}
-          </Button>
-        </div>
-      </div>
-    </MainLayout>
+        
+        {renderStepContent()}
+      </MobileStepLayout>
+    </>
   );
 }

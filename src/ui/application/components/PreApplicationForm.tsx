@@ -1,30 +1,24 @@
 /**
  * MTB Credit Card Application - Pre-Application / Onboarding Form
- * 
- * Collects initial information and handles OTP verification for Self mode.
- * Supports new applicant and resume existing application flows via dashboard.
+ * Mobile Banking App Style
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format, subYears } from 'date-fns';
-import { CalendarIcon, Loader2, Mail, Phone, User, CreditCard, Shield } from 'lucide-react';
+import { CalendarIcon, Loader2, CreditCard, Shield, User, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { preApplicationSchema, type PreApplicationFormData } from '@/lib/validation-schemas';
 import type { ApplicationMode } from '@/types/application-form.types';
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import {
@@ -32,8 +26,8 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from '@/components/ui/input-otp';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ResumeDashboard } from './ResumeDashboard';
+import { MobileFormCard, MobileFormSection, MobileInput, MobilePhoneInput, MobileDateInput } from '@/ui/mobile/components';
 
 interface PreApplicationFormProps {
   mode: ApplicationMode;
@@ -62,12 +56,12 @@ export function PreApplicationForm({
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [otpError, setOtpError] = useState<string | null>(null);
-  const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [remainingAttempts, setRemainingAttempts] = useState(5);
   const [isLocked, setIsLocked] = useState(false);
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
+  const [resendCooldown, setResendCooldown] = useState(120); // 2 minutes
+  const [canResend, setCanResend] = useState(false);
 
-  // Calculate the maximum allowed date (18 years ago from today)
   const maxDateOfBirth = subYears(new Date(), 18);
   const minDateOfBirth = new Date('1940-01-01');
 
@@ -82,37 +76,52 @@ export function PreApplicationForm({
     },
   });
 
-  const isFormValid = form.formState.isValid;
+  // Resend countdown timer
+  useEffect(() => {
+    if (showOtp && !canResend) {
+      const interval = setInterval(() => {
+        setResendCooldown(prev => {
+          if (prev <= 1) {
+            setCanResend(true);
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [showOtp, canResend]);
 
   const handleFormSubmit = async (data: PreApplicationFormData) => {
     if (mode === 'ASSISTED') {
-      // Assisted mode bypasses OTP
       onSubmit(data);
       onOtpVerified();
     } else {
-      // Self mode requires OTP
       onSubmit(data);
       setIsSendingOtp(true);
-      // Simulate OTP sending
       await new Promise(resolve => setTimeout(resolve, 1000));
       setIsSendingOtp(false);
       setShowOtp(true);
+      setResendCooldown(120);
+      setCanResend(false);
     }
   };
 
   const handleResendOtp = async () => {
+    if (!canResend) return;
     setOtpError(null);
     setIsSendingOtp(true);
-    // Simulate resend
     await new Promise(resolve => setTimeout(resolve, 1000));
     setIsSendingOtp(false);
+    setResendCooldown(120);
+    setCanResend(false);
   };
 
   const handleVerifyOtp = async () => {
     setIsVerifyingOtp(true);
     setOtpError(null);
     
-    // Mock verification
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     if (otpValue === '123456') {
@@ -125,7 +134,6 @@ export function PreApplicationForm({
         setIsLocked(true);
         setCooldownSeconds(30);
         setOtpError('Too many attempts. Please wait 30 seconds.');
-        // Start countdown
         const interval = setInterval(() => {
           setCooldownSeconds(prev => {
             if (prev <= 1) {
@@ -145,375 +153,415 @@ export function PreApplicationForm({
     setIsVerifyingOtp(false);
   };
 
-  const handleResumeFromDashboard = (mobileNumber: string) => {
-    onResumeApplication?.(mobileNumber);
-  };
-
-  const handleSupplementaryOnly = () => {
-    onSupplementaryOnly?.();
-  };
-
-  const handleCheckStatus = (referenceNumber: string) => {
-    onCheckStatus?.(referenceNumber);
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   // Application type selection for Self mode
   if (mode === 'SELF' && applicationType === null) {
     return (
-      <Card className="max-w-md mx-auto">
-        <CardHeader className="text-center">
-          <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-            <CreditCard className="h-6 w-6 text-primary" />
+      <div className="min-h-screen bg-mobile-background px-4 py-8">
+        <div className="max-w-md mx-auto">
+          <div className="text-center mb-8">
+            <div className="mx-auto w-16 h-16 bg-success/10 rounded-2xl flex items-center justify-center mb-4">
+              <CreditCard className="h-8 w-8 text-success" />
+            </div>
+            <h1 className="text-2xl font-bold text-foreground">Credit Card Application</h1>
+            <p className="text-sm text-muted-foreground mt-2">
+              Start a new application or manage existing ones
+            </p>
           </div>
-          <CardTitle className="text-2xl">Credit Card Application</CardTitle>
-          <CardDescription>
-            Start a new application or manage existing ones
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Button
-            onClick={() => setApplicationType('new')}
-            className="w-full h-auto py-4 flex flex-col items-center gap-2 bg-primary hover:bg-primary/90"
-            size="lg"
-          >
-            <CreditCard className="h-6 w-6" />
-            <span className="font-semibold">New Application</span>
-            <span className="text-xs opacity-90">Start a fresh credit card application</span>
-          </Button>
-          
-          <Button
-            onClick={() => setApplicationType('resume')}
-            variant="outline"
-            className="w-full h-auto py-4 flex flex-col items-center gap-2 border-primary text-primary hover:bg-primary/5"
-            size="lg"
-          >
-            <User className="h-6 w-6" />
-            <span className="font-semibold">Existing Applicant</span>
-            <span className="text-xs text-muted-foreground">Resume, add supplementary, or check status</span>
-          </Button>
-        </CardContent>
-      </Card>
+
+          <div className="space-y-3">
+            <button
+              onClick={() => setApplicationType('new')}
+              className={cn(
+                'w-full flex items-center gap-4 p-5 rounded-2xl',
+                'bg-card border border-border/50',
+                'transition-all duration-200',
+                'hover:border-success hover:shadow-md',
+                'text-left'
+              )}
+            >
+              <div className="w-12 h-12 rounded-xl bg-success/10 flex items-center justify-center">
+                <CreditCard className="h-6 w-6 text-success" />
+              </div>
+              <div className="flex-1">
+                <span className="block text-base font-semibold text-foreground">New Application</span>
+                <span className="block text-xs text-muted-foreground mt-0.5">
+                  Start a fresh credit card application
+                </span>
+              </div>
+            </button>
+            
+            <button
+              onClick={() => setApplicationType('resume')}
+              className={cn(
+                'w-full flex items-center gap-4 p-5 rounded-2xl',
+                'bg-card border border-border/50',
+                'transition-all duration-200',
+                'hover:border-primary hover:shadow-md',
+                'text-left'
+              )}
+            >
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                <User className="h-6 w-6 text-primary" />
+              </div>
+              <div className="flex-1">
+                <span className="block text-base font-semibold text-foreground">Existing Applicant</span>
+                <span className="block text-xs text-muted-foreground mt-0.5">
+                  Resume, add supplementary, or check status
+                </span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
     );
   }
 
-  // Resume Dashboard for existing applicants
+  // Resume Dashboard
   if (applicationType === 'resume') {
     return (
       <ResumeDashboard
-        onResumeApplication={handleResumeFromDashboard}
-        onSupplementaryOnly={handleSupplementaryOnly}
-        onCheckStatus={handleCheckStatus}
+        onResumeApplication={onResumeApplication!}
+        onSupplementaryOnly={onSupplementaryOnly!}
+        onCheckStatus={onCheckStatus!}
         onBack={() => setApplicationType(null)}
         isLoading={isLoading}
       />
     );
   }
 
+  // OTP Verification Screen
   if (showOtp) {
     return (
-      <Card className="max-w-md mx-auto">
-        <CardHeader className="text-center">
-          <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-            <Shield className="h-6 w-6 text-primary" />
+      <div className="min-h-screen bg-mobile-background flex flex-col">
+        {/* Top Bar */}
+        <div className="sticky top-0 z-50 bg-mobile-background px-4 py-3 safe-area-top">
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => setShowOtp(false)}
+              className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors"
+            >
+              <ArrowLeft className="h-5 w-5 text-foreground" />
+            </button>
+            <span className="text-base font-medium">Verify OTP</span>
           </div>
-          <CardTitle>Verify Your Mobile Number</CardTitle>
-          <CardDescription>
-            We've sent a 6-digit OTP to {form.getValues('mobileNumber')}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Attempt Indicator */}
-          {remainingAttempts < 5 && !isLocked && (
-            <div className={cn(
-              "flex items-center gap-2 text-sm",
-              remainingAttempts <= 2 ? "text-destructive" : "text-warning"
-            )}>
-              <Shield className="h-4 w-4" />
-              <span>{remainingAttempts} attempts remaining</span>
-            </div>
-          )}
+        </div>
 
-          {isLocked ? (
-            <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/5 p-3">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-destructive">Too many attempts</p>
-                <p className="text-xs text-muted-foreground">
-                  Please wait <span className="font-mono font-semibold">{cooldownSeconds}s</span> before trying again
-                </p>
+        <div className="flex-1 px-4 pt-6">
+          <div className="max-w-md mx-auto text-center">
+            <div className="mx-auto w-16 h-16 bg-success/10 rounded-2xl flex items-center justify-center mb-6">
+              <Shield className="h-8 w-8 text-success" />
+            </div>
+            
+            <h1 className="text-2xl font-bold text-foreground mb-2">
+              Verify Your Mobile
+            </h1>
+            <p className="text-sm text-muted-foreground mb-8">
+              We've sent a 6-digit OTP to {form.getValues('mobileNumber')}
+            </p>
+
+            {/* Countdown Timer */}
+            <div className="mb-6">
+              <div className="inline-flex items-center gap-2 bg-muted rounded-full px-4 py-2">
+                <span className="text-sm text-muted-foreground">Time remaining:</span>
+                <span className="font-mono font-semibold text-foreground">{formatTime(resendCooldown)}</span>
               </div>
             </div>
-          ) : (
-            <>
-              <div className="flex justify-center">
-                <InputOTP
-                  maxLength={6}
-                  value={otpValue}
-                  onChange={(value) => {
-                    setOtpValue(value);
-                    setOtpError(null);
-                  }}
-                >
-                  <InputOTPGroup>
-                    <InputOTPSlot index={0} />
-                    <InputOTPSlot index={1} />
-                    <InputOTPSlot index={2} />
-                    <InputOTPSlot index={3} />
-                    <InputOTPSlot index={4} />
-                    <InputOTPSlot index={5} />
-                  </InputOTPGroup>
-                </InputOTP>
+
+            {/* Attempt Indicator */}
+            {remainingAttempts < 5 && !isLocked && (
+              <div className={cn(
+                "flex items-center justify-center gap-2 text-sm mb-4",
+                remainingAttempts <= 2 ? "text-destructive" : "text-warning"
+              )}>
+                <Shield className="h-4 w-4" />
+                <span>{remainingAttempts} attempts remaining</span>
               </div>
-              
-              {otpError && (
-                <p className="text-sm text-destructive text-center">{otpError}</p>
-              )}
-              
-              <p className="text-xs text-muted-foreground text-center">
-                For demo: use OTP <span className="font-mono font-bold">123456</span>
-              </p>
-              
-              <Button
-                onClick={handleVerifyOtp}
-                disabled={otpValue.length !== 6 || isVerifyingOtp}
-                className="w-full bg-primary hover:bg-primary/90"
-              >
-                {isVerifyingOtp ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Verifying...
-                  </>
-                ) : (
-                  'Verify & Continue'
+            )}
+
+            {isLocked ? (
+              <MobileFormCard className="mb-6">
+                <div className="text-center py-4">
+                  <p className="text-sm font-medium text-destructive">Too many attempts</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Please wait <span className="font-mono font-semibold">{cooldownSeconds}s</span> before trying again
+                  </p>
+                </div>
+              </MobileFormCard>
+            ) : (
+              <>
+                <div className="flex justify-center mb-6">
+                  <InputOTP
+                    maxLength={6}
+                    value={otpValue}
+                    onChange={(value) => {
+                      setOtpValue(value);
+                      setOtpError(null);
+                    }}
+                  >
+                    <InputOTPGroup>
+                      <InputOTPSlot index={0} className="w-12 h-14 text-lg" />
+                      <InputOTPSlot index={1} className="w-12 h-14 text-lg" />
+                      <InputOTPSlot index={2} className="w-12 h-14 text-lg" />
+                      <InputOTPSlot index={3} className="w-12 h-14 text-lg" />
+                      <InputOTPSlot index={4} className="w-12 h-14 text-lg" />
+                      <InputOTPSlot index={5} className="w-12 h-14 text-lg" />
+                    </InputOTPGroup>
+                  </InputOTP>
+                </div>
+                
+                {otpError && (
+                  <p className="text-sm text-destructive text-center mb-4">{otpError}</p>
                 )}
-              </Button>
-              
-              <div className="text-center">
-                <button
-                  type="button"
-                  onClick={handleResendOtp}
-                  disabled={isSendingOtp}
-                  className="text-sm text-primary hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSendingOtp ? 'Sending...' : "Didn't receive OTP? Resend"}
-                </button>
-              </div>
-            </>
-          )}
-          
-          <Button
-            variant="ghost"
-            onClick={() => setShowOtp(false)}
-            className="w-full"
+                
+                <p className="text-xs text-muted-foreground text-center mb-6">
+                  For demo: use OTP <span className="font-mono font-bold">123456</span>
+                </p>
+              </>
+            )}
+
+            {/* Resend Button */}
+            <div className="text-center mb-6">
+              <button
+                type="button"
+                onClick={handleResendOtp}
+                disabled={!canResend || isSendingOtp}
+                className={cn(
+                  "text-sm font-medium transition-colors",
+                  canResend 
+                    ? "text-success hover:underline" 
+                    : "text-muted-foreground cursor-not-allowed"
+                )}
+              >
+                {isSendingOtp ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Sending...
+                  </span>
+                ) : canResend ? (
+                  "Resend OTP"
+                ) : (
+                  `Resend in ${formatTime(resendCooldown)}`
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="sticky bottom-0 bg-mobile-background border-t border-border px-4 py-4 safe-area-bottom">
+          <button
+            type="button"
+            onClick={handleVerifyOtp}
+            disabled={otpValue.length !== 6 || isVerifyingOtp || isLocked}
+            className={cn(
+              'w-full py-4 rounded-full text-base font-semibold transition-all',
+              'disabled:opacity-50 disabled:cursor-not-allowed',
+              'focus:outline-none focus:ring-2 focus:ring-success focus:ring-offset-2'
+            )}
+            style={{
+              backgroundColor: 'hsl(var(--success) / 0.15)',
+              color: 'hsl(145 63% 25%)',
+            }}
           >
-            ← Back to form
-          </Button>
-        </CardContent>
-      </Card>
+            {isVerifyingOtp ? (
+              <span className="flex items-center justify-center gap-2">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Verifying...
+              </span>
+            ) : (
+              'Verify & Continue'
+            )}
+          </button>
+        </div>
+      </div>
     );
   }
 
+  // Main Form
   return (
-    <Card className="max-w-2xl mx-auto">
-      <CardHeader className="text-center">
-        <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-          <CreditCard className="h-6 w-6 text-primary" />
+    <div className="min-h-screen bg-mobile-background flex flex-col">
+      {/* Top Bar */}
+      {applicationType === 'new' && mode === 'SELF' && (
+        <div className="sticky top-0 z-50 bg-mobile-background px-4 py-3 safe-area-top">
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => setApplicationType(null)}
+              className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors"
+            >
+              <ArrowLeft className="h-5 w-5 text-foreground" />
+            </button>
+            <span className="text-base font-medium">New Application</span>
+          </div>
         </div>
-        <CardTitle className="text-2xl">
-          {applicationType === 'new' ? 'New Application' : 'Start Your Application'}
-        </CardTitle>
-        <CardDescription>
+      )}
+
+      {/* Header */}
+      <div className="px-4 pt-4 pb-2">
+        <h1 className="text-2xl font-bold text-foreground">
+          Personal Details
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">
           {mode === 'SELF' 
-            ? 'Please provide your basic information to begin. OTP verification required.'
-            : 'Banker-assisted application. OTP verification not required.'}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+            ? 'Please provide your basic information to begin'
+            : 'Banker-assisted application'}
+        </p>
+      </div>
+
+      {/* Form Content */}
+      <div className="flex-1 px-4 pb-32">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
-            {/* Full Name */}
-            <FormField
-              control={form.control}
-              name="fullName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Full Name (As per NID)</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Enter your full name"
-                        className="pl-10"
-                        {...field}
-                      />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* NID Number */}
-            <FormField
-              control={form.control}
-              name="nidNumber"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>NID Number</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="10, 13, or 17 digit NID"
-                      maxLength={17}
-                      {...field}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, '');
-                        field.onChange(value);
-                      }}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Enter your 10, 13, or 17 digit National ID number
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Date of Birth */}
-            <FormField
-              control={form.control}
-              name="dateOfBirth"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Date of Birth</FormLabel>
-                  <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
-                    <PopoverTrigger asChild>
+            <MobileFormSection title="GENERAL DETAILS">
+              <MobileFormCard className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="fullName"
+                  render={({ field }) => (
+                    <FormItem>
                       <FormControl>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            'w-full pl-3 text-left font-normal',
-                            !field.value && 'text-muted-foreground'
-                          )}
-                        >
-                          {field.value ? (
-                            format(new Date(field.value), 'PPP')
-                          ) : (
-                            <span>Pick your date of birth</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
+                        <MobileInput
+                          {...field}
+                          label="Full Name (As per NID)"
+                          placeholder="Enter your full name"
+                        />
                       </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start" sideOffset={4}>
-                      <Calendar
-                        mode="single"
-                        selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => {
-                          field.onChange(date?.toISOString() || '');
-                          setDatePickerOpen(false);
-                        }}
-                        disabled={(date) =>
-                          date > maxDateOfBirth || date < minDateOfBirth
-                        }
-                        defaultMonth={field.value ? new Date(field.value) : maxDateOfBirth}
-                        fromYear={1940}
-                        toYear={maxDateOfBirth.getFullYear()}
-                        initialFocus
+                      <FormMessage className="px-1" />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="nidNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <MobileInput
+                          {...field}
+                          label="NID Number"
+                          placeholder="10, 13, or 17 digit NID"
+                          inputMode="numeric"
+                          maxLength={17}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, '');
+                            field.onChange(value);
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage className="px-1" />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="dateOfBirth"
+                  render={({ field }) => (
+                    <FormItem>
+                      <MobileDateInput
+                        label="Date of Birth"
+                        placeholder="Select your date of birth"
+                        value={field.value}
+                        onChange={(date) => field.onChange(date?.toISOString() || '')}
+                        minDate={minDateOfBirth}
+                        maxDate={maxDateOfBirth}
                       />
-                    </PopoverContent>
-                  </Popover>
-                  <FormDescription>
-                    You must be at least 18 years old to apply
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                      <p className="text-xs text-muted-foreground px-1 mt-1">
+                        You must be at least 18 years old
+                      </p>
+                      <FormMessage className="px-1" />
+                    </FormItem>
+                  )}
+                />
+              </MobileFormCard>
+            </MobileFormSection>
 
-            {/* Mobile Number */}
-            <FormField
-              control={form.control}
-              name="mobileNumber"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Mobile Number</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        placeholder="01XXXXXXXXX"
-                        className="pl-10"
-                        maxLength={11}
-                        {...field}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/\D/g, '');
-                          field.onChange(value);
-                        }}
-                      />
-                    </div>
-                  </FormControl>
-                  <FormDescription>
-                    11-digit mobile number starting with 01
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <MobileFormSection title="CONTACT DETAILS">
+              <MobileFormCard className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="mobileNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <MobilePhoneInput
+                          {...field}
+                          label="Mobile Number"
+                          placeholder="1XXXXXXXXX"
+                          maxLength={10}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, '');
+                            field.onChange(value);
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage className="px-1" />
+                    </FormItem>
+                  )}
+                />
 
-            {/* Email */}
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email Address</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        type="email"
-                        placeholder="your.email@example.com"
-                        className="pl-10"
-                        {...field}
-                      />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <MobileInput
+                          {...field}
+                          type="email"
+                          label="Email Address"
+                          placeholder="your.email@example.com"
+                        />
+                      </FormControl>
+                      <FormMessage className="px-1" />
+                    </FormItem>
+                  )}
+                />
+              </MobileFormCard>
+            </MobileFormSection>
 
-            <Button
-              type="submit"
-              className="w-full bg-primary hover:bg-primary/90"
-              size="lg"
-              disabled={!isFormValid || isLoading || isSendingOtp}
-            >
-              {isLoading || isSendingOtp ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing...
-                </>
-              ) : mode === 'SELF' ? (
-                'Send OTP & Continue'
-              ) : (
-                'Start Application'
-              )}
-            </Button>
-
-            {mode === 'SELF' && applicationType === 'new' && (
-              <Button
-                type="button"
-                variant="ghost"
-                className="w-full"
-                onClick={() => setApplicationType(null)}
-              >
-                ← Back
-              </Button>
-            )}
+            {/* Hidden submit button for form validation */}
+            <button type="submit" className="hidden" />
           </form>
         </Form>
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* Bottom CTA */}
+      <div className="fixed bottom-0 left-0 right-0 bg-mobile-background border-t border-border px-4 py-4 safe-area-bottom">
+        <button
+          type="button"
+          onClick={form.handleSubmit(handleFormSubmit)}
+          disabled={isSendingOtp || isLoading}
+          className={cn(
+            'w-full py-4 rounded-full text-base font-semibold transition-all',
+            'disabled:opacity-50 disabled:cursor-not-allowed',
+            'focus:outline-none focus:ring-2 focus:ring-success focus:ring-offset-2'
+          )}
+          style={{
+            backgroundColor: 'hsl(var(--success) / 0.15)',
+            color: 'hsl(145 63% 25%)',
+          }}
+        >
+          {isSendingOtp ? (
+            <span className="flex items-center justify-center gap-2">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              Sending OTP...
+            </span>
+          ) : mode === 'SELF' ? (
+            'Send OTP & Proceed'
+          ) : (
+            'Proceed'
+          )}
+        </button>
+      </div>
+    </div>
   );
 }
