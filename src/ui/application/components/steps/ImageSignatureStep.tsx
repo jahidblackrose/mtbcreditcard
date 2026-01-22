@@ -8,8 +8,8 @@ import { imageSignatureSchema, type ImageSignatureFormData } from '@/lib/validat
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { FaceCapture } from '../FaceCapture';
-import { SignatureCapture } from '../SignatureCapture';
+import { FaceCapture } from '@/ui/application/components/FaceCapture';
+import { SignatureCapture } from '@/ui/application/components/SignatureCapture';
 import type { ImageSignatureData } from '@/types/application-form.types';
 
 interface ImageSignatureStepProps {
