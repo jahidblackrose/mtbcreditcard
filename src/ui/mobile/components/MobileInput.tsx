@@ -53,9 +53,10 @@ export const MobileInput = forwardRef<HTMLInputElement, MobileInputProps>(
               'border border-gray-200',
               // Large padding with space for floating label
               'px-5 pt-6 pb-3 text-[15px] font-medium',
-              // Force dark text color for readability in all themes
-              'text-gray-900 dark:text-gray-900',
-              'placeholder-transparent',
+              // Force dark text color and visible caret for readability
+              'text-gray-900 dark:text-gray-900 caret-gray-900',
+              // Hide native placeholder - we use floating label instead
+              'placeholder:text-transparent',
               // Focus state with MTB green
               'focus:outline-none focus:ring-2 focus:ring-success/20 focus:border-success',
               'transition-all duration-200',
@@ -64,7 +65,7 @@ export const MobileInput = forwardRef<HTMLInputElement, MobileInputProps>(
               error && 'border-destructive focus:ring-destructive/20 focus:border-destructive',
               className
             )}
-            placeholder={displayLabel}
+            placeholder=""
             {...props}
           />
           

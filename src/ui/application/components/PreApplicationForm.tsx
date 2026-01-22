@@ -305,13 +305,13 @@ export function PreApplicationForm({
                       setOtpError(null);
                     }}
                   >
-                    <InputOTPGroup>
-                      <InputOTPSlot index={0} className="w-12 h-14 text-lg" />
-                      <InputOTPSlot index={1} className="w-12 h-14 text-lg" />
-                      <InputOTPSlot index={2} className="w-12 h-14 text-lg" />
-                      <InputOTPSlot index={3} className="w-12 h-14 text-lg" />
-                      <InputOTPSlot index={4} className="w-12 h-14 text-lg" />
-                      <InputOTPSlot index={5} className="w-12 h-14 text-lg" />
+                    <InputOTPGroup className="gap-3">
+                      <InputOTPSlot index={0} />
+                      <InputOTPSlot index={1} />
+                      <InputOTPSlot index={2} />
+                      <InputOTPSlot index={3} />
+                      <InputOTPSlot index={4} />
+                      <InputOTPSlot index={5} />
                     </InputOTPGroup>
                   </InputOTP>
                 </div>
