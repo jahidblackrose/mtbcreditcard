@@ -29,7 +29,13 @@ export const MobilePhoneInput = forwardRef<HTMLInputElement, MobilePhoneInputPro
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
       // Only allow digits and limit to 11 characters
-      const rawValue = e.target.value.replace(/\D/g, '').slice(0, 11);
+      let rawValue = e.target.value.replace(/\D/g, '').slice(0, 11);
+      
+      // Ensure it starts with 0 if user types digits
+      if (rawValue.length > 0 && !rawValue.startsWith('0')) {
+        // If user starts typing without 0, don't auto-prefix - let them type naturally
+        rawValue = rawValue;
+      }
       
       // Create a synthetic event with the cleaned value
       const syntheticEvent = {
@@ -68,12 +74,12 @@ export const MobilePhoneInput = forwardRef<HTMLInputElement, MobilePhoneInputPro
               'border border-gray-200',
               // Large padding with floating label space
               'px-5 pt-6 pb-3 text-[15px] font-medium',
-              // Force dark text for visibility
-              'text-gray-900 placeholder-gray-400',
+              // Force dark text for visibility - caret visible
+              'text-gray-900 caret-gray-900 placeholder-gray-400',
               'placeholder-transparent',
               'focus:outline-none focus:ring-2 focus:ring-success/20 focus:border-success',
               'transition-all duration-200',
-              error && 'border-destructive focus:ring-destructive/20 focus:border-destructive',
+              error && 'border-destructive bg-destructive/5 focus:ring-destructive/20 focus:border-destructive',
               className
             )}
             placeholder={displayLabel}
@@ -95,13 +101,13 @@ export const MobilePhoneInput = forwardRef<HTMLInputElement, MobilePhoneInputPro
           )}
         </div>
         
-        {/* Helper text for format */}
+        {/* Helper text for format - only show when not in error state */}
         {!error && (
-          <p className="text-xs text-gray-400 mt-1.5 px-1">11 digits starting with 01</p>
+          <p className="text-xs text-muted-foreground mt-1.5 px-1">Format: 01XXXXXXXXX (11 digits)</p>
         )}
         
         {error && (
-          <p className="text-xs text-destructive mt-1.5 px-1">{error}</p>
+          <p className="text-xs text-destructive mt-1.5 px-1 font-medium">{error}</p>
         )}
       </div>
     );

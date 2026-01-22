@@ -16,10 +16,12 @@ const nidSchema = z.string()
     message: 'NID must be 10, 13, or 17 digits',
   });
 
-// Bangladesh Mobile: 11 digits starting with 01
+// Bangladesh Mobile: 11 digits starting with 01 (allows 01[3-9]XXXXXXXX)
 const bdMobileSchema = z.string()
+  .min(11, { message: 'Mobile number must be 11 digits' })
+  .max(11, { message: 'Mobile number must be 11 digits' })
   .refine((val) => /^01[3-9]\d{8}$/.test(val), {
-    message: 'Mobile number must be 11 digits starting with 01',
+    message: 'Enter a valid Bangladesh mobile number (01XXXXXXXXX)',
   });
 
 // Age validation (18+)

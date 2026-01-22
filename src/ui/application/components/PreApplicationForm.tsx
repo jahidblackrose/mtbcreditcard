@@ -407,10 +407,10 @@ export function PreApplicationForm({
         </p>
       </div>
 
-      {/* Form Content */}
-      <div className="flex-1 px-4 pb-32">
+      {/* Form Content - Improved spacing */}
+      <div className="flex-1 px-4 pb-36">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-5">
             <MobileFormSection title="GENERAL DETAILS">
               <MobileFormCard className="space-y-4">
                 <FormField
@@ -487,12 +487,7 @@ export function PreApplicationForm({
                         <MobilePhoneInput
                           {...field}
                           label="Mobile Number"
-                          placeholder="1XXXXXXXXX"
-                          maxLength={10}
-                          onChange={(e) => {
-                            const value = e.target.value.replace(/\D/g, '');
-                            field.onChange(value);
-                          }}
+                          placeholder="01XXXXXXXXX"
                         />
                       </FormControl>
                       <FormMessage className="px-1" />
@@ -526,13 +521,19 @@ export function PreApplicationForm({
         </Form>
       </div>
 
-      {/* Bottom CTA */}
-      <div className="fixed bottom-0 left-0 right-0 bg-mobile-background border-t border-border px-4 py-4 safe-area-bottom">
+      {/* Bottom CTA - Improved spacing and styling */}
+      <div className="fixed bottom-0 left-0 right-0 bg-mobile-background border-t border-border/50 px-5 py-5 safe-area-bottom shadow-lg">
         <button
           type="button"
           onClick={form.handleSubmit(handleFormSubmit)}
           disabled={isSendingOtp || isLoading}
-          className="w-full py-4 rounded-full text-base font-semibold transition-all mobile-cta-button disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2"
+          className={cn(
+            "w-full py-4 rounded-full text-base font-semibold transition-all",
+            "bg-success hover:bg-success/90 text-success-foreground",
+            "shadow-md hover:shadow-lg",
+            "disabled:opacity-50 disabled:cursor-not-allowed",
+            "focus:outline-none focus:ring-2 focus:ring-success/50 focus:ring-offset-2"
+          )}
         >
           {isSendingOtp ? (
             <span className="flex items-center justify-center gap-2">
