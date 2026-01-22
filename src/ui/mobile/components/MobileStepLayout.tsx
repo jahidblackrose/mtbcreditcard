@@ -67,6 +67,9 @@ export function MobileStepLayout({
 
   return (
     <div className={cn('min-h-screen flex flex-col bg-mobile-background', className)}>
+      {/* MLine Gradient Bar - MTB Brand Accent at top */}
+      <div className="mtb-gradient-bar" />
+      
       {/* Sticky Top Bar */}
       <div className="sticky top-0 z-50 bg-mobile-background px-4 py-3 safe-area-top">
         <div className="flex items-center justify-between gap-4">

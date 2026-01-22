@@ -1,12 +1,16 @@
 /**
- * MTB Credit Card Application - Mobile Application Page
+ * MTB Credit Card Application - Responsive Application Page
  * 
- * Mobile-first redesigned application form matching banking app UI.
+ * Mobile-first with desktop Bootstrap-style layout for larger screens.
+ * - Mobile (≤ 768px): Floating labels, MLine bar, sticky CTA
+ * - Desktop (> 768px): Bootstrap 12-grid, sidebar stepper, standard inputs
  */
 
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { MobileStepLayout } from '../mobile/components';
+import { DesktopStepLayout } from '../desktop/components';
 import { SessionExpiryWarning } from '../components';
 import { PreApplicationForm, SubmissionSuccess } from '../application/components';
 import { 
@@ -39,6 +43,7 @@ export function ApplicationPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const state = location.state as LocationState | null;
+  const isMobile = useIsMobile();
   
   const mode: ApplicationMode = state?.mode || 'SELF';
   const [error, setError] = useState<string | null>(null);
@@ -444,6 +449,52 @@ export function ApplicationPage() {
     }
   };
 
+  // Render error block
+  const renderError = () => error && (
+    <div className="mb-4 p-4 bg-destructive/10 border border-destructive/20 rounded-xl">
+      <p className="text-sm text-destructive">{error}</p>
+    </div>
+  );
+
+  // Desktop Layout (> 768px)
+  if (!isMobile) {
+    return (
+      <>
+        {isSessionWarning && (
+          <SessionExpiryWarning
+            ttlSeconds={ttlSeconds}
+            onExtend={handleExtendSession}
+            isExpired={isSessionExpired}
+            isWarning={isSessionWarning}
+          />
+        )}
+
+        <DesktopStepLayout
+          currentStep={applicationData.currentStep}
+          totalSteps={13}
+          steps={APPLICATION_STEPS.map(step => ({
+            title: step.title,
+            description: step.description,
+            isOptional: step.isOptional,
+          }))}
+          completedSteps={completedSteps}
+          title={currentStepInfo?.title || 'Review & Submit'}
+          description={currentStepInfo?.description}
+          onBack={handleBack}
+          onProceed={handleNext}
+          onStepClick={goToStep}
+          proceedLabel={getProceedLabel()}
+          proceedDisabled={isSubmitting || (applicationData.currentStep === 13 && !canSubmit)}
+          isLoading={isSubmitting}
+        >
+          {renderError()}
+          {renderStepContent()}
+        </DesktopStepLayout>
+      </>
+    );
+  }
+
+  // Mobile Layout (≤ 768px)
   return (
     <>
       {/* Session Expiry Warning */}
@@ -467,12 +518,7 @@ export function ApplicationPage() {
         proceedDisabled={isSubmitting || (applicationData.currentStep === 13 && !canSubmit)}
         isLoading={isSubmitting}
       >
-        {error && (
-          <div className="mb-4 p-4 bg-destructive/10 border border-destructive/20 rounded-xl">
-            <p className="text-sm text-destructive">{error}</p>
-          </div>
-        )}
-        
+        {renderError()}
         {renderStepContent()}
       </MobileStepLayout>
     </>
