@@ -121,23 +121,22 @@ export function MobileStepLayout({
         {children}
       </div>
 
-      {/* Sticky Bottom CTA */}
+      {/* Sticky Bottom CTA - Light Lime Green like attachment */}
       {onProceed && (
-        <div className="fixed bottom-0 left-0 right-0 bg-mobile-background border-t border-border px-4 py-4 safe-area-bottom">
+        <div className="fixed bottom-0 left-0 right-0 bg-mobile-background px-6 py-4 safe-area-bottom">
           <button
             type="button"
             onClick={onProceed}
             disabled={proceedDisabled || isLoading}
             className={cn(
               'w-full py-4 rounded-full text-base font-semibold transition-all',
-              'bg-success/20 text-success-foreground',
-              'hover:bg-success/30 active:bg-success/40',
               'disabled:opacity-50 disabled:cursor-not-allowed',
-              'focus:outline-none focus:ring-2 focus:ring-success focus:ring-offset-2'
+              'focus:outline-none focus:ring-2 focus:ring-offset-2',
+              'active:scale-[0.98]'
             )}
             style={{
-              backgroundColor: 'hsl(var(--success) / 0.15)',
-              color: 'hsl(145 63% 25%)',
+              backgroundColor: 'hsl(75 73% 72%)',
+              color: 'hsl(0 0% 15%)',
             }}
           >
             {isLoading ? (

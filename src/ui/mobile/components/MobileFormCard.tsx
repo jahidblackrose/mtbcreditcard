@@ -16,8 +16,8 @@ export function MobileFormCard({ children, className }: MobileFormCardProps) {
   return (
     <div
       className={cn(
-        'bg-card rounded-2xl border border-border/50 p-4',
-        'shadow-sm',
+        // White background, very light border, minimal shadow like attachment
+        'bg-white rounded-2xl border border-gray-200 p-5',
         className
       )}
     >
@@ -35,7 +35,7 @@ interface MobileFormSectionProps {
 export function MobileFormSection({ title, children, className }: MobileFormSectionProps) {
   return (
     <div className={cn('mb-6', className)}>
-      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-1">
+      <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-3">
         {title}
       </h3>
       <div className="space-y-3">

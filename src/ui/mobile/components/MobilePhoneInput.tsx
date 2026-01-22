@@ -25,22 +25,24 @@ export const MobilePhoneInput = forwardRef<HTMLInputElement, MobilePhoneInputPro
           </label>
         )}
         <div className="relative">
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-muted-foreground pointer-events-none">
+          <div className="absolute left-5 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
             <span className="text-lg">{countryFlag}</span>
-            <span className="text-sm font-medium text-foreground/70">{countryCode}</span>
-            <div className="w-px h-5 bg-border ml-1" />
+            <span className="text-[15px] font-medium text-foreground">{countryCode}</span>
+            <div className="w-px h-5 bg-gray-200 ml-1" />
           </div>
           <input
             ref={ref}
             type="tel"
             inputMode="numeric"
             className={cn(
-              'w-full bg-card rounded-xl border border-border/50',
-              'pl-24 pr-4 py-3.5 text-base text-foreground',
-              'placeholder:text-muted-foreground/60',
-              'focus:outline-none focus:ring-2 focus:ring-success/30 focus:border-success',
+              // White background, very light border like attachment
+              'w-full bg-white rounded-2xl',
+              'border border-gray-200',
+              'pl-28 pr-5 py-4 text-[15px] text-foreground',
+              'placeholder:text-gray-400',
+              'focus:outline-none focus:ring-2 focus:ring-success/20 focus:border-success',
               'transition-all duration-200',
-              error && 'border-destructive focus:ring-destructive/30 focus:border-destructive',
+              error && 'border-destructive focus:ring-destructive/20 focus:border-destructive',
               className
             )}
             {...props}

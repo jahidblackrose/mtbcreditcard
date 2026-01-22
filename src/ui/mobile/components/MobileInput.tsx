@@ -32,14 +32,18 @@ export const MobileInput = forwardRef<HTMLInputElement, MobileInputProps>(
           <input
             ref={ref}
             className={cn(
-              'w-full bg-card rounded-xl border border-border/50',
-              'px-4 py-3.5 text-base text-foreground',
-              'placeholder:text-muted-foreground/60',
-              'focus:outline-none focus:ring-2 focus:ring-success/30 focus:border-success',
+              // White background, very light border like attachment
+              'w-full bg-white rounded-2xl',
+              'border border-gray-200',
+              // Large padding, clean font
+              'px-5 py-4 text-[15px] text-foreground',
+              'placeholder:text-gray-400',
+              // Focus state with green ring
+              'focus:outline-none focus:ring-2 focus:ring-success/20 focus:border-success',
               'transition-all duration-200',
               leftIcon && 'pl-12',
               rightIcon && 'pr-12',
-              error && 'border-destructive focus:ring-destructive/30 focus:border-destructive',
+              error && 'border-destructive focus:ring-destructive/20 focus:border-destructive',
               className
             )}
             {...props}
