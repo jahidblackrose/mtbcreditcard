@@ -158,8 +158,7 @@ export function ApplicationPage() {
       completed.push(10);
     }
     
-    if (applicationData.autoDebit.accountName && 
-        applicationData.autoDebit.mtbAccountNumber) {
+    if (applicationData.autoDebit.mtbAccountNumber) {
       completed.push(11);
     }
     
