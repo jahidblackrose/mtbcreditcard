@@ -56,9 +56,9 @@ function Calendar({
       showOutsideDays={showOutsideDays}
       className={cn("p-3 pointer-events-auto", className)}
       classNames={{
-        months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+        months: "flex flex-col space-y-4",
         month: "space-y-4",
-        caption: "flex justify-center pt-1 relative items-center mb-2",
+        caption: "flex justify-center pt-1 relative items-center",
         caption_label: "hidden",
         nav: "space-x-1 flex items-center",
         nav_button: cn(
@@ -67,7 +67,7 @@ function Calendar({
         ),
         nav_button_previous: "absolute left-1",
         nav_button_next: "absolute right-1",
-        table: "w-full border-collapse space-y-1",
+        table: "w-full border-collapse",
         head_row: "flex",
         head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem] flex-1 text-center",
         row: "flex w-full mt-2",
@@ -105,17 +105,33 @@ function Calendar({
         IconRight: () => <ChevronRight className="h-4 w-4" />,
         Caption: ({ displayMonth }) => {
           return (
-            <div className="flex flex-col items-center gap-2 w-full">
-              {/* Month and Year dropdowns in a row */}
-              <div className="flex items-center justify-center gap-2 w-full px-8">
+            <div className="flex items-center justify-between w-full px-1 mb-2">
+              {/* Left Nav Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  const newMonth = new Date(displayMonth);
+                  newMonth.setMonth(newMonth.getMonth() - 1);
+                  setMonth(newMonth);
+                }}
+                className={cn(
+                  buttonVariants({ variant: "outline" }),
+                  "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 hover:bg-accent"
+                )}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+
+              {/* Month and Year dropdowns centered */}
+              <div className="flex items-center gap-1">
                 <Select
                   value={displayMonth.getMonth().toString()}
                   onValueChange={handleMonthChange}
                 >
-                  <SelectTrigger className="h-8 w-[110px] text-xs font-medium bg-background border">
+                  <SelectTrigger className="h-7 w-[100px] text-xs font-medium bg-background border text-foreground">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="z-[200]">
+                  <SelectContent className="z-[200] bg-background">
                     {months.map((monthName, index) => (
                       <SelectItem key={monthName} value={index.toString()} className="text-xs">
                         {monthName}
@@ -127,10 +143,10 @@ function Calendar({
                   value={displayMonth.getFullYear().toString()}
                   onValueChange={handleYearChange}
                 >
-                  <SelectTrigger className="h-8 w-[80px] text-xs font-medium bg-background border">
+                  <SelectTrigger className="h-7 w-[70px] text-xs font-medium bg-background border text-foreground">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="max-h-[200px] z-[200]">
+                  <SelectContent className="max-h-[200px] z-[200] bg-background">
                     {years.map((year) => (
                       <SelectItem key={year} value={year.toString()} className="text-xs">
                         {year}
@@ -139,6 +155,22 @@ function Calendar({
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Right Nav Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  const newMonth = new Date(displayMonth);
+                  newMonth.setMonth(newMonth.getMonth() + 1);
+                  setMonth(newMonth);
+                }}
+                className={cn(
+                  buttonVariants({ variant: "outline" }),
+                  "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 hover:bg-accent"
+                )}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
             </div>
           );
         },
