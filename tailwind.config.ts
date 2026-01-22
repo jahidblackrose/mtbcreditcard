@@ -19,6 +19,7 @@ export default {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        "mobile-background": "hsl(var(--mobile-background))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -47,9 +48,8 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // MTB Brand Colors
+        // MTB Brand Colors (Green/Teal/Blue family - no orange)
         mtb: {
-          orange: "hsl(var(--mtb-orange))",
           green: "hsl(var(--mtb-green))",
           teal: "hsl(var(--mtb-teal))",
           blue: "hsl(var(--mtb-blue))",
