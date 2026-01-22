@@ -1,5 +1,7 @@
 /**
  * Step 9: References (Mandatory - Two)
+ * 
+ * Fixed focus/cursor issues by using proper input styling
  */
 
 import { useForm } from 'react-hook-form';
@@ -7,10 +9,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { referencesSchema, type ReferencesFormData } from '@/lib/validation-schemas';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 import type { ReferencesData } from '@/types/application-form.types';
 
 interface ReferencesStepProps {
@@ -34,6 +36,49 @@ const emptyReference = {
   residenceAddress: '',
 };
 
+// Reusable input component with guaranteed focus visibility
+const ReferenceInput = ({ 
+  field, 
+  placeholder, 
+  maxLength,
+  error,
+  onChange,
+}: { 
+  field: any; 
+  placeholder: string; 
+  maxLength?: number;
+  error?: boolean;
+  onChange?: (value: string) => void;
+}) => (
+  <input
+    {...field}
+    placeholder={placeholder}
+    maxLength={maxLength}
+    onChange={(e) => {
+      const value = onChange ? (onChange(e.target.value), e.target.value) : e.target.value;
+      field.onChange(onChange ? e.target.value.replace(/\D/g, '') : value);
+    }}
+    className={cn(
+      // Base styles
+      "flex h-10 w-full rounded-md border px-3 py-2",
+      // White background with dark text for visibility
+      "bg-white text-gray-900",
+      // Placeholder
+      "placeholder:text-gray-500",
+      // Focus - ensure cursor and ring are visible
+      "focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary",
+      // Caret color for cursor visibility
+      "caret-gray-900",
+      // Error state
+      error 
+        ? "border-destructive bg-destructive/5 focus:ring-destructive/30 focus:border-destructive" 
+        : "border-input",
+      // Transition
+      "transition-all duration-200"
+    )}
+  />
+);
+
 export function ReferencesStep({ initialData, onSave }: ReferencesStepProps) {
   const form = useForm<ReferencesFormData>({
     resolver: zodResolver(referencesSchema),
@@ -53,6 +98,7 @@ export function ReferencesStep({ initialData, onSave }: ReferencesStepProps) {
 
   const ReferenceCard = ({ refNum }: { refNum: 1 | 2 }) => {
     const prefix = `reference${refNum}` as 'reference1' | 'reference2';
+    const errors = form.formState.errors[prefix];
     
     return (
       <Card>
@@ -63,11 +109,15 @@ export function ReferencesStep({ initialData, onSave }: ReferencesStepProps) {
           <FormField
             control={form.control}
             name={`${prefix}.refereeName`}
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem>
                 <FormLabel>Name of Referee</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Full name" />
+                  <ReferenceInput 
+                    field={field} 
+                    placeholder="Full name" 
+                    error={!!fieldState.error}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -103,15 +153,26 @@ export function ReferencesStep({ initialData, onSave }: ReferencesStepProps) {
             <FormField
               control={form.control}
               name={`${prefix}.mobileNumber`}
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormItem>
                   <FormLabel>Mobile Number</FormLabel>
                   <FormControl>
-                    <Input
+                    <input
                       {...field}
+                      type="tel"
+                      inputMode="numeric"
                       placeholder="01XXXXXXXXX"
                       maxLength={11}
                       onChange={(e) => field.onChange(e.target.value.replace(/\D/g, ''))}
+                      className={cn(
+                        "flex h-10 w-full rounded-md border px-3 py-2",
+                        "bg-white text-gray-900 placeholder:text-gray-500",
+                        "focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary",
+                        "caret-gray-900 transition-all duration-200",
+                        fieldState.error 
+                          ? "border-destructive bg-destructive/5 focus:ring-destructive/30 focus:border-destructive" 
+                          : "border-input"
+                      )}
                     />
                   </FormControl>
                   <FormMessage />
