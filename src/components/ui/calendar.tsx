@@ -56,23 +56,23 @@ function Calendar({
       showOutsideDays={showOutsideDays}
       className={cn("p-3 pointer-events-auto", className)}
       classNames={{
-        months: "flex flex-col gap-4",
+        months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
-        caption: "flex justify-center pt-1 relative items-center",
+        caption: "flex justify-center pt-1 relative items-center mb-2",
         caption_label: "hidden",
-        nav: "flex items-center gap-1",
+        nav: "space-x-1 flex items-center",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
           "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 hover:bg-accent"
         ),
         nav_button_previous: "absolute left-1",
         nav_button_next: "absolute right-1",
-        table: "w-full border-collapse",
+        table: "w-full border-collapse space-y-1",
         head_row: "flex",
-        head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem] text-center",
-        row: "flex w-full mt-1",
+        head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem] flex-1 text-center",
+        row: "flex w-full mt-2",
         cell: cn(
-          "relative h-9 w-9 text-center text-sm p-0",
+          "relative h-9 w-9 flex-1 text-center text-sm p-0",
           "focus-within:relative focus-within:z-20",
           "[&:has([aria-selected])]:bg-accent",
           "[&:has([aria-selected].day-outside)]:bg-accent/50",
@@ -105,37 +105,40 @@ function Calendar({
         IconRight: () => <ChevronRight className="h-4 w-4" />,
         Caption: ({ displayMonth }) => {
           return (
-            <div className="flex items-center justify-center gap-2 px-8">
-              <Select
-                value={displayMonth.getMonth().toString()}
-                onValueChange={handleMonthChange}
-              >
-                <SelectTrigger className="h-7 w-[100px] text-xs font-medium">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {months.map((monthName, index) => (
-                    <SelectItem key={monthName} value={index.toString()} className="text-xs">
-                      {monthName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select
-                value={displayMonth.getFullYear().toString()}
-                onValueChange={handleYearChange}
-              >
-                <SelectTrigger className="h-7 w-[70px] text-xs font-medium">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="max-h-[200px]">
-                  {years.map((year) => (
-                    <SelectItem key={year} value={year.toString()} className="text-xs">
-                      {year}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="flex flex-col items-center gap-2 w-full">
+              {/* Month and Year dropdowns in a row */}
+              <div className="flex items-center justify-center gap-2 w-full px-8">
+                <Select
+                  value={displayMonth.getMonth().toString()}
+                  onValueChange={handleMonthChange}
+                >
+                  <SelectTrigger className="h-8 w-[110px] text-xs font-medium bg-background border">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="z-[200]">
+                    {months.map((monthName, index) => (
+                      <SelectItem key={monthName} value={index.toString()} className="text-xs">
+                        {monthName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={displayMonth.getFullYear().toString()}
+                  onValueChange={handleYearChange}
+                >
+                  <SelectTrigger className="h-8 w-[80px] text-xs font-medium bg-background border">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[200px] z-[200]">
+                    {years.map((year) => (
+                      <SelectItem key={year} value={year.toString()} className="text-xs">
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           );
         },
