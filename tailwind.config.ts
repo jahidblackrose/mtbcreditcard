@@ -68,6 +68,11 @@ export default {
           DEFAULT: "hsl(var(--warning))",
           foreground: "hsl(var(--warning-foreground))",
         },
+        // Mobile CTA (exact #A1ED6F)
+        "mobile-cta": {
+          DEFAULT: "hsl(var(--mobile-cta))",
+          foreground: "hsl(var(--mobile-cta-text))",
+        },
         // Sidebar
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",

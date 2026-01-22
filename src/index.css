@@ -38,9 +38,9 @@
     --mtb-blue: 210 80% 50%;
     --mtb-magenta: 330 75% 50%;
     
-    /* === Mobile CTA Button (Light Lime Green like attachment) === */
-    --mobile-cta: 75 73% 72%;
-    --mobile-cta-text: 0 0% 15%;
+    /* === Mobile CTA Button - Exact #A1ED6F (93 79% 68% HSL) === */
+    --mobile-cta: 93 79% 68%;
+    --mobile-cta-text: 0 0% 7%;
     
     /* === Base Surfaces === */
     --background: 0 0% 100%;
@@ -253,5 +253,19 @@
   .mobile-input-focus:focus {
     @apply ring-2 ring-success/30 border-success;
     transform: translateY(-1px);
+  }
+  
+  /* Mobile CTA Button - Exact #A1ED6F styling */
+  .mobile-cta-button {
+    background-color: #A1ED6F;
+    color: #111111;
+  }
+  
+  .mobile-cta-button:hover:not(:disabled) {
+    background-color: #94e05c;
+  }
+  
+  .mobile-cta-button:disabled {
+    opacity: 0.5;
   }
 }

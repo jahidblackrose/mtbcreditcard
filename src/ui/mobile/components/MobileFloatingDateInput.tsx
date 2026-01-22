@@ -1,9 +1,10 @@
 /**
- * Mobile Date Input - Banking App Style with Floating Labels
+ * Mobile Floating Label Date Input - Banking App Style
  * 
  * Matches attachment:
  * - Empty: placeholder inside
- * - Selected: floating label above, date value below
+ * - Selected: small label floating, date value below
+ * - Calendar icon on right
  */
 
 import { useState, useMemo } from 'react';
@@ -17,11 +18,10 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 
-interface MobileDateInputProps {
+interface MobileFloatingDateInputProps {
   value?: Date | string;
   onChange: (date: Date | undefined) => void;
-  label?: string;
-  placeholder?: string;
+  label: string;
   error?: string;
   minDate?: Date;
   maxDate?: Date;
@@ -30,18 +30,17 @@ interface MobileDateInputProps {
   className?: string;
 }
 
-export function MobileDateInput({
+export function MobileFloatingDateInput({
   value,
   onChange,
   label,
-  placeholder = 'Select date',
   error,
   minDate,
   maxDate,
   minAge,
   disabled = false,
   className,
-}: MobileDateInputProps) {
+}: MobileFloatingDateInputProps) {
   const [open, setOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
 
@@ -75,7 +74,6 @@ export function MobileDateInput({
 
   const hasValue = !!dateValue;
   const isFloating = isFocused || hasValue || open;
-  const displayLabel = label || placeholder;
 
   return (
     <div className={cn('w-full', className)}>
@@ -101,18 +99,16 @@ export function MobileDateInput({
             )}
           >
             {/* Floating Label */}
-            {displayLabel && (
-              <span
-                className={cn(
-                  'absolute left-5 transition-all duration-200 pointer-events-none',
-                  isFloating
-                    ? 'top-2 text-xs text-gray-400 font-normal'
-                    : 'top-1/2 -translate-y-1/2 text-[15px] text-gray-400 font-normal'
-                )}
-              >
-                {displayLabel}
-              </span>
-            )}
+            <span
+              className={cn(
+                'absolute left-5 transition-all duration-200 pointer-events-none',
+                isFloating
+                  ? 'top-2 text-xs text-gray-400 font-normal'
+                  : 'top-1/2 -translate-y-1/2 text-[15px] text-gray-400 font-normal'
+              )}
+            >
+              {label}
+            </span>
             
             {/* Value */}
             <span className={cn(
