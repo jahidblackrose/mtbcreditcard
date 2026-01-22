@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { AlertTriangle, Camera, Check, FileText, Shield, User } from 'lucide-react';
-import { FaceCapture } from '../FaceCapture';
+import { FaceCapture } from '@/ui/application/components/FaceCapture';
 import type { SupplementaryCardData } from '@/types/application-form.types';
 
 interface FinalReviewStepProps {

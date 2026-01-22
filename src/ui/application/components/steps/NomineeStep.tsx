@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { FaceCapture } from '../FaceCapture';
+import { FaceCapture } from '@/ui/application/components/FaceCapture';
 import type { NomineeData } from '@/types/application-form.types';
 
 interface NomineeStepProps {
