@@ -10,3 +10,4 @@ export { MobileRadioCardList } from './MobileRadioCardList';
 export { MobileGenderPills } from './MobileGenderPills';
 export { MobilePhoneInput } from './MobilePhoneInput';
 export { MobileDateInput } from './MobileDateInput';
+export { MobileCheckbox } from './MobileCheckbox';

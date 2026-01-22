@@ -37,7 +37,7 @@ export function MobileRadioCardList({
           {label}
         </label>
       )}
-      <div className="space-y-2">
+      <div className="space-y-3">
         {options.map((option) => {
           const isSelected = value === option.value;
           
@@ -47,22 +47,23 @@ export function MobileRadioCardList({
               type="button"
               onClick={() => onChange(option.value)}
               className={cn(
-                'w-full flex items-center gap-3 p-4 rounded-xl',
-                'bg-card border transition-all duration-200',
+                // White background, rounded like attachment
+                'w-full flex items-center gap-4 p-4 rounded-2xl',
+                'bg-white border-2 transition-all duration-200',
                 'text-left',
                 isSelected
-                  ? 'border-success ring-1 ring-success'
-                  : 'border-border/50 hover:border-border'
+                  ? 'border-success'
+                  : 'border-gray-200 hover:border-gray-300'
               )}
             >
-              {/* Radio Circle */}
+              {/* Radio Circle - Green when selected */}
               <div
                 className={cn(
                   'w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0',
                   'transition-all duration-200',
                   isSelected
                     ? 'border-success bg-success'
-                    : 'border-muted-foreground/40'
+                    : 'border-gray-300'
                 )}
               >
                 {isSelected && (
@@ -73,13 +74,13 @@ export function MobileRadioCardList({
               {/* Label */}
               <div className="flex-1">
                 <span className={cn(
-                  'text-base font-medium',
-                  isSelected ? 'text-foreground' : 'text-foreground/80'
+                  'text-[15px] font-medium',
+                  isSelected ? 'text-foreground' : 'text-gray-600'
                 )}>
                   {option.label}
                 </span>
                 {option.description && (
-                  <p className="text-xs text-muted-foreground mt-0.5">
+                  <p className="text-xs text-gray-400 mt-0.5">
                     {option.description}
                   </p>
                 )}

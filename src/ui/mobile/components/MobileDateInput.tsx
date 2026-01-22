@@ -85,25 +85,26 @@ export function MobileDateInput({
             type="button"
             disabled={disabled}
             className={cn(
+              // White background, very light border like attachment
               'w-full flex items-center justify-between',
-              'bg-card rounded-xl border border-border/50',
-              'px-4 py-3.5 text-base text-left',
-              'focus:outline-none focus:ring-2 focus:ring-success/30 focus:border-success',
+              'bg-white rounded-2xl border border-gray-200',
+              'px-5 py-4 text-[15px] text-left',
+              'focus:outline-none focus:ring-2 focus:ring-success/20 focus:border-success',
               'transition-all duration-200',
-              !dateValue && 'text-muted-foreground/60',
+              !dateValue && 'text-gray-400',
               dateValue && 'text-foreground',
-              error && 'border-destructive focus:ring-destructive/30 focus:border-destructive',
+              error && 'border-destructive focus:ring-destructive/20 focus:border-destructive',
               disabled && 'opacity-50 cursor-not-allowed'
             )}
           >
             <span>
               {dateValue ? format(dateValue, 'PPP') : placeholder}
             </span>
-            <CalendarIcon className="h-5 w-5 text-muted-foreground" />
+            <CalendarIcon className="h-5 w-5 text-gray-400" />
           </button>
         </PopoverTrigger>
         <PopoverContent 
-          className="w-auto p-0 bg-popover border shadow-lg z-[100]" 
+          className="w-auto p-0 bg-white border border-gray-200 shadow-lg z-[100]" 
           align="start"
           sideOffset={4}
         >

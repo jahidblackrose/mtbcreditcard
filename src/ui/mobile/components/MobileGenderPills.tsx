@@ -42,7 +42,7 @@ export function MobileGenderPills({
           {label}
         </label>
       )}
-      <div className="flex gap-2">
+      <div className="flex gap-3">
         {options.map((option) => {
           const isSelected = value === option.value;
           
@@ -52,12 +52,13 @@ export function MobileGenderPills({
               type="button"
               onClick={() => onChange(option.value)}
               className={cn(
-                'flex-1 py-3 px-4 rounded-xl text-sm font-medium',
-                'border transition-all duration-200',
-                'focus:outline-none focus:ring-2 focus:ring-success/30',
+                // Pill style matching attachment
+                'flex-1 py-3.5 px-4 rounded-2xl text-[15px] font-medium',
+                'border-2 transition-all duration-200',
+                'focus:outline-none',
                 isSelected
-                  ? 'bg-success/15 border-success text-success'
-                  : 'bg-card border-border/50 text-foreground/70 hover:border-border'
+                  ? 'bg-success/10 border-success text-success'
+                  : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
               )}
             >
               {option.label}

@@ -33,12 +33,14 @@ export const MobileSelect = forwardRef<HTMLSelectElement, MobileSelectProps>(
           <select
             ref={ref}
             className={cn(
-              'w-full bg-card rounded-xl border border-border/50',
-              'px-4 py-3.5 text-base text-foreground appearance-none',
-              'focus:outline-none focus:ring-2 focus:ring-success/30 focus:border-success',
+              // White background, very light border like attachment
+              'w-full bg-white rounded-2xl',
+              'border border-gray-200',
+              'px-5 py-4 text-[15px] text-foreground appearance-none',
+              'focus:outline-none focus:ring-2 focus:ring-success/20 focus:border-success',
               'transition-all duration-200 cursor-pointer',
-              error && 'border-destructive focus:ring-destructive/30 focus:border-destructive',
-              !props.value && 'text-muted-foreground/60',
+              error && 'border-destructive focus:ring-destructive/20 focus:border-destructive',
+              !props.value && 'text-gray-400',
               className
             )}
             {...props}
@@ -54,7 +56,7 @@ export const MobileSelect = forwardRef<HTMLSelectElement, MobileSelectProps>(
               </option>
             ))}
           </select>
-          <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
+          <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
         </div>
         {error && (
           <p className="text-xs text-destructive mt-1.5 px-1">{error}</p>

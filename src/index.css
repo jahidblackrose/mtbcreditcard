@@ -38,6 +38,10 @@
     --mtb-blue: 210 80% 50%;
     --mtb-magenta: 330 75% 50%;
     
+    /* === Mobile CTA Button (Light Lime Green like attachment) === */
+    --mobile-cta: 75 73% 72%;
+    --mobile-cta-text: 0 0% 15%;
+    
     /* === Base Surfaces === */
     --background: 0 0% 100%;
     --foreground: 220 25% 12%;
