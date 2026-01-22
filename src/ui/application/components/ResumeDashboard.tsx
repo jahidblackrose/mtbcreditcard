@@ -119,15 +119,15 @@ export function ResumeDashboard({
           {/* Resume Existing Application */}
           <Button
             onClick={() => setView('resume')}
-            className="w-full h-auto py-4 flex items-start gap-4 bg-primary hover:bg-primary/90"
+            className="w-full h-auto py-4 flex items-start gap-4 mobile-cta-button hover:opacity-90"
             size="lg"
           >
-            <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-full bg-black/10 flex items-center justify-center flex-shrink-0">
               <CreditCard className="h-5 w-5" />
             </div>
             <div className="text-left">
               <span className="font-semibold block">Resume Application</span>
-              <span className="text-xs opacity-90">Continue your saved credit card application</span>
+              <span className="text-xs opacity-80">Continue your saved credit card application</span>
             </div>
           </Button>
 
@@ -215,7 +215,7 @@ export function ResumeDashboard({
           <Button
             onClick={handleResumeSubmit}
             disabled={mobileNumber.length !== 11 || isLoading}
-            className="w-full bg-primary hover:bg-primary/90"
+            className="w-full mobile-cta-button hover:opacity-90"
           >
             {isLoading ? (
               <>
@@ -269,7 +269,7 @@ export function ResumeDashboard({
           <Button
             onClick={handleStatusCheck}
             disabled={!referenceNumber.trim() || isSearching}
-            className="w-full bg-primary hover:bg-primary/90"
+            className="w-full mobile-cta-button hover:opacity-90"
           >
             {isSearching ? (
               <>

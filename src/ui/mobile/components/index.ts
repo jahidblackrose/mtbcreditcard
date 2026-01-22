@@ -11,3 +11,6 @@ export { MobileGenderPills } from './MobileGenderPills';
 export { MobilePhoneInput } from './MobilePhoneInput';
 export { MobileDateInput } from './MobileDateInput';
 export { MobileCheckbox } from './MobileCheckbox';
+export { MobileFloatingInput } from './MobileFloatingInput';
+export { MobileFloatingSelect } from './MobileFloatingSelect';
+export { MobileFloatingDateInput } from './MobileFloatingDateInput';

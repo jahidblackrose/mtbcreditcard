@@ -360,15 +360,7 @@ export function PreApplicationForm({
             type="button"
             onClick={handleVerifyOtp}
             disabled={otpValue.length !== 6 || isVerifyingOtp || isLocked}
-            className={cn(
-              'w-full py-4 rounded-full text-base font-semibold transition-all',
-              'disabled:opacity-50 disabled:cursor-not-allowed',
-              'focus:outline-none focus:ring-2 focus:ring-success focus:ring-offset-2'
-            )}
-            style={{
-              backgroundColor: 'hsl(var(--success) / 0.15)',
-              color: 'hsl(145 63% 25%)',
-            }}
+            className="w-full py-4 rounded-full text-base font-semibold transition-all mobile-cta-button disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2"
           >
             {isVerifyingOtp ? (
               <span className="flex items-center justify-center gap-2">
@@ -540,15 +532,7 @@ export function PreApplicationForm({
           type="button"
           onClick={form.handleSubmit(handleFormSubmit)}
           disabled={isSendingOtp || isLoading}
-          className={cn(
-            'w-full py-4 rounded-full text-base font-semibold transition-all',
-            'disabled:opacity-50 disabled:cursor-not-allowed',
-            'focus:outline-none focus:ring-2 focus:ring-success focus:ring-offset-2'
-          )}
-          style={{
-            backgroundColor: 'hsl(var(--success) / 0.15)',
-            color: 'hsl(145 63% 25%)',
-          }}
+          className="w-full py-4 rounded-full text-base font-semibold transition-all mobile-cta-button disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2"
         >
           {isSendingOtp ? (
             <span className="flex items-center justify-center gap-2">

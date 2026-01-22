@@ -1,23 +1,23 @@
 /**
- * Mobile Input - Banking App Style with Floating Labels
+ * Mobile Floating Label Input - Banking App Style
  * 
  * Matches attachment exactly:
- * - Empty: placeholder inside
- * - Filled: floating label above, value below
+ * - Empty: placeholder text inside
+ * - Filled: small floating label above, value below
+ * - White card with light gray border
  */
 
-import { forwardRef, InputHTMLAttributes, useState, useEffect, ReactNode } from 'react';
+import { forwardRef, InputHTMLAttributes, useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
-interface MobileInputProps extends InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
+interface MobileFloatingInputProps extends InputHTMLAttributes<HTMLInputElement> {
+  label: string;
   error?: string;
-  leftIcon?: ReactNode;
-  rightIcon?: ReactNode;
+  rightIcon?: React.ReactNode;
 }
 
-export const MobileInput = forwardRef<HTMLInputElement, MobileInputProps>(
-  ({ label, error, leftIcon, rightIcon, className, value, onFocus, onBlur, placeholder, ...props }, ref) => {
+export const MobileFloatingInput = forwardRef<HTMLInputElement, MobileFloatingInputProps>(
+  ({ label, error, rightIcon, className, value, onFocus, onBlur, ...props }, ref) => {
     const [isFocused, setIsFocused] = useState(false);
     const [hasValue, setHasValue] = useState(!!value);
 
@@ -26,16 +26,10 @@ export const MobileInput = forwardRef<HTMLInputElement, MobileInputProps>(
     }, [value]);
 
     const isFloating = isFocused || hasValue;
-    const displayLabel = label || placeholder;
 
     return (
       <div className="w-full">
         <div className="relative">
-          {leftIcon && (
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground z-10">
-              {leftIcon}
-            </div>
-          )}
           <input
             ref={ref}
             value={value}
@@ -57,32 +51,28 @@ export const MobileInput = forwardRef<HTMLInputElement, MobileInputProps>(
               // Focus state with MTB green
               'focus:outline-none focus:ring-2 focus:ring-success/20 focus:border-success',
               'transition-all duration-200',
-              leftIcon && 'pl-12',
               rightIcon && 'pr-12',
               error && 'border-destructive focus:ring-destructive/20 focus:border-destructive',
               className
             )}
-            placeholder={displayLabel}
+            placeholder={label}
             {...props}
           />
           
           {/* Floating Label */}
-          {displayLabel && (
-            <label
-              className={cn(
-                'absolute transition-all duration-200 pointer-events-none',
-                leftIcon ? 'left-12' : 'left-5',
-                isFloating
-                  ? 'top-2 text-xs text-gray-400 font-normal'
-                  : 'top-1/2 -translate-y-1/2 text-[15px] text-gray-400 font-normal'
-              )}
-            >
-              {displayLabel}
-            </label>
-          )}
+          <label
+            className={cn(
+              'absolute left-5 transition-all duration-200 pointer-events-none',
+              isFloating
+                ? 'top-2 text-xs text-gray-400 font-normal'
+                : 'top-1/2 -translate-y-1/2 text-[15px] text-gray-400 font-normal'
+            )}
+          >
+            {label}
+          </label>
           
           {rightIcon && (
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
               {rightIcon}
             </div>
           )}
@@ -95,4 +85,4 @@ export const MobileInput = forwardRef<HTMLInputElement, MobileInputProps>(
   }
 );
 
-MobileInput.displayName = 'MobileInput';
+MobileFloatingInput.displayName = 'MobileFloatingInput';
