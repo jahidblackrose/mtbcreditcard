@@ -44,23 +44,10 @@ export function MobileStepLayout({
   const contentRef = useRef<HTMLDivElement>(null);
   const firstInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Auto-scroll to top and focus first input on mount
+  // Auto-scroll to top on step change (NO auto-focus to prevent cursor in inputs)
   useEffect(() => {
-    // Scroll to top
+    // Scroll to top only - no auto-focus
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    
-    // Focus first input after a short delay for DOM to settle
-    const timer = setTimeout(() => {
-      const firstInput = contentRef.current?.querySelector(
-        'input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled])'
-      ) as HTMLInputElement | null;
-      
-      if (firstInput) {
-        firstInput.focus();
-      }
-    }, 300);
-
-    return () => clearTimeout(timer);
   }, [currentStep]);
 
   const progressPercentage = (currentStep / totalSteps) * 100;
