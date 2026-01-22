@@ -268,4 +268,35 @@
   .mobile-cta-button:disabled {
     opacity: 0.5;
   }
+  
+  /* Force dark text on white inputs for all themes */
+  .force-dark-text {
+    color: #333333 !important;
+  }
+  
+  .force-dark-text::placeholder {
+    color: #888888 !important;
+  }
+}
+
+/* Global input text visibility fix for dark mode */
+@layer base {
+  input, textarea, select {
+    color: hsl(var(--foreground));
+  }
+  
+  /* Ensure inputs in white backgrounds have dark text */
+  .bg-white input,
+  .bg-white textarea,
+  .bg-white select,
+  input.bg-white,
+  textarea.bg-white,
+  select.bg-white {
+    color: #333333;
+  }
+  
+  .bg-white input::placeholder,
+  .bg-white textarea::placeholder {
+    color: #888888;
+  }
 }
