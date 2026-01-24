@@ -290,6 +290,22 @@
     color: #333333 !important;
     caret-color: #333333 !important;
   }
+
+  /*
+   * input-otp integration fix
+   * ------------------------
+   * We globally force dark input text for readability, but `input-otp` uses a
+   * hidden native input (`[data-input-otp]`) that MUST stay transparent.
+   * Otherwise the full OTP value renders left-aligned and looks like it “stacks”
+   * into the first box.
+   */
+  [data-input-otp] {
+    color: transparent !important;
+    caret-color: transparent !important;
+    -webkit-text-fill-color: transparent !important;
+    background: transparent !important;
+    border-color: transparent !important;
+  }
   
   input::placeholder,
   textarea::placeholder {
