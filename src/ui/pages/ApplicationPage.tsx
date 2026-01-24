@@ -26,8 +26,7 @@ import {
   ReferencesStep,
   ImageSignatureStep,
   AutoDebitStep,
-  MIDStep,
-  FinalReviewStep,
+  DeclarationSubmitStep,
 } from '../application/components/steps';
 import { useApplicationForm } from '../application/hooks';
 import { useSession } from '@/hooks/useSession';
@@ -196,12 +195,12 @@ export function ApplicationPage() {
   };
 
   const handleNext = () => {
-    if (applicationData.currentStep === 13) {
+    if (applicationData.currentStep === 12) {
       handleSubmit();
       return;
     }
     
-    if (applicationData.currentStep < 13) {
+    if (applicationData.currentStep < 12) {
       nextStep();
     }
   };
@@ -318,7 +317,7 @@ export function ApplicationPage() {
 
   // Determine proceed button label
   const getProceedLabel = () => {
-    if (applicationData.currentStep === 13) {
+    if (applicationData.currentStep === 12) {
       return 'Submit';
     }
     if (currentStepInfo?.isOptional) {
@@ -427,14 +426,7 @@ export function ApplicationPage() {
         );
       case 12:
         return (
-          <MIDStep
-            initialData={applicationData.mid}
-            onSave={updateMID}
-          />
-        );
-      case 13:
-        return (
-          <FinalReviewStep
+          <DeclarationSubmitStep
             termsAccepted={applicationData.termsAccepted}
             declarationAccepted={applicationData.declarationAccepted}
             onTermsChange={setTermsAccepted}
@@ -485,20 +477,20 @@ export function ApplicationPage() {
 
         <DesktopStepLayout
           currentStep={applicationData.currentStep}
-          totalSteps={13}
+          totalSteps={12}
           steps={APPLICATION_STEPS.map(step => ({
             title: step.title,
             description: step.description,
             isOptional: step.isOptional,
           }))}
           completedSteps={completedSteps}
-          title={currentStepInfo?.title || 'Review & Submit'}
+          title={currentStepInfo?.title || 'Declaration & Submit'}
           description={currentStepInfo?.description}
           onBack={handleBack}
           onProceed={handleNext}
           onStepClick={goToStep}
           proceedLabel={getProceedLabel()}
-          proceedDisabled={isSubmitting || (applicationData.currentStep === 13 && !canSubmit)}
+          proceedDisabled={isSubmitting || (applicationData.currentStep === 12 && !canSubmit)}
           isLoading={isSubmitting}
         >
           {renderError()}
@@ -523,13 +515,13 @@ export function ApplicationPage() {
 
       <MobileStepLayout
         currentStep={applicationData.currentStep}
-        totalSteps={13}
-        title={currentStepInfo?.title || 'Review & Submit'}
+        totalSteps={12}
+        title={currentStepInfo?.title || 'Declaration & Submit'}
         description={currentStepInfo?.description}
         onBack={handleBack}
         onProceed={handleNext}
         proceedLabel={getProceedLabel()}
-        proceedDisabled={isSubmitting || (applicationData.currentStep === 13 && !canSubmit)}
+        proceedDisabled={isSubmitting || (applicationData.currentStep === 12 && !canSubmit)}
         isLoading={isSubmitting}
       >
         {renderError()}

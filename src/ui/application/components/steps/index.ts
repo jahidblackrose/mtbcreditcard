@@ -9,6 +9,4 @@ export { SupplementaryCardStep } from './SupplementaryCardStep';
 export { ReferencesStep } from './ReferencesStep';
 export { ImageSignatureStep } from './ImageSignatureStep';
 export { AutoDebitStep } from './AutoDebitStep';
-export { MIDStep } from './MIDStep';
 export { DeclarationSubmitStep } from './DeclarationSubmitStep';
-export { FinalReviewStep } from './FinalReviewStep';
