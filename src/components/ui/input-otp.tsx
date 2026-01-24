@@ -55,12 +55,10 @@ const InputOTPSlot = React.forwardRef<
       className={cn(
         // Base sizing - fixed dimensions
         "relative flex items-center justify-center",
-        "w-11 h-12 sm:w-12 sm:h-14",
+        "w-12 h-14 sm:w-14 sm:h-16",
         // Border and background
-        "border-2 rounded-lg bg-white",
+        "border-2 rounded-xl bg-white",
         "border-gray-300",
-        // Typography
-        "text-xl sm:text-2xl font-bold text-gray-900",
         // Transitions
         "transition-all duration-150",
         // States
@@ -68,12 +66,18 @@ const InputOTPSlot = React.forwardRef<
         char && !isActive && "border-gray-400 bg-gray-50",
         className
       )}
+      style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}
       {...props}
     >
-      {char}
+      <span 
+        className="text-2xl sm:text-3xl font-bold text-gray-900"
+        style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}
+      >
+        {char}
+      </span>
       {hasFakeCaret && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="animate-caret-blink h-5 w-0.5 bg-gray-900 duration-1000" />
+          <div className="animate-caret-blink h-6 w-0.5 bg-gray-900 duration-1000" />
         </div>
       )}
     </div>
