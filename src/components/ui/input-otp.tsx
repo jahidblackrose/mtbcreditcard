@@ -14,11 +14,19 @@ const InputOTP = React.forwardRef<
   <OTPInput
     ref={ref}
     containerClassName={cn(
-      "flex items-center justify-center gap-2",
+      // Make wrapper relative so the real <input> can be positioned invisibly over it.
+      "relative flex items-center justify-center gap-3 flex-nowrap",
       "has-[:disabled]:opacity-50",
       containerClassName
     )}
-    className={cn("disabled:cursor-not-allowed", className)}
+    // Hide the actual input's text/caret so users only see the per-slot UI.
+    // This prevents the full OTP value from visually stacking in the first slot.
+    className={cn(
+      "absolute inset-0 h-full w-full opacity-0",
+      "caret-transparent text-transparent selection:bg-transparent",
+      "disabled:cursor-not-allowed",
+      className
+    )}
     {...props}
   />
 ));
@@ -30,7 +38,7 @@ const InputOTPGroup = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex items-center gap-2", className)}
+    className={cn("flex items-center gap-3 flex-nowrap", className)}
     {...props}
   />
 ));
@@ -53,31 +61,26 @@ const InputOTPSlot = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        // Base sizing - fixed dimensions
-        "relative flex items-center justify-center",
-        "w-12 h-14 sm:w-14 sm:h-16",
-        // Border and background
-        "border-2 rounded-xl bg-white",
-        "border-gray-300",
+        // Base sizing - fixed dimensions (matches design memory)
+        "relative flex items-center justify-center select-none shrink-0 overflow-hidden",
+        "w-11 h-12 sm:w-12 sm:h-14",
+        // Border and background (semantic tokens)
+        "border-2 rounded-lg bg-background border-input",
+        // Typography
+        "text-xl sm:text-2xl font-bold leading-none text-foreground",
         // Transitions
         "transition-all duration-150",
         // States
-        isActive && "border-success ring-2 ring-success/30 shadow-md",
-        char && !isActive && "border-gray-400 bg-gray-50",
+        isActive && "border-success ring-2 ring-success/30 shadow-sm",
+        char && !isActive && "bg-muted",
         className
       )}
-      style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}
       {...props}
     >
-      <span 
-        className="text-2xl sm:text-3xl font-bold text-gray-900"
-        style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}
-      >
-        {char}
-      </span>
+      {char}
       {hasFakeCaret && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="animate-caret-blink h-6 w-0.5 bg-gray-900 duration-1000" />
+          <div className="animate-caret-blink h-5 w-0.5 bg-foreground duration-1000" />
         </div>
       )}
     </div>
@@ -92,7 +95,7 @@ const InputOTPSeparator = React.forwardRef<
   <div
     ref={ref}
     role="separator"
-    className={cn("text-gray-400", className)}
+    className={cn("text-muted-foreground", className)}
     {...props}
   >
     <span className="text-xl">-</span>
