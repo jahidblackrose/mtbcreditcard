@@ -31,7 +31,13 @@ export function FaceCapture({ onCapture, currentPhoto, label = 'Capture Photo' }
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        setIsStreaming(true);
+        // Ensure playback starts on mobile browsers.
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current
+            ?.play()
+            .then(() => setIsStreaming(true))
+            .catch(() => setIsStreaming(true));
+        };
       }
     } catch (err) {
       setError('Camera access denied. Please enable camera permissions.');
@@ -126,7 +132,7 @@ export function FaceCapture({ onCapture, currentPhoto, label = 'Capture Photo' }
         <CardContent className="p-4">
           <div className="relative aspect-square max-w-[200px] mx-auto">
             <img src={capturedPhoto} alt="Captured" className="w-full h-full object-cover rounded-lg" />
-            <div className="absolute top-2 right-2 bg-green-500 text-white rounded-full p-1">
+            <div className="absolute top-2 right-2 bg-success text-success-foreground rounded-full p-1">
               <Check className="h-4 w-4" />
             </div>
           </div>
@@ -167,10 +173,14 @@ export function FaceCapture({ onCapture, currentPhoto, label = 'Capture Photo' }
               style={{ borderColor: faceDetected ? 'hsl(var(--primary))' : 'hsl(var(--muted))' }}>
               <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className={`w-32 h-40 border-2 rounded-full ${faceDetected ? 'border-green-500' : 'border-white/50'}`} />
+                <div
+                  className={`w-32 h-40 border-2 rounded-full ${
+                    faceDetected ? 'border-success' : 'border-muted-foreground/40'
+                  }`}
+                />
               </div>
               <div className={`absolute bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-medium ${
-                faceDetected ? 'bg-green-500 text-white' : 'bg-muted text-muted-foreground'
+                faceDetected ? 'bg-success text-success-foreground' : 'bg-muted text-muted-foreground'
               }`}>
                 {faceDetected ? 'Face Detected ✓' : 'Position your face'}
               </div>
@@ -180,7 +190,8 @@ export function FaceCapture({ onCapture, currentPhoto, label = 'Capture Photo' }
               <Button variant="outline" className="flex-1" onClick={stopCamera}>
                 <X className="h-4 w-4 mr-2" />Cancel
               </Button>
-              <Button className="flex-1" onClick={capturePhoto} disabled={!faceDetected}>
+              {/* Don't block capture behind heuristic face detection; it frequently fails on real devices. */}
+              <Button className="flex-1" onClick={capturePhoto}>
                 <Camera className="h-4 w-4 mr-2" />Capture
               </Button>
             </div>
