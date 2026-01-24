@@ -6,14 +6,12 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { format, subYears } from 'date-fns';
-import { CalendarIcon, Loader2, CreditCard, Shield, User, ArrowLeft } from 'lucide-react';
+import { subYears } from 'date-fns';
+import { Loader2, CreditCard, User, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { preApplicationSchema, type PreApplicationFormData } from '@/lib/validation-schemas';
 import type { ApplicationMode } from '@/types/application-form.types';
 
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Form,
   FormControl,
@@ -21,12 +19,8 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form';
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from '@/components/ui/input-otp';
 import { ResumeDashboard } from './ResumeDashboard';
+import { OtpVerificationScreen } from './OtpVerificationScreen';
 import { MobileFormCard, MobileFormSection, MobileInput, MobilePhoneInput, MobileDateInput } from '@/ui/mobile/components';
 
 interface PreApplicationFormProps {
@@ -52,15 +46,7 @@ export function PreApplicationForm({
 }: PreApplicationFormProps) {
   const [applicationType, setApplicationType] = useState<'new' | 'resume' | null>(mode === 'ASSISTED' ? 'new' : null);
   const [showOtp, setShowOtp] = useState(false);
-  const [otpValue, setOtpValue] = useState('');
-  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const [isSendingOtp, setIsSendingOtp] = useState(false);
-  const [otpError, setOtpError] = useState<string | null>(null);
-  const [remainingAttempts, setRemainingAttempts] = useState(5);
-  const [isLocked, setIsLocked] = useState(false);
-  const [cooldownSeconds, setCooldownSeconds] = useState(0);
-  const [resendCooldown, setResendCooldown] = useState(120); // 2 minutes
-  const [canResend, setCanResend] = useState(false);
 
   const maxDateOfBirth = subYears(new Date(), 18);
   const minDateOfBirth = new Date('1940-01-01');
@@ -76,23 +62,6 @@ export function PreApplicationForm({
     },
   });
 
-  // Resend countdown timer
-  useEffect(() => {
-    if (showOtp && !canResend) {
-      const interval = setInterval(() => {
-        setResendCooldown(prev => {
-          if (prev <= 1) {
-            setCanResend(true);
-            clearInterval(interval);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-      return () => clearInterval(interval);
-    }
-  }, [showOtp, canResend]);
-
   const handleFormSubmit = async (data: PreApplicationFormData) => {
     if (mode === 'ASSISTED') {
       onSubmit(data);
@@ -103,60 +72,12 @@ export function PreApplicationForm({
       await new Promise(resolve => setTimeout(resolve, 1000));
       setIsSendingOtp(false);
       setShowOtp(true);
-      setResendCooldown(120);
-      setCanResend(false);
     }
   };
 
   const handleResendOtp = async () => {
-    if (!canResend) return;
-    setOtpError(null);
-    setIsSendingOtp(true);
+    // Simulate resend
     await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsSendingOtp(false);
-    setResendCooldown(120);
-    setCanResend(false);
-  };
-
-  const handleVerifyOtp = async () => {
-    setIsVerifyingOtp(true);
-    setOtpError(null);
-    
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    if (otpValue === '123456') {
-      onOtpVerified();
-    } else {
-      const newAttempts = remainingAttempts - 1;
-      setRemainingAttempts(newAttempts);
-      
-      if (newAttempts <= 0) {
-        setIsLocked(true);
-        setCooldownSeconds(30);
-        setOtpError('Too many attempts. Please wait 30 seconds.');
-        const interval = setInterval(() => {
-          setCooldownSeconds(prev => {
-            if (prev <= 1) {
-              clearInterval(interval);
-              setIsLocked(false);
-              setRemainingAttempts(5);
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
-      } else {
-        setOtpError(`Invalid OTP. ${newAttempts} attempts remaining.`);
-      }
-    }
-    
-    setIsVerifyingOtp(false);
-  };
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   // Application type selection for Self mode
@@ -238,141 +159,12 @@ export function PreApplicationForm({
   // OTP Verification Screen
   if (showOtp) {
     return (
-      <div className="min-h-screen bg-mobile-background flex flex-col">
-        {/* Top Bar */}
-        <div className="sticky top-0 z-50 bg-mobile-background px-4 py-3 safe-area-top">
-          <div className="flex items-center gap-4">
-            <button
-              type="button"
-              onClick={() => setShowOtp(false)}
-              className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors"
-            >
-              <ArrowLeft className="h-5 w-5 text-foreground" />
-            </button>
-            <span className="text-base font-medium">Verify OTP</span>
-          </div>
-        </div>
-
-        <div className="flex-1 px-4 pt-6">
-          <div className="max-w-md mx-auto text-center">
-            <div className="mx-auto w-16 h-16 bg-success/10 rounded-2xl flex items-center justify-center mb-6">
-              <Shield className="h-8 w-8 text-success" />
-            </div>
-            
-            <h1 className="text-2xl font-bold text-foreground mb-2">
-              Verify Your Mobile
-            </h1>
-            <p className="text-sm text-muted-foreground mb-8">
-              We've sent a 6-digit OTP to {form.getValues('mobileNumber')}
-            </p>
-
-            {/* Countdown Timer */}
-            <div className="mb-6">
-              <div className="inline-flex items-center gap-2 bg-muted rounded-full px-4 py-2">
-                <span className="text-sm text-muted-foreground">Time remaining:</span>
-                <span className="font-mono font-semibold text-foreground">{formatTime(resendCooldown)}</span>
-              </div>
-            </div>
-
-            {/* Attempt Indicator */}
-            {remainingAttempts < 5 && !isLocked && (
-              <div className={cn(
-                "flex items-center justify-center gap-2 text-sm mb-4",
-                remainingAttempts <= 2 ? "text-destructive" : "text-warning"
-              )}>
-                <Shield className="h-4 w-4" />
-                <span>{remainingAttempts} attempts remaining</span>
-              </div>
-            )}
-
-            {isLocked ? (
-              <MobileFormCard className="mb-6">
-                <div className="text-center py-4">
-                  <p className="text-sm font-medium text-destructive">Too many attempts</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Please wait <span className="font-mono font-semibold">{cooldownSeconds}s</span> before trying again
-                  </p>
-                </div>
-              </MobileFormCard>
-            ) : (
-              <>
-                <div className="flex justify-center mb-6">
-                  <InputOTP
-                    maxLength={6}
-                    value={otpValue}
-                    onChange={(value) => {
-                      setOtpValue(value);
-                      setOtpError(null);
-                    }}
-                  >
-                    <InputOTPGroup className="gap-3">
-                      <InputOTPSlot index={0} />
-                      <InputOTPSlot index={1} />
-                      <InputOTPSlot index={2} />
-                      <InputOTPSlot index={3} />
-                      <InputOTPSlot index={4} />
-                      <InputOTPSlot index={5} />
-                    </InputOTPGroup>
-                  </InputOTP>
-                </div>
-                
-                {otpError && (
-                  <p className="text-sm text-destructive text-center mb-4">{otpError}</p>
-                )}
-                
-                <p className="text-xs text-muted-foreground text-center mb-6">
-                  For demo: use OTP <span className="font-mono font-bold">123456</span>
-                </p>
-              </>
-            )}
-
-            {/* Resend Button */}
-            <div className="text-center mb-6">
-              <button
-                type="button"
-                onClick={handleResendOtp}
-                disabled={!canResend || isSendingOtp}
-                className={cn(
-                  "text-sm font-medium transition-colors",
-                  canResend 
-                    ? "text-success hover:underline" 
-                    : "text-muted-foreground cursor-not-allowed"
-                )}
-              >
-                {isSendingOtp ? (
-                  <span className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Sending...
-                  </span>
-                ) : canResend ? (
-                  "Resend OTP"
-                ) : (
-                  `Resend in ${formatTime(resendCooldown)}`
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom CTA */}
-        <div className="sticky bottom-0 bg-mobile-background border-t border-border px-4 py-4 safe-area-bottom">
-          <button
-            type="button"
-            onClick={handleVerifyOtp}
-            disabled={otpValue.length !== 6 || isVerifyingOtp || isLocked}
-            className="w-full py-4 rounded-full text-base font-semibold transition-all mobile-cta-button disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2"
-          >
-            {isVerifyingOtp ? (
-              <span className="flex items-center justify-center gap-2">
-                <Loader2 className="h-5 w-5 animate-spin" />
-                Verifying...
-              </span>
-            ) : (
-              'Verify & Continue'
-            )}
-          </button>
-        </div>
-      </div>
+      <OtpVerificationScreen
+        mobileNumber={form.getValues('mobileNumber')}
+        onVerify={onOtpVerified}
+        onBack={() => setShowOtp(false)}
+        onResend={handleResendOtp}
+      />
     );
   }
 

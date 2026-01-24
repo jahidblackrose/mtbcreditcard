@@ -7,4 +7,5 @@ export { ResumeDashboard } from './ResumeDashboard';
 export { FaceCapture } from './FaceCapture';
 export { SignatureCapture } from './SignatureCapture';
 export { SubmissionSuccess } from './SubmissionSuccess';
+export { OtpVerificationScreen } from './OtpVerificationScreen';
 export * from './steps';
