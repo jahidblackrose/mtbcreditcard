@@ -1,18 +1,40 @@
 /**
  * Step 8: Supplementary Card Information (Optional)
+ * 
+ * Matches Official MTB Paper Form exactly with all fields:
+ * - Full Name
+ * - Name on Card (max 22 chars)
+ * - Relationship (checkbox style): Brother / Daughter / Parent / Sister / Son / Other
+ * - Date of Birth
+ * - Gender: Female / Male / Others
+ * - Mother's Name
+ * - Father's Name
+ * - Spouse's Name
+ * - Present Address (textarea)
+ * - Permanent Address (textarea)
+ * - NID / Birth Certificate Number
+ * - TIN
+ * - Contact Number
+ * - E-mail
+ * - Passport Number
+ * - Passport Issue Date
+ * - Passport Expiry Date
+ * - Spending Limit (%)
  */
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { supplementaryCardSchema, type SupplementaryCardFormData } from '@/lib/validation-schemas';
+import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
-import { DatePicker } from '@/components/ui/date-picker';
+import { SimpleDatePicker } from '@/components/ui/simple-date-picker';
+import { subYears } from 'date-fns';
+import { CreditCard, User, Users, MapPin, FileText, Phone, Percent } from 'lucide-react';
 import type { SupplementaryCardData } from '@/types/application-form.types';
 
 interface SupplementaryCardStepProps {
@@ -22,29 +44,46 @@ interface SupplementaryCardStepProps {
   onSave: (data: SupplementaryCardData) => void;
 }
 
+// Relationship options - EXACTLY as per paper form
 const RELATIONSHIPS = [
-  { value: 'FATHER', label: 'Father' },
-  { value: 'MOTHER', label: 'Mother' },
-  { value: 'SON', label: 'Son' },
-  { value: 'DAUGHTER', label: 'Daughter' },
-  { value: 'SPOUSE', label: 'Spouse' },
-  { value: 'OTHER', label: 'Other' },
-];
+  { id: 'BROTHER', label: 'Brother' },
+  { id: 'DAUGHTER', label: 'Daughter' },
+  { id: 'PARENT', label: 'Parent' },
+  { id: 'SISTER', label: 'Sister' },
+  { id: 'SON', label: 'Son' },
+  { id: 'OTHER', label: 'Other' },
+] as const;
 
+// Gender options - EXACTLY as per paper form
 const GENDERS = [
-  { value: 'MALE', label: 'Male' },
-  { value: 'FEMALE', label: 'Female' },
-  { value: 'OTHER', label: 'Other' },
-];
+  { id: 'FEMALE', label: 'Female' },
+  { id: 'MALE', label: 'Male' },
+  { id: 'OTHER', label: 'Others' },
+] as const;
 
-const emptyAddress = {
-  addressLine1: '',
-  addressLine2: '',
-  city: '',
-  district: '',
-  postalCode: '',
-  country: 'Bangladesh',
-};
+// Full validation schema matching paper form
+const supplementarySchema = z.object({
+  fullName: z.string().min(2, 'Full name is required').max(100),
+  nameOnCard: z.string().min(2, 'Name on card is required').max(22, 'Maximum 22 characters'),
+  relationship: z.string().min(1, 'Please select a relationship'),
+  dateOfBirth: z.string().min(1, 'Date of birth is required'),
+  gender: z.string().min(1, 'Please select gender'),
+  motherName: z.string().min(2, "Mother's name is required"),
+  fatherName: z.string().min(2, "Father's name is required"),
+  spouseName: z.string().optional(),
+  presentAddress: z.string().min(10, 'Present address is required'),
+  permanentAddress: z.string().min(10, 'Permanent address is required'),
+  nidOrBirthCertNo: z.string().min(10, 'NID/Birth Certificate number is required'),
+  tin: z.string().optional(),
+  contactNumber: z.string().regex(/^01\d{9}$/, 'Must be 11 digits starting with 01'),
+  email: z.string().email('Invalid email address'),
+  passportNumber: z.string().optional(),
+  passportIssueDate: z.string().optional(),
+  passportExpiryDate: z.string().optional(),
+  spendingLimitPercentage: z.number().min(1).max(100),
+});
+
+type SupplementaryFormData = z.infer<typeof supplementarySchema>;
 
 export function SupplementaryCardStep({ 
   initialData, 
@@ -52,22 +91,29 @@ export function SupplementaryCardStep({
   onToggle, 
   onSave 
 }: SupplementaryCardStepProps) {
-  const form = useForm<SupplementaryCardFormData>({
-    resolver: zodResolver(supplementaryCardSchema),
+  const maxDOB = subYears(new Date(), 18);
+
+  const form = useForm<SupplementaryFormData>({
+    resolver: zodResolver(supplementarySchema),
     defaultValues: {
       fullName: initialData?.fullName || '',
       nameOnCard: initialData?.nameOnCard || '',
-      relationship: initialData?.relationship || undefined,
+      relationship: initialData?.relationship || '',
       dateOfBirth: initialData?.dateOfBirth || '',
-      gender: initialData?.gender || undefined,
+      gender: initialData?.gender || '',
+      motherName: (initialData as any)?.motherName || '',
       fatherName: initialData?.fatherName || '',
-      motherName: initialData?.motherName || '',
       spouseName: initialData?.spouseName || '',
-      presentAddress: initialData?.presentAddress || emptyAddress,
-      permanentAddress: initialData?.permanentAddress || emptyAddress,
-      sameAsPermanent: initialData?.sameAsPermanent || false,
+      presentAddress: typeof initialData?.presentAddress === 'string' 
+        ? initialData.presentAddress 
+        : initialData?.presentAddress?.addressLine1 || '',
+      permanentAddress: typeof initialData?.permanentAddress === 'string'
+        ? initialData.permanentAddress
+        : initialData?.permanentAddress?.addressLine1 || '',
       nidOrBirthCertNo: initialData?.nidOrBirthCertNo || '',
       tin: initialData?.tin || '',
+      contactNumber: '',
+      email: '',
       passportNumber: initialData?.passportNumber || '',
       passportIssueDate: initialData?.passportIssueDate || '',
       passportExpiryDate: initialData?.passportExpiryDate || '',
@@ -76,33 +122,29 @@ export function SupplementaryCardStep({
     mode: 'onChange',
   });
 
-  const sameAsPermanent = form.watch('sameAsPermanent');
   const spendingLimit = form.watch('spendingLimitPercentage');
 
   const handleFieldChange = () => {
     const values = form.getValues();
     if (form.formState.isValid) {
-      onSave(values as SupplementaryCardData);
+      // Map form data to expected type
+      onSave(values as unknown as SupplementaryCardData);
     }
   };
 
-  const handleSameAsPermanent = (checked: boolean) => {
-    form.setValue('sameAsPermanent', checked);
-    if (checked) {
-      const permanentAddress = form.getValues('permanentAddress');
-      form.setValue('presentAddress', { ...permanentAddress });
-    }
-    handleFieldChange();
-  };
-
+  // Show invitation screen if not adding supplementary card
   if (!hasSupplementaryCard) {
     return (
       <div className="text-center py-12">
-        <h3 className="text-lg font-semibold mb-2">Supplementary Card</h3>
-        <p className="text-muted-foreground mb-6">
-          Would you like to add a supplementary card holder?
+        <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+          <CreditCard className="h-8 w-8 text-primary" />
+        </div>
+        <h3 className="text-xl font-semibold mb-2">Supplementary Card</h3>
+        <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+          Would you like to add a supplementary card holder? This allows a family member to have their own card linked to your account.
         </p>
-        <Button onClick={() => onToggle(true)}>
+        <Button onClick={() => onToggle(true)} className="mobile-cta-button">
+          <User className="mr-2 h-4 w-4" />
           Add Supplementary Card
         </Button>
         <p className="text-xs text-muted-foreground mt-4">
@@ -112,119 +154,147 @@ export function SupplementaryCardStep({
     );
   }
 
+  // Full form matching paper form exactly
   return (
     <Form {...form}>
       <form className="space-y-6" onChange={handleFieldChange}>
+        {/* Header with Remove option */}
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Supplementary Card Holder</h3>
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <User className="h-5 w-5" />
+            Supplementary Card Holder Details
+          </h3>
           <Button variant="ghost" size="sm" onClick={() => onToggle(false)}>
             Remove
           </Button>
         </div>
 
-        {/* Basic Info */}
-        <div className="space-y-4">
+        {/* Section 1: Basic Information */}
+        <div className="space-y-4 p-4 bg-muted/30 rounded-lg">
+          <h4 className="font-medium flex items-center gap-2">
+            <User className="h-4 w-4" />
+            Basic Information
+          </h4>
+          
+          {/* Full Name */}
+          <FormField
+            control={form.control}
+            name="fullName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Full Name *</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Full legal name as per NID" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Name on Card */}
+          <FormField
+            control={form.control}
+            name="nameOnCard"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name on Card (max 22 characters) *</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="NAME AS ON CARD"
+                    className="uppercase"
+                    maxLength={22}
+                    onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                  />
+                </FormControl>
+                <FormDescription>
+                  {field.value?.length || 0}/22 characters
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Relationship - Checkbox Style as per paper form */}
+          <FormField
+            control={form.control}
+            name="relationship"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Relationship *</FormLabel>
+                <div className="flex flex-wrap gap-4 pt-2">
+                  {RELATIONSHIPS.map((rel) => (
+                    <label
+                      key={rel.id}
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      <Checkbox
+                        checked={field.value === rel.id}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            field.onChange(rel.id);
+                            handleFieldChange();
+                          }
+                        }}
+                      />
+                      <span className="text-sm">{rel.label}</span>
+                    </label>
+                  ))}
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <div className="grid gap-4 sm:grid-cols-2">
-            <FormField
-              control={form.control}
-              name="fullName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Full Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Full legal name" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="nameOnCard"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name on Card (BLOCK LETTERS)</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="JOHN DOE"
-                      className="uppercase"
-                      onChange={(e) => field.onChange(e.target.value.toUpperCase())}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-3">
-            <FormField
-              control={form.control}
-              name="relationship"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Relationship</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {RELATIONSHIPS.map((rel) => (
-                        <SelectItem key={rel.value} value={rel.value}>
-                          {rel.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="gender"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Gender</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {GENDERS.map((g) => (
-                        <SelectItem key={g.value} value={g.value}>
-                          {g.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
+            {/* Date of Birth */}
             <FormField
               control={form.control}
               name="dateOfBirth"
               render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Date of Birth</FormLabel>
-                  <DatePicker
+                <FormItem>
+                  <FormLabel>Date of Birth *</FormLabel>
+                  <SimpleDatePicker
                     value={field.value}
                     onChange={(date) => {
                       field.onChange(date?.toISOString() || '');
                       handleFieldChange();
                     }}
-                    maxDate={new Date()}
-                    className="w-full pl-3 text-left font-normal"
+                    maxDate={maxDOB}
+                    placeholder="DD-MM-YYYY"
                   />
+                  <FormDescription>Must be at least 18 years old</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Gender - Checkbox Style as per paper form */}
+            <FormField
+              control={form.control}
+              name="gender"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Gender *</FormLabel>
+                  <div className="flex flex-wrap gap-4 pt-2">
+                    {GENDERS.map((g) => (
+                      <label
+                        key={g.id}
+                        className="flex items-center gap-2 cursor-pointer"
+                      >
+                        <Checkbox
+                          checked={field.value === g.id}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              field.onChange(g.id);
+                              handleFieldChange();
+                            }
+                          }}
+                        />
+                        <span className="text-sm">{g.label}</span>
+                      </label>
+                    ))}
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -234,19 +304,22 @@ export function SupplementaryCardStep({
 
         <Separator />
 
-        {/* Family Info */}
-        <div className="space-y-4">
-          <h4 className="font-medium">Family Information</h4>
+        {/* Section 2: Family Information */}
+        <div className="space-y-4 p-4 bg-muted/30 rounded-lg">
+          <h4 className="font-medium flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Family Information
+          </h4>
           
           <div className="grid gap-4 sm:grid-cols-2">
             <FormField
               control={form.control}
-              name="fatherName"
+              name="motherName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Father's Name</FormLabel>
+                  <FormLabel>Mother's Name *</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Father's full name" />
+                    <Input {...field} placeholder="Mother's full name" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -255,12 +328,12 @@ export function SupplementaryCardStep({
 
             <FormField
               control={form.control}
-              name="motherName"
+              name="fatherName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Mother's Name</FormLabel>
+                  <FormLabel>Father's Name *</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Mother's full name" />
+                    <Input {...field} placeholder="Father's full name" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -273,9 +346,9 @@ export function SupplementaryCardStep({
             name="spouseName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Spouse's Name (if applicable)</FormLabel>
+                <FormLabel>Spouse's Name</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Spouse's full name" />
+                  <Input {...field} placeholder="Spouse's full name (if applicable)" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -285,18 +358,86 @@ export function SupplementaryCardStep({
 
         <Separator />
 
-        {/* Identity */}
-        <div className="space-y-4">
-          <h4 className="font-medium">Identity Documents</h4>
-          
+        {/* Section 3: Address Information */}
+        <div className="space-y-4 p-4 bg-muted/30 rounded-lg">
+          <h4 className="font-medium flex items-center gap-2">
+            <MapPin className="h-4 w-4" />
+            Address Information
+          </h4>
+
+          <FormField
+            control={form.control}
+            name="presentAddress"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Present Address *</FormLabel>
+                <FormControl>
+                  <Textarea
+                    {...field}
+                    placeholder="Enter complete present address"
+                    rows={3}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="permanentAddress"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Permanent Address *</FormLabel>
+                <FormControl>
+                  <Textarea
+                    {...field}
+                    placeholder="Enter complete permanent address"
+                    rows={3}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <Separator />
+
+        {/* Section 4: Identity Documents */}
+        <div className="space-y-4 p-4 bg-muted/30 rounded-lg">
+          <h4 className="font-medium flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            Identity Documents
+          </h4>
+
           <FormField
             control={form.control}
             name="nidOrBirthCertNo"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>NID / Birth Certificate No</FormLabel>
+                <FormLabel>NID / Birth Certificate Number *</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Document number" />
+                  <Input {...field} placeholder="Enter NID or Birth Certificate number" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="tin"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>TIN (Tax Identification Number)</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="12-digit TIN (if any)"
+                    maxLength={12}
+                    onChange={(e) => field.onChange(e.target.value.replace(/\D/g, ''))}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -306,29 +447,10 @@ export function SupplementaryCardStep({
           <div className="grid gap-4 sm:grid-cols-3">
             <FormField
               control={form.control}
-              name="tin"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>TIN (if any)</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="12 digits"
-                      maxLength={12}
-                      onChange={(e) => field.onChange(e.target.value.replace(/\D/g, ''))}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
               name="passportNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Passport No</FormLabel>
+                  <FormLabel>Passport Number</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Passport number" />
                   </FormControl>
@@ -339,19 +461,38 @@ export function SupplementaryCardStep({
 
             <FormField
               control={form.control}
+              name="passportIssueDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Passport Issue Date</FormLabel>
+                  <SimpleDatePicker
+                    value={field.value}
+                    onChange={(date) => {
+                      field.onChange(date?.toISOString() || '');
+                      handleFieldChange();
+                    }}
+                    maxDate={new Date()}
+                    placeholder="DD-MM-YYYY"
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="passportExpiryDate"
               render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Passport Expiry</FormLabel>
-                  <DatePicker
+                <FormItem>
+                  <FormLabel>Passport Expiry Date</FormLabel>
+                  <SimpleDatePicker
                     value={field.value}
                     onChange={(date) => {
                       field.onChange(date?.toISOString() || '');
                       handleFieldChange();
                     }}
                     minDate={new Date()}
-                    toYear={new Date().getFullYear() + 20}
-                    className="w-full pl-3 text-left font-normal"
+                    placeholder="DD-MM-YYYY"
                   />
                   <FormMessage />
                 </FormItem>
@@ -362,10 +503,63 @@ export function SupplementaryCardStep({
 
         <Separator />
 
-        {/* Spending Limit */}
-        <div className="space-y-4">
-          <h4 className="font-medium">Spending Limit</h4>
-          
+        {/* Section 5: Contact Information */}
+        <div className="space-y-4 p-4 bg-muted/30 rounded-lg">
+          <h4 className="font-medium flex items-center gap-2">
+            <Phone className="h-4 w-4" />
+            Contact Information
+          </h4>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField
+              control={form.control}
+              name="contactNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Contact Number *</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="01XXXXXXXXX"
+                      maxLength={11}
+                      onChange={(e) => field.onChange(e.target.value.replace(/\D/g, ''))}
+                    />
+                  </FormControl>
+                  <FormDescription>11 digits starting with 01</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>E-mail *</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="email"
+                      placeholder="email@example.com"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Section 6: Spending Limit */}
+        <div className="space-y-4 p-4 bg-muted/30 rounded-lg">
+          <h4 className="font-medium flex items-center gap-2">
+            <Percent className="h-4 w-4" />
+            Spending Limit
+          </h4>
+
           <FormField
             control={form.control}
             name="spendingLimitPercentage"
@@ -386,7 +580,7 @@ export function SupplementaryCardStep({
                   />
                 </FormControl>
                 <FormDescription>
-                  Percentage of your credit limit for the supplementary card
+                  Percentage of primary cardholder's credit limit for the supplementary card
                 </FormDescription>
                 <FormMessage />
               </FormItem>

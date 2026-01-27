@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/form';
 import { ResumeDashboard } from './ResumeDashboard';
 import { OtpVerificationScreen } from './OtpVerificationScreen';
+import { ExistingApplicantSupplementary } from './ExistingApplicantSupplementary';
 import { MobileFormCard, MobileFormSection, MobileInput, MobilePhoneInput, MobileDateInput } from '@/ui/mobile/components';
 
 interface PreApplicationFormProps {
@@ -44,7 +45,7 @@ export function PreApplicationForm({
   onCheckStatus,
   isLoading = false,
 }: PreApplicationFormProps) {
-  const [applicationType, setApplicationType] = useState<'new' | 'resume' | null>(mode === 'ASSISTED' ? 'new' : null);
+  const [applicationType, setApplicationType] = useState<'new' | 'resume' | 'supplementary' | null>(mode === 'ASSISTED' ? 'new' : null);
   const [showOtp, setShowOtp] = useState(false);
   const [isSendingOtp, setIsSendingOtp] = useState(false);
 
@@ -148,10 +149,23 @@ export function PreApplicationForm({
     return (
       <ResumeDashboard
         onResumeApplication={onResumeApplication!}
-        onSupplementaryOnly={onSupplementaryOnly!}
+        onSupplementaryOnly={() => setApplicationType('supplementary')}
         onCheckStatus={onCheckStatus!}
         onBack={() => setApplicationType(null)}
         isLoading={isLoading}
+      />
+    );
+  }
+
+  // Existing Applicant - Add Supplementary Card Flow
+  if (applicationType === 'supplementary') {
+    return (
+      <ExistingApplicantSupplementary
+        onBack={() => setApplicationType('resume')}
+        onComplete={() => {
+          // Handle completion - could show success message or redirect
+          setApplicationType(null);
+        }}
       />
     );
   }

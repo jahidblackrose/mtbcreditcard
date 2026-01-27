@@ -1,20 +1,15 @@
 /**
  * Mobile Date Input - Banking App Style with Floating Labels
- * Uses DD-MM-YYYY format (e.g., 16-01-2004)
+ * Uses SimpleCalendar for rock-solid stability
+ * DD-MM-YYYY format (e.g., 16-01-2004)
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { subYears } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Calendar } from '@/components/ui/calendar';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { SimpleCalendar } from '@/components/ui/simple-calendar';
 import { formatDateDDMMYYYY } from '@/lib/bangladesh-locations';
-import { usePopoverCloseGuard } from '@/hooks/usePopoverCloseGuard';
 
 interface MobileDateInputProps {
   value?: Date | string;
@@ -41,9 +36,9 @@ export function MobileDateInput({
   disabled = false,
   className,
 }: MobileDateInputProps) {
-  const [open, setOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  const { markInteracting, shouldIgnoreClose, resetInteracting, preventOutsideClose } = usePopoverCloseGuard(3000);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const calculatedMaxDate = useMemo(() => {
     if (minAge) {
@@ -64,92 +59,101 @@ export function MobileDateInput({
 
   const handleSelect = (date: Date | undefined) => {
     onChange(date);
-    resetInteracting();
-    setOpen(false);
+    setIsOpen(false);
+    setIsFocused(false);
   };
 
-  const isDateDisabled = (date: Date) => {
-    if (calculatedMaxDate && date > calculatedMaxDate) return true;
-    if (minDate && date < minDate) return true;
-    return false;
+  // Handle outside click
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+        setIsFocused(false);
+      }
+    };
+
+    const timeoutId = setTimeout(() => {
+      document.addEventListener('mousedown', handleClickOutside);
+    }, 0);
+
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
+
+  const toggleCalendar = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!disabled) {
+      setIsOpen(!isOpen);
+      setIsFocused(!isOpen);
+    }
   };
 
   const hasValue = !!dateValue;
-  const isFloating = isFocused || hasValue || open;
+  const isFloating = isFocused || hasValue || isOpen;
   const displayLabel = label || placeholder;
 
   return (
-    <div className={cn('w-full', className)}>
-      <Popover 
-        open={open} 
-        onOpenChange={(v) => {
-          if (shouldIgnoreClose(v)) return;
-          setOpen(v);
-          setIsFocused(v);
-        }}
+    <div ref={containerRef} className={cn('w-full relative', className)}>
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={toggleCalendar}
+        className={cn(
+          'w-full relative text-left',
+          'bg-card rounded-2xl border border-border',
+          'px-5 pt-6 pb-3',
+          'focus:outline-none focus:ring-2 focus:ring-success/20 focus:border-success',
+          'transition-all duration-200',
+          error && 'border-destructive focus:ring-destructive/20 focus:border-destructive',
+          disabled && 'opacity-50 cursor-not-allowed'
+        )}
       >
-        <PopoverTrigger asChild>
-          <button
-            type="button"
-            disabled={disabled}
+        {/* Floating Label */}
+        {displayLabel && (
+          <span
             className={cn(
-              'w-full relative text-left',
-              'bg-card rounded-2xl border border-border',
-              'px-5 pt-6 pb-3',
-              'focus:outline-none focus:ring-2 focus:ring-success/20 focus:border-success',
-              'transition-all duration-200',
-              error && 'border-destructive focus:ring-destructive/20 focus:border-destructive',
-              disabled && 'opacity-50 cursor-not-allowed'
+              'absolute left-5 transition-all duration-200 pointer-events-none',
+              isFloating
+                ? 'top-2 text-xs text-muted-foreground font-normal'
+                : 'top-1/2 -translate-y-1/2 text-[15px] text-muted-foreground font-normal'
             )}
           >
-            {/* Floating Label */}
-            {displayLabel && (
-              <span
-                className={cn(
-                  'absolute left-5 transition-all duration-200 pointer-events-none',
-                  isFloating
-                    ? 'top-2 text-xs text-muted-foreground font-normal'
-                    : 'top-1/2 -translate-y-1/2 text-[15px] text-muted-foreground font-normal'
-                )}
-              >
-                {displayLabel}
-              </span>
-            )}
-            
-            {/* Value - DD-MM-YYYY format */}
-            <span className={cn(
-              'text-[15px] font-medium block mt-1',
-              hasValue ? 'text-foreground' : 'text-transparent'
-            )}>
-              {dateValue ? formatDateDDMMYYYY(dateValue) : 'DD-MM-YYYY'}
-            </span>
-            
-            <CalendarIcon className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          </button>
-        </PopoverTrigger>
-        <PopoverContent 
-          className="w-auto p-0 bg-background border border-border shadow-xl z-[200]" 
-          align="start"
-          sideOffset={4}
-          onPointerDownCapture={markInteracting}
-          onWheelCapture={markInteracting}
-          onKeyDownCapture={markInteracting}
-          onPointerDownOutside={preventOutsideClose}
-          onFocusOutside={preventOutsideClose}
-          onInteractOutside={preventOutsideClose}
+            {displayLabel}
+          </span>
+        )}
+        
+        {/* Value - DD-MM-YYYY format */}
+        <span className={cn(
+          'text-[15px] font-medium block mt-1',
+          hasValue ? 'text-foreground' : 'text-transparent'
+        )}>
+          {dateValue ? formatDateDDMMYYYY(dateValue) : 'DD-MM-YYYY'}
+        </span>
+        
+        <CalendarIcon className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+      </button>
+
+      {/* Calendar Popup */}
+      {isOpen && (
+        <div 
+          className="absolute z-[500] mt-1 left-0"
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
         >
-          <Calendar
-            mode="single"
+          <SimpleCalendar
             selected={dateValue}
             onSelect={handleSelect}
-            disabled={isDateDisabled}
-            defaultMonth={dateValue || calculatedMaxDate || new Date()}
-            fromYear={minDate?.getFullYear() || 1940}
-            toYear={calculatedMaxDate?.getFullYear() || new Date().getFullYear()}
-            className="pointer-events-auto"
+            minDate={minDate}
+            maxDate={calculatedMaxDate}
           />
-        </PopoverContent>
-      </Popover>
+        </div>
+      )}
+
       {error && (
         <p className="text-xs text-destructive mt-1.5 px-1">{error}</p>
       )}
