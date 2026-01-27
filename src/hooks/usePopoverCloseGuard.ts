@@ -37,6 +37,16 @@ export function usePopoverCloseGuard(delayMs: number = 1200) {
     return nextOpen === false && interactingRef.current === true;
   }, []);
 
+  /**
+   * Radix fires pointer/focus outside events when the native <select> (month/year)
+   * opens its OS dropdown, because that UI is rendered outside the popover DOM.
+   * While we're "interacting", we preventDefault those events to stop auto-dismiss.
+   */
+  const preventOutsideClose = useCallback((event: any) => {
+    if (interactingRef.current !== true) return;
+    if (typeof event?.preventDefault === "function") event.preventDefault();
+  }, []);
+
   useEffect(() => {
     return () => {
       if (timeoutRef.current !== null) {
@@ -45,5 +55,5 @@ export function usePopoverCloseGuard(delayMs: number = 1200) {
     };
   }, []);
 
-  return { markInteracting, shouldIgnoreClose, resetInteracting };
+  return { markInteracting, shouldIgnoreClose, resetInteracting, preventOutsideClose };
 }

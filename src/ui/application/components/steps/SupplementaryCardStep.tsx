@@ -2,7 +2,6 @@
  * Step 8: Supplementary Card Information (Optional)
  */
 
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { supplementaryCardSchema, type SupplementaryCardFormData } from '@/lib/validation-schemas';
@@ -12,20 +11,9 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { CalendarIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { DatePicker } from '@/components/ui/date-picker';
 import type { SupplementaryCardData } from '@/types/application-form.types';
-
-// Format date as DD-MM-YYYY
-function formatDateDDMMYYYY(date: Date): string {
-  const day = date.getDate().toString().padStart(2, '0');
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const year = date.getFullYear();
-  return `${day}-${month}-${year}`;
-}
 
 interface SupplementaryCardStepProps {
   initialData?: Partial<SupplementaryCardData>;
@@ -64,10 +52,6 @@ export function SupplementaryCardStep({
   onToggle, 
   onSave 
 }: SupplementaryCardStepProps) {
-  // Date picker states
-  const [dobOpen, setDobOpen] = useState(false);
-  const [passportExpiryOpen, setPassportExpiryOpen] = useState(false);
-
   const form = useForm<SupplementaryCardFormData>({
     resolver: zodResolver(supplementaryCardSchema),
     defaultValues: {
@@ -232,35 +216,15 @@ export function SupplementaryCardStep({
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Date of Birth</FormLabel>
-                  <Popover open={dobOpen} onOpenChange={setDobOpen}>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? formatDateDDMMYYYY(new Date(field.value)) : <span>DD-MM-YYYY</span>}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start" sideOffset={4}>
-                      <Calendar
-                        mode="single"
-                        selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => {
-                          field.onChange(date?.toISOString() || '');
-                          setDobOpen(false);
-                        }}
-                        disabled={(date) => date > new Date()}
-                        defaultMonth={field.value ? new Date(field.value) : new Date()}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <DatePicker
+                    value={field.value}
+                    onChange={(date) => {
+                      field.onChange(date?.toISOString() || '');
+                      handleFieldChange();
+                    }}
+                    maxDate={new Date()}
+                    className="w-full pl-3 text-left font-normal"
+                  />
                   <FormMessage />
                 </FormItem>
               )}
@@ -379,35 +343,16 @@ export function SupplementaryCardStep({
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Passport Expiry</FormLabel>
-                  <Popover open={passportExpiryOpen} onOpenChange={setPassportExpiryOpen}>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? formatDateDDMMYYYY(new Date(field.value)) : <span>DD-MM-YYYY</span>}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start" sideOffset={4}>
-                      <Calendar
-                        mode="single"
-                        selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => {
-                          field.onChange(date?.toISOString() || '');
-                          setPassportExpiryOpen(false);
-                        }}
-                        disabled={(date) => date < new Date()}
-                        defaultMonth={field.value ? new Date(field.value) : new Date()}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <DatePicker
+                    value={field.value}
+                    onChange={(date) => {
+                      field.onChange(date?.toISOString() || '');
+                      handleFieldChange();
+                    }}
+                    minDate={new Date()}
+                    toYear={new Date().getFullYear() + 20}
+                    className="w-full pl-3 text-left font-normal"
+                  />
                   <FormMessage />
                 </FormItem>
               )}

@@ -18,6 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { usePopoverCloseGuard } from '@/hooks/usePopoverCloseGuard';
 
 interface DesktopDatePickerProps {
   label: string;
@@ -35,7 +36,7 @@ export function DesktopDatePicker({
   label,
   value,
   onChange,
-  placeholder = 'Select date',
+  placeholder = 'DD-MM-YYYY',
   error,
   helperText,
   minDate,
@@ -43,9 +44,11 @@ export function DesktopDatePicker({
   disabled = false,
 }: DesktopDatePickerProps) {
   const [open, setOpen] = useState(false);
+  const { markInteracting, shouldIgnoreClose, resetInteracting, preventOutsideClose } = usePopoverCloseGuard(3000);
 
   const handleSelect = (date: Date | undefined) => {
     onChange(date);
+    resetInteracting();
     setOpen(false);
   };
 
@@ -54,7 +57,13 @@ export function DesktopDatePicker({
       <label className="block text-sm font-medium text-foreground mb-1.5">
         {label}
       </label>
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover
+        open={open}
+        onOpenChange={(v) => {
+          if (shouldIgnoreClose(v)) return;
+          setOpen(v);
+        }}
+      >
         <PopoverTrigger asChild>
           <Button
             variant="outline"
@@ -72,7 +81,16 @@ export function DesktopDatePicker({
             <CalendarIcon className="ml-auto h-4 w-4 text-muted-foreground" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent
+          className="w-auto p-0"
+          align="start"
+          onPointerDownCapture={markInteracting}
+          onWheelCapture={markInteracting}
+          onKeyDownCapture={markInteracting}
+          onPointerDownOutside={preventOutsideClose}
+          onFocusOutside={preventOutsideClose}
+          onInteractOutside={preventOutsideClose}
+        >
           <Calendar
             mode="single"
             selected={value}
@@ -82,7 +100,6 @@ export function DesktopDatePicker({
               if (maxDate && date > maxDate) return true;
               return false;
             }}
-            initialFocus
             className={cn('p-3 pointer-events-auto')}
           />
         </PopoverContent>
