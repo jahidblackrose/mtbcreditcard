@@ -279,7 +279,6 @@ export function PreApplicationForm({
                         <MobilePhoneInput
                           {...field}
                           label="Mobile Number"
-                          placeholder="01XXXXXXXXX"
                         />
                       </FormControl>
                       <FormMessage className="px-1" />

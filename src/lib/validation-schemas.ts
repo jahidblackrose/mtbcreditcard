@@ -70,6 +70,7 @@ export const addressSchema = z.object({
   addressLine2: z.string().max(200).optional(),
   city: z.string().min(2, 'City is required').max(50),
   district: z.string().min(2, 'District is required').max(50),
+  thana: z.string().min(2, 'Thana is required').max(50).optional(),
   postalCode: z.string().regex(/^\d{4}$/, 'Postal code must be 4 digits'),
   country: z.string().min(2).max(50).default('Bangladesh'),
 });
