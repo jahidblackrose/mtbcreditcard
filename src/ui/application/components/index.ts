@@ -8,4 +8,6 @@ export { FaceCapture } from './FaceCapture';
 export { SignatureCapture } from './SignatureCapture';
 export { SubmissionSuccess } from './SubmissionSuccess';
 export { OtpVerificationScreen } from './OtpVerificationScreen';
+export { ExistingApplicantSupplementary } from './ExistingApplicantSupplementary';
+export { SupplementaryCardForm } from './SupplementaryCardForm';
 export * from './steps';

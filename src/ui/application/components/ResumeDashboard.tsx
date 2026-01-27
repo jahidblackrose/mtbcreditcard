@@ -131,12 +131,9 @@ export function ResumeDashboard({
             </div>
           </Button>
 
-          {/* Supplementary Card Only */}
+          {/* Supplementary Card Only - Existing Customer */}
           <Button
-            onClick={() => {
-              setView('supplementary');
-              onSupplementaryOnly();
-            }}
+            onClick={onSupplementaryOnly}
             variant="outline"
             className="w-full h-auto py-4 flex items-start gap-4 border-primary text-primary hover:bg-primary/5"
             size="lg"

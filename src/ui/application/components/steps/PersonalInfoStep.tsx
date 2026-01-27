@@ -16,7 +16,7 @@ import { subYears } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { BANGLADESH_DISTRICTS, getThanasByDistrict } from '@/lib/bangladesh-locations';
 import { SearchableSelect } from '@/components/ui/searchable-select';
-import { DatePicker } from '@/components/ui/date-picker';
+import { SimpleDatePicker } from '@/components/ui/simple-date-picker';
 import type { PersonalInfoData } from '@/types/application-form.types';
 
 interface PersonalInfoStepProps {
@@ -216,17 +216,11 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Date of Birth *</FormLabel>
-                  <DatePicker
+                  <SimpleDatePicker
                     value={field.value}
                     onChange={(date) => field.onChange(date?.toISOString() || '')}
                     minDate={minDateOfBirth}
                     maxDate={maxDateOfBirth}
-                    fromYear={1900}
-                    toYear={maxDateOfBirth.getFullYear()}
-                    className={cn(
-                      "w-full pl-3 text-left font-normal justify-start",
-                      !field.value && "text-muted-foreground"
-                    )}
                   />
                   <FormDescription>
                     You must be at least 18 years old
@@ -424,15 +418,10 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Passport Issue Date</FormLabel>
-                  <DatePicker
+                  <SimpleDatePicker
                     value={field.value}
                     onChange={(date) => field.onChange(date?.toISOString() || '')}
                     maxDate={new Date()}
-                    toYear={new Date().getFullYear()}
-                    className={cn(
-                      "w-full pl-3 text-left font-normal justify-start",
-                      !field.value && "text-muted-foreground"
-                    )}
                   />
                   <FormMessage />
                 </FormItem>
@@ -445,15 +434,10 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Passport Expiry Date</FormLabel>
-                  <DatePicker
+                  <SimpleDatePicker
                     value={field.value}
                     onChange={(date) => field.onChange(date?.toISOString() || '')}
                     minDate={new Date()}
-                    toYear={new Date().getFullYear() + 20}
-                    className={cn(
-                      "w-full pl-3 text-left font-normal justify-start",
-                      !field.value && "text-muted-foreground"
-                    )}
                   />
                   <FormMessage />
                 </FormItem>
