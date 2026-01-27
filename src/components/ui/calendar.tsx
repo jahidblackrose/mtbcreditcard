@@ -37,24 +37,26 @@ function Calendar({
     "July", "August", "September", "October", "November", "December"
   ], []);
 
-  const handleYearChange = (year: string) => {
+  // Handle year change without closing the calendar
+  const handleYearChange = React.useCallback((year: string) => {
     const newMonth = new Date(month);
     newMonth.setFullYear(parseInt(year));
     setMonth(newMonth);
-  };
+  }, [month]);
 
-  const handleMonthChange = (monthIndex: string) => {
+  // Handle month change without closing the calendar
+  const handleMonthChange = React.useCallback((monthIndex: string) => {
     const newMonth = new Date(month);
     newMonth.setMonth(parseInt(monthIndex));
     setMonth(newMonth);
-  };
+  }, [month]);
 
   return (
     <DayPicker
       month={month}
       onMonthChange={setMonth}
       showOutsideDays={showOutsideDays}
-      className={cn("p-3 pointer-events-auto", className)}
+      className={cn("p-3 pointer-events-auto bg-background", className)}
       classNames={{
         months: "flex flex-col space-y-4",
         month: "space-y-4",
@@ -109,7 +111,9 @@ function Calendar({
               {/* Left Nav Button */}
               <button
                 type="button"
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   const newMonth = new Date(displayMonth);
                   newMonth.setMonth(newMonth.getMonth() - 1);
                   setMonth(newMonth);
@@ -123,15 +127,22 @@ function Calendar({
               </button>
 
               {/* Month and Year dropdowns centered */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                 <Select
                   value={displayMonth.getMonth().toString()}
                   onValueChange={handleMonthChange}
                 >
-                  <SelectTrigger className="h-7 w-[100px] text-xs font-medium bg-background border text-foreground">
+                  <SelectTrigger 
+                    className="h-7 w-[100px] text-xs font-medium bg-background border text-foreground"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="z-[200] bg-background">
+                  <SelectContent 
+                    className="z-[300] bg-background border shadow-lg max-h-[200px]"
+                    position="popper"
+                    sideOffset={4}
+                  >
                     {months.map((monthName, index) => (
                       <SelectItem key={monthName} value={index.toString()} className="text-xs">
                         {monthName}
@@ -143,10 +154,17 @@ function Calendar({
                   value={displayMonth.getFullYear().toString()}
                   onValueChange={handleYearChange}
                 >
-                  <SelectTrigger className="h-7 w-[70px] text-xs font-medium bg-background border text-foreground">
+                  <SelectTrigger 
+                    className="h-7 w-[70px] text-xs font-medium bg-background border text-foreground"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="max-h-[200px] z-[200] bg-background">
+                  <SelectContent 
+                    className="max-h-[200px] z-[300] bg-background border shadow-lg"
+                    position="popper"
+                    sideOffset={4}
+                  >
                     {years.map((year) => (
                       <SelectItem key={year} value={year.toString()} className="text-xs">
                         {year}
@@ -159,7 +177,9 @@ function Calendar({
               {/* Right Nav Button */}
               <button
                 type="button"
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   const newMonth = new Date(displayMonth);
                   newMonth.setMonth(newMonth.getMonth() + 1);
                   setMonth(newMonth);

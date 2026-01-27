@@ -1,13 +1,10 @@
 /**
  * Mobile Date Input - Banking App Style with Floating Labels
- * 
- * Matches attachment:
- * - Empty: placeholder inside
- * - Selected: floating label above, date value below
+ * Uses DD-MON-YYYY format (e.g., 16-JAN-2004)
  */
 
 import { useState, useMemo } from 'react';
-import { format, subYears } from 'date-fns';
+import { subYears } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Calendar } from '@/components/ui/calendar';
@@ -16,6 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { formatDateDDMONYYYY } from '@/lib/bangladesh-locations';
 
 interface MobileDateInputProps {
   value?: Date | string;
@@ -114,19 +112,19 @@ export function MobileDateInput({
               </span>
             )}
             
-            {/* Value */}
+            {/* Value - DD-MON-YYYY format */}
             <span className={cn(
               'text-[15px] font-medium block mt-1',
               hasValue ? 'text-foreground' : 'text-transparent'
             )}>
-              {dateValue ? format(dateValue, 'PPP') : 'Select'}
+              {dateValue ? formatDateDDMONYYYY(dateValue) : 'Select'}
             </span>
             
             <CalendarIcon className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
           </button>
         </PopoverTrigger>
         <PopoverContent 
-          className="w-auto p-0 bg-white border border-gray-200 shadow-lg z-[100]" 
+          className="w-auto p-0 bg-background border border-border shadow-xl z-[200]" 
           align="start"
           sideOffset={4}
         >
