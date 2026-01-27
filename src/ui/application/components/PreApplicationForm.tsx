@@ -188,19 +188,20 @@ export function PreApplicationForm({
       )}
 
       {/* Header */}
-      <div className="px-4 pt-4 pb-2">
-        <h1 className="text-2xl font-bold text-foreground">
-          Personal Details
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          {mode === 'SELF' 
-            ? 'Please provide your basic information to begin'
-            : 'Banker-assisted application'}
-        </p>
+      <div className="px-4 pt-4 pb-2 md:pt-10 md:pb-6">
+        <div className="mx-auto w-full max-w-sm md:max-w-lg md:text-center">
+          <h1 className="text-2xl font-bold text-foreground">Personal Details</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {mode === 'SELF'
+              ? 'Please provide your basic information to begin'
+              : 'Banker-assisted application'}
+          </p>
+        </div>
       </div>
 
-      {/* Form Content - Improved spacing */}
-      <div className="flex-1 px-4 pb-36">
+      {/* Form Content - Desktop: centered fixed-width */}
+      <div className="flex-1 px-4 pb-36 md:px-0">
+        <div className="mx-auto w-full max-w-sm md:max-w-lg">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-5">
             <MobileFormSection title="GENERAL DETAILS">
@@ -310,33 +311,36 @@ export function PreApplicationForm({
             <button type="submit" className="hidden" />
           </form>
         </Form>
+        </div>
       </div>
 
-      {/* Bottom CTA - Improved spacing and styling */}
+      {/* Bottom CTA - Desktop aligns to same card width */}
       <div className="fixed bottom-0 left-0 right-0 bg-mobile-background border-t border-border/50 px-5 py-5 safe-area-bottom shadow-lg">
-        <button
-          type="button"
-          onClick={form.handleSubmit(handleFormSubmit)}
-          disabled={isSendingOtp || isLoading}
-          className={cn(
-            "w-full py-4 rounded-full text-base font-semibold transition-all",
-            "bg-success hover:bg-success/90 text-success-foreground",
-            "shadow-md hover:shadow-lg",
-            "disabled:opacity-50 disabled:cursor-not-allowed",
-            "focus:outline-none focus:ring-2 focus:ring-success/50 focus:ring-offset-2"
-          )}
-        >
-          {isSendingOtp ? (
-            <span className="flex items-center justify-center gap-2">
-              <Loader2 className="h-5 w-5 animate-spin" />
-              Sending OTP...
-            </span>
-          ) : mode === 'SELF' ? (
-            'Send OTP & Proceed'
-          ) : (
-            'Proceed'
-          )}
-        </button>
+        <div className="mx-auto w-full max-w-sm md:max-w-lg">
+          <button
+            type="button"
+            onClick={form.handleSubmit(handleFormSubmit)}
+            disabled={isSendingOtp || isLoading}
+            className={cn(
+              "w-full py-4 rounded-full text-base font-semibold transition-all",
+              "bg-success hover:bg-success/90 text-success-foreground",
+              "shadow-md hover:shadow-lg",
+              "disabled:opacity-50 disabled:cursor-not-allowed",
+              "focus:outline-none focus:ring-2 focus:ring-success/50 focus:ring-offset-2"
+            )}
+          >
+            {isSendingOtp ? (
+              <span className="flex items-center justify-center gap-2">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Sending OTP...
+              </span>
+            ) : mode === 'SELF' ? (
+              'Send OTP & Proceed'
+            ) : (
+              'Proceed'
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );

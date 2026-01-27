@@ -17,6 +17,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
+import { usePopoverCloseGuard } from "@/hooks/usePopoverCloseGuard";
+
 // Format date as DD-MM-YYYY
 function formatDateDDMMYYYY(date: Date): string {
   const day = date.getDate().toString().padStart(2, '0');
@@ -40,7 +42,7 @@ interface DatePickerProps {
 export function DatePicker({
   value,
   onChange,
-  placeholder = "Pick a date",
+  placeholder = "DD-MM-YYYY",
   disabled = false,
   minDate,
   maxDate,
@@ -49,6 +51,7 @@ export function DatePicker({
   error,
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
+  const { markInteracting, shouldIgnoreClose, resetInteracting } = usePopoverCloseGuard();
 
   // Calculate max date based on minimum age if provided
   const calculatedMaxDate = React.useMemo(() => {
@@ -71,6 +74,7 @@ export function DatePicker({
   const handleSelect = (date: Date | undefined) => {
     onChange(date);
     // Close popover immediately after selection
+    resetInteracting();
     setOpen(false);
   };
 
@@ -81,7 +85,13 @@ export function DatePicker({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={open}
+      onOpenChange={(v) => {
+        if (shouldIgnoreClose(v)) return;
+        setOpen(v);
+      }}
+    >
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -101,13 +111,14 @@ export function DatePicker({
         className="w-auto p-0" 
         align="start"
         sideOffset={4}
+        onPointerDownCapture={markInteracting}
+        onWheelCapture={markInteracting}
       >
         <Calendar
           mode="single"
           selected={dateValue}
           onSelect={handleSelect}
           disabled={isDateDisabled}
-          initialFocus
           defaultMonth={dateValue || calculatedMaxDate || new Date()}
           fromYear={minDate?.getFullYear() || 1940}
           toYear={calculatedMaxDate?.getFullYear() || new Date().getFullYear()}
