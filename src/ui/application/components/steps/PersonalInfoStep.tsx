@@ -3,7 +3,7 @@
  * With District/Thana dropdowns and DD-MM-YYYY date format
  */
 
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { personalInfoSchema, type PersonalInfoFormData } from '@/lib/validation-schemas';
@@ -12,14 +12,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
-import { CalendarIcon } from 'lucide-react';
 import { subYears } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { BANGLADESH_DISTRICTS, getThanasByDistrict, formatDateDDMMYYYY } from '@/lib/bangladesh-locations';
+import { BANGLADESH_DISTRICTS, getThanasByDistrict } from '@/lib/bangladesh-locations';
 import { SearchableSelect } from '@/components/ui/searchable-select';
+import { DatePicker } from '@/components/ui/date-picker';
 import type { PersonalInfoData } from '@/types/application-form.types';
 
 interface PersonalInfoStepProps {
@@ -73,11 +70,6 @@ const emptyAddress = {
 };
 
 export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps) {
-  // Date picker open states
-  const [dobOpen, setDobOpen] = useState(false);
-  const [passportIssueDateOpen, setPassportIssueDateOpen] = useState(false);
-  const [passportExpiryDateOpen, setPassportExpiryDateOpen] = useState(false);
-
   // Date constraints
   const maxDateOfBirth = subYears(new Date(), 18);
   const minDateOfBirth = new Date('1900-01-01');
@@ -224,36 +216,18 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Date of Birth *</FormLabel>
-                  <Popover open={dobOpen} onOpenChange={setDobOpen}>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full pl-3 text-left font-normal justify-start",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
-                          {field.value ? formatDateDDMMYYYY(new Date(field.value)) : <span>DD-MM-YYYY</span>}
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 bg-background border shadow-xl z-[200]" align="start" sideOffset={4}>
-                      <Calendar
-                        mode="single"
-                        selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => {
-                          field.onChange(date?.toISOString() || '');
-                          setDobOpen(false);
-                        }}
-                        disabled={(date) => date > maxDateOfBirth || date < minDateOfBirth}
-                        defaultMonth={field.value ? new Date(field.value) : maxDateOfBirth}
-                        fromYear={1900}
-                        toYear={maxDateOfBirth.getFullYear()}
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <DatePicker
+                    value={field.value}
+                    onChange={(date) => field.onChange(date?.toISOString() || '')}
+                    minDate={minDateOfBirth}
+                    maxDate={maxDateOfBirth}
+                    fromYear={1900}
+                    toYear={maxDateOfBirth.getFullYear()}
+                    className={cn(
+                      "w-full pl-3 text-left font-normal justify-start",
+                      !field.value && "text-muted-foreground"
+                    )}
+                  />
                   <FormDescription>
                     You must be at least 18 years old
                   </FormDescription>
@@ -450,34 +424,16 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Passport Issue Date</FormLabel>
-                  <Popover open={passportIssueDateOpen} onOpenChange={setPassportIssueDateOpen}>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full pl-3 text-left font-normal justify-start",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
-                          {field.value ? formatDateDDMMYYYY(new Date(field.value)) : <span>DD-MM-YYYY</span>}
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 bg-background border shadow-xl z-[200]" align="start" sideOffset={4}>
-                      <Calendar
-                        mode="single"
-                        selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => {
-                          field.onChange(date?.toISOString() || '');
-                          setPassportIssueDateOpen(false);
-                        }}
-                        disabled={(date) => date > new Date()}
-                        defaultMonth={field.value ? new Date(field.value) : new Date()}
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <DatePicker
+                    value={field.value}
+                    onChange={(date) => field.onChange(date?.toISOString() || '')}
+                    maxDate={new Date()}
+                    toYear={new Date().getFullYear()}
+                    className={cn(
+                      "w-full pl-3 text-left font-normal justify-start",
+                      !field.value && "text-muted-foreground"
+                    )}
+                  />
                   <FormMessage />
                 </FormItem>
               )}
@@ -489,34 +445,16 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Passport Expiry Date</FormLabel>
-                  <Popover open={passportExpiryDateOpen} onOpenChange={setPassportExpiryDateOpen}>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full pl-3 text-left font-normal justify-start",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
-                          {field.value ? formatDateDDMMYYYY(new Date(field.value)) : <span>DD-MM-YYYY</span>}
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 bg-background border shadow-xl z-[200]" align="start" sideOffset={4}>
-                      <Calendar
-                        mode="single"
-                        selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => {
-                          field.onChange(date?.toISOString() || '');
-                          setPassportExpiryDateOpen(false);
-                        }}
-                        disabled={(date) => date < new Date()}
-                        defaultMonth={field.value ? new Date(field.value) : new Date()}
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <DatePicker
+                    value={field.value}
+                    onChange={(date) => field.onChange(date?.toISOString() || '')}
+                    minDate={new Date()}
+                    toYear={new Date().getFullYear() + 20}
+                    className={cn(
+                      "w-full pl-3 text-left font-normal justify-start",
+                      !field.value && "text-muted-foreground"
+                    )}
+                  />
                   <FormMessage />
                 </FormItem>
               )}

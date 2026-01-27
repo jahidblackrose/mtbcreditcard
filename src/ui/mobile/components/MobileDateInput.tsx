@@ -33,7 +33,7 @@ export function MobileDateInput({
   value,
   onChange,
   label,
-  placeholder = 'Select date',
+  placeholder = 'DD-MM-YYYY',
   error,
   minDate,
   maxDate,
@@ -43,7 +43,7 @@ export function MobileDateInput({
 }: MobileDateInputProps) {
   const [open, setOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  const { markInteracting, shouldIgnoreClose, resetInteracting } = usePopoverCloseGuard();
+  const { markInteracting, shouldIgnoreClose, resetInteracting, preventOutsideClose } = usePopoverCloseGuard(3000);
 
   const calculatedMaxDate = useMemo(() => {
     if (minAge) {
@@ -133,6 +133,10 @@ export function MobileDateInput({
           sideOffset={4}
           onPointerDownCapture={markInteracting}
           onWheelCapture={markInteracting}
+          onKeyDownCapture={markInteracting}
+          onPointerDownOutside={preventOutsideClose}
+          onFocusOutside={preventOutsideClose}
+          onInteractOutside={preventOutsideClose}
         >
           <Calendar
             mode="single"

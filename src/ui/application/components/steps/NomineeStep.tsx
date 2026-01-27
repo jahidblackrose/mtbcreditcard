@@ -2,7 +2,6 @@
  * Step 7: MTB Protection Plan (MPP) - Nominee
  */
 
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { nomineeSchema, type NomineeFormData } from '@/lib/validation-schemas';
@@ -12,21 +11,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
-import { CalendarIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { DatePicker } from '@/components/ui/date-picker';
 import { FaceCapture } from '@/ui/application/components/FaceCapture';
 import type { NomineeData } from '@/types/application-form.types';
-
-// Format date as DD-MM-YYYY
-function formatDateDDMMYYYY(date: Date): string {
-  const day = date.getDate().toString().padStart(2, '0');
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const year = date.getFullYear();
-  return `${day}-${month}-${year}`;
-}
 
 interface NomineeStepProps {
   initialData?: Partial<NomineeData>;
@@ -44,8 +31,6 @@ const RELATIONSHIPS = [
 const MPP_DECLARATION = `I hereby apply for MTB Protection Plan (MPP) and agree to the terms and conditions. I understand that in case of my demise, the outstanding dues on my credit card will be settled by the insurance company as per the MPP policy terms. I authorize MTB to share my personal information with the insurance partner for processing this protection plan.`;
 
 export function NomineeStep({ initialData, onSave }: NomineeStepProps) {
-  const [dobOpen, setDobOpen] = useState(false);
-
   const form = useForm<NomineeFormData>({
     resolver: zodResolver(nomineeSchema),
     defaultValues: {
@@ -124,35 +109,15 @@ export function NomineeStep({ initialData, onSave }: NomineeStepProps) {
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Date of Birth</FormLabel>
-                  <Popover open={dobOpen} onOpenChange={setDobOpen}>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? formatDateDDMMYYYY(new Date(field.value)) : <span>DD-MM-YYYY</span>}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start" sideOffset={4}>
-                      <Calendar
-                        mode="single"
-                        selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => {
-                          field.onChange(date?.toISOString() || '');
-                          setDobOpen(false);
-                        }}
-                        disabled={(date) => date > new Date()}
-                        defaultMonth={field.value ? new Date(field.value) : new Date()}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <DatePicker
+                    value={field.value}
+                    onChange={(date) => {
+                      field.onChange(date?.toISOString() || '');
+                      handleFieldChange();
+                    }}
+                    maxDate={new Date()}
+                    className="w-full pl-3 text-left font-normal"
+                  />
                   <FormMessage />
                 </FormItem>
               )}

@@ -35,6 +35,8 @@ interface DatePickerProps {
   minDate?: Date;
   maxDate?: Date;
   minAge?: number; // Minimum age requirement
+  fromYear?: number;
+  toYear?: number;
   className?: string;
   error?: boolean;
 }
@@ -47,11 +49,13 @@ export function DatePicker({
   minDate,
   maxDate,
   minAge,
+  fromYear,
+  toYear,
   className,
   error,
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
-  const { markInteracting, shouldIgnoreClose, resetInteracting } = usePopoverCloseGuard();
+  const { markInteracting, shouldIgnoreClose, resetInteracting, preventOutsideClose } = usePopoverCloseGuard(3000);
 
   // Calculate max date based on minimum age if provided
   const calculatedMaxDate = React.useMemo(() => {
@@ -84,6 +88,10 @@ export function DatePicker({
     return false;
   };
 
+  const effectiveFromYear = fromYear ?? minDate?.getFullYear() ?? 1940;
+  // If no max is provided, allow selecting future years (e.g., passport expiry)
+  const effectiveToYear = toYear ?? calculatedMaxDate?.getFullYear() ?? (new Date().getFullYear() + 20);
+
   return (
     <Popover
       open={open}
@@ -113,6 +121,10 @@ export function DatePicker({
         sideOffset={4}
         onPointerDownCapture={markInteracting}
         onWheelCapture={markInteracting}
+        onKeyDownCapture={markInteracting}
+        onPointerDownOutside={preventOutsideClose}
+        onFocusOutside={preventOutsideClose}
+        onInteractOutside={preventOutsideClose}
       >
         <Calendar
           mode="single"
@@ -120,8 +132,8 @@ export function DatePicker({
           onSelect={handleSelect}
           disabled={isDateDisabled}
           defaultMonth={dateValue || calculatedMaxDate || new Date()}
-          fromYear={minDate?.getFullYear() || 1940}
-          toYear={calculatedMaxDate?.getFullYear() || new Date().getFullYear()}
+          fromYear={effectiveFromYear}
+          toYear={effectiveToYear}
           className="pointer-events-auto"
         />
       </PopoverContent>
