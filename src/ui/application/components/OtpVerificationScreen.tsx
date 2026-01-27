@@ -137,7 +137,9 @@ export function OtpVerificationScreen({
 
       {/* Main Content */}
       <div className="flex-1 px-4 py-8">
-        <div className="max-w-sm mx-auto">
+        {/* Desktop: centered fixed-width card like Registration */}
+        <div className="mx-auto w-full max-w-sm md:max-w-lg">
+          <div className="md:bg-card md:border md:border-border md:rounded-2xl md:p-8">
           {/* Icon */}
           <div className="flex justify-center mb-6">
             <div className="w-16 h-16 rounded-2xl bg-success/10 flex items-center justify-center">
@@ -192,7 +194,6 @@ export function OtpVerificationScreen({
                     setOtpValue(value);
                     setError(null);
                   }}
-                  autoFocus
                 >
                   <InputOTPGroup>
                     <InputOTPSlot index={0} />
@@ -255,6 +256,7 @@ export function OtpVerificationScreen({
                 `Resend in ${formatTime(resendTimer)}`
               )}
             </button>
+          </div>
           </div>
         </div>
       </div>

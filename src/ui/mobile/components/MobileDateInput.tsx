@@ -14,6 +14,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { formatDateDDMMYYYY } from '@/lib/bangladesh-locations';
+import { usePopoverCloseGuard } from '@/hooks/usePopoverCloseGuard';
 
 interface MobileDateInputProps {
   value?: Date | string;
@@ -42,6 +43,7 @@ export function MobileDateInput({
 }: MobileDateInputProps) {
   const [open, setOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+  const { markInteracting, shouldIgnoreClose, resetInteracting } = usePopoverCloseGuard();
 
   const calculatedMaxDate = useMemo(() => {
     if (minAge) {
@@ -62,6 +64,7 @@ export function MobileDateInput({
 
   const handleSelect = (date: Date | undefined) => {
     onChange(date);
+    resetInteracting();
     setOpen(false);
   };
 
@@ -80,6 +83,7 @@ export function MobileDateInput({
       <Popover 
         open={open} 
         onOpenChange={(v) => {
+          if (shouldIgnoreClose(v)) return;
           setOpen(v);
           setIsFocused(v);
         }}
@@ -90,7 +94,7 @@ export function MobileDateInput({
             disabled={disabled}
             className={cn(
               'w-full relative text-left',
-              'bg-white rounded-2xl border border-gray-200',
+              'bg-card rounded-2xl border border-border',
               'px-5 pt-6 pb-3',
               'focus:outline-none focus:ring-2 focus:ring-success/20 focus:border-success',
               'transition-all duration-200',
@@ -104,8 +108,8 @@ export function MobileDateInput({
                 className={cn(
                   'absolute left-5 transition-all duration-200 pointer-events-none',
                   isFloating
-                    ? 'top-2 text-xs text-gray-400 font-normal'
-                    : 'top-1/2 -translate-y-1/2 text-[15px] text-gray-400 font-normal'
+                    ? 'top-2 text-xs text-muted-foreground font-normal'
+                    : 'top-1/2 -translate-y-1/2 text-[15px] text-muted-foreground font-normal'
                 )}
               >
                 {displayLabel}
@@ -120,20 +124,21 @@ export function MobileDateInput({
               {dateValue ? formatDateDDMMYYYY(dateValue) : 'DD-MM-YYYY'}
             </span>
             
-            <CalendarIcon className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <CalendarIcon className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           </button>
         </PopoverTrigger>
         <PopoverContent 
           className="w-auto p-0 bg-background border border-border shadow-xl z-[200]" 
           align="start"
           sideOffset={4}
+          onPointerDownCapture={markInteracting}
+          onWheelCapture={markInteracting}
         >
           <Calendar
             mode="single"
             selected={dateValue}
             onSelect={handleSelect}
             disabled={isDateDisabled}
-            initialFocus
             defaultMonth={dateValue || calculatedMaxDate || new Date()}
             fromYear={minDate?.getFullYear() || 1940}
             toYear={calculatedMaxDate?.getFullYear() || new Date().getFullYear()}

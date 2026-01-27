@@ -286,9 +286,17 @@
 
 /* Input visibility and focus fixes */
 @layer base {
+  /*
+   * Themed form controls
+   * -------------------
+   * Do NOT hardcode light-mode colors globally (breaks dark mode).
+   * Use semantic tokens so inputs, placeholders, and caret remain readable
+   * in both light and dark themes.
+   */
   input, textarea, select {
-    color: #333333 !important;
-    caret-color: #333333 !important;
+    color: hsl(var(--foreground)) !important;
+    caret-color: hsl(var(--foreground)) !important;
+    background-color: hsl(var(--background)) !important;
   }
 
   /*
@@ -309,7 +317,7 @@
   
   input::placeholder,
   textarea::placeholder {
-    color: #888888 !important;
+    color: hsl(var(--muted-foreground)) !important;
     opacity: 1;
   }
   
@@ -328,19 +336,5 @@
     outline: none !important;
   }
   
-  /* Ensure inputs in white backgrounds have dark text */
-  .bg-white input,
-  .bg-white textarea,
-  .bg-white select,
-  input.bg-white,
-  textarea.bg-white,
-  select.bg-white {
-    color: #333333 !important;
-    caret-color: #333333 !important;
-  }
-  
-  .bg-white input::placeholder,
-  .bg-white textarea::placeholder {
-    color: #888888 !important;
-  }
+  /* Keep input-otp's hidden native input transparent (do not theme it) */
 }
