@@ -4,15 +4,11 @@ import { DayPicker } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
-export type CalendarProps = React.ComponentProps<typeof DayPicker>;
+export type CalendarProps = React.ComponentProps<typeof DayPicker> & {
+  fromYear?: number;
+  toYear?: number;
+};
 
 function Calendar({ 
   className, 
@@ -33,21 +29,27 @@ function Calendar({
   }, [fromYear, toYear]);
 
   const months = React.useMemo(() => [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
   ], []);
 
-  // Handle year change without closing the calendar
-  const handleYearChange = React.useCallback((year: string) => {
+  // Handle year change - use native select to prevent focus issues
+  const handleYearChange = React.useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const year = parseInt(e.target.value);
     const newMonth = new Date(month);
-    newMonth.setFullYear(parseInt(year));
+    newMonth.setFullYear(year);
     setMonth(newMonth);
   }, [month]);
 
-  // Handle month change without closing the calendar
-  const handleMonthChange = React.useCallback((monthIndex: string) => {
+  // Handle month change - use native select to prevent focus issues
+  const handleMonthChange = React.useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const monthIndex = parseInt(e.target.value);
     const newMonth = new Date(month);
-    newMonth.setMonth(parseInt(monthIndex));
+    newMonth.setMonth(monthIndex);
     setMonth(newMonth);
   }, [month]);
 
@@ -107,7 +109,11 @@ function Calendar({
         IconRight: () => <ChevronRight className="h-4 w-4" />,
         Caption: ({ displayMonth }) => {
           return (
-            <div className="flex items-center justify-between w-full px-1 mb-2">
+            <div 
+              className="flex items-center justify-between w-full px-1 mb-2"
+              onClick={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+            >
               {/* Left Nav Button */}
               <button
                 type="button"
@@ -126,52 +132,54 @@ function Calendar({
                 <ChevronLeft className="h-4 w-4" />
               </button>
 
-              {/* Month and Year dropdowns centered */}
-              <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                <Select
+              {/* Month and Year dropdowns centered - using native selects for stability */}
+              <div 
+                className="flex items-center gap-1"
+                onClick={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+              >
+                {/* Native Month Select */}
+                <select
                   value={displayMonth.getMonth().toString()}
-                  onValueChange={handleMonthChange}
+                  onChange={handleMonthChange}
+                  onClick={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  className={cn(
+                    "h-7 px-2 text-xs font-medium rounded-md border",
+                    "bg-background text-foreground",
+                    "focus:outline-none focus:ring-2 focus:ring-ring",
+                    "cursor-pointer appearance-none"
+                  )}
+                  style={{ paddingRight: '1.5rem' }}
                 >
-                  <SelectTrigger 
-                    className="h-7 w-[100px] text-xs font-medium bg-background border text-foreground"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent 
-                    className="z-[300] bg-background border shadow-lg max-h-[200px]"
-                    position="popper"
-                    sideOffset={4}
-                  >
-                    {months.map((monthName, index) => (
-                      <SelectItem key={monthName} value={index.toString()} className="text-xs">
-                        {monthName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Select
+                  {months.map((monthName, index) => (
+                    <option key={monthName} value={index.toString()}>
+                      {monthName}
+                    </option>
+                  ))}
+                </select>
+
+                {/* Native Year Select */}
+                <select
                   value={displayMonth.getFullYear().toString()}
-                  onValueChange={handleYearChange}
+                  onChange={handleYearChange}
+                  onClick={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  className={cn(
+                    "h-7 px-2 text-xs font-medium rounded-md border",
+                    "bg-background text-foreground",
+                    "focus:outline-none focus:ring-2 focus:ring-ring",
+                    "cursor-pointer appearance-none"
+                  )}
+                  style={{ paddingRight: '1.5rem' }}
                 >
-                  <SelectTrigger 
-                    className="h-7 w-[70px] text-xs font-medium bg-background border text-foreground"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent 
-                    className="max-h-[200px] z-[300] bg-background border shadow-lg"
-                    position="popper"
-                    sideOffset={4}
-                  >
-                    {years.map((year) => (
-                      <SelectItem key={year} value={year.toString()} className="text-xs">
-                        {year}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  {years.map((year) => (
+                    <option key={year} value={year.toString()}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* Right Nav Button */}

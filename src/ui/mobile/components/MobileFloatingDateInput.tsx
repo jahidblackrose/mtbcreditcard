@@ -115,7 +115,7 @@ export function MobileFloatingDateInput({
               'text-[15px] font-medium block mt-1',
               hasValue ? 'text-foreground' : 'text-transparent'
             )}>
-              {dateValue ? format(dateValue, 'PPP') : 'Select'}
+              {dateValue ? `${String(dateValue.getDate()).padStart(2, '0')}-${String(dateValue.getMonth() + 1).padStart(2, '0')}-${dateValue.getFullYear()}` : 'DD-MM-YYYY'}
             </span>
             
             <CalendarIcon className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />

@@ -259,17 +259,21 @@ export function getThanasByDistrict(district: string): Thana[] {
   return THANAS_BY_DISTRICT[district] || [{ value: 'OTHER', label: 'Other' }];
 }
 
-// Format date as DD-MON-YYYY (e.g., 16-JAN-2004)
-export function formatDateDDMONYYYY(date: Date | string | undefined): string {
+// Format date as DD-MM-YYYY (e.g., 16-01-2004)
+export function formatDateDDMMYYYY(date: Date | string | undefined): string {
   if (!date) return '';
   
   const d = typeof date === 'string' ? new Date(date) : date;
   if (isNaN(d.getTime())) return '';
   
-  const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
   const day = d.getDate().toString().padStart(2, '0');
-  const month = months[d.getMonth()];
+  const month = (d.getMonth() + 1).toString().padStart(2, '0');
   const year = d.getFullYear();
   
   return `${day}-${month}-${year}`;
+}
+
+// Legacy alias for backward compatibility - now uses DD-MM-YYYY
+export function formatDateDDMONYYYY(date: Date | string | undefined): string {
+  return formatDateDDMMYYYY(date);
 }

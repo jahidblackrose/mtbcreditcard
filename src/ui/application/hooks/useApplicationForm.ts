@@ -55,6 +55,7 @@ const getInitialApplicationData = (mode: ApplicationMode): FullApplicationData =
   personalInfo: {
     nameOnCard: '',
     nationality: 'Bangladeshi',
+    homeDistrict: '',
     gender: 'MALE',
     dateOfBirth: '',
     religion: 'ISLAM',

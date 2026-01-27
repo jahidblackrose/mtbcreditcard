@@ -5,10 +5,10 @@
  * - White background, light gray border
  * - Green border on focus (MTB theme)
  * - Calendar popup
+ * - DD-MM-YYYY format
  */
 
 import { useState } from 'react';
-import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -68,7 +68,7 @@ export function DesktopDatePicker({
               error && 'border-destructive focus:ring-destructive/30 focus:border-destructive'
             )}
           >
-            {value ? format(value, 'PPP') : placeholder}
+            {value ? `${String(value.getDate()).padStart(2, '0')}-${String(value.getMonth() + 1).padStart(2, '0')}-${value.getFullYear()}` : placeholder}
             <CalendarIcon className="ml-auto h-4 w-4 text-muted-foreground" />
           </Button>
         </PopoverTrigger>

@@ -1,6 +1,6 @@
 /**
  * Mobile Date Input - Banking App Style with Floating Labels
- * Uses DD-MON-YYYY format (e.g., 16-JAN-2004)
+ * Uses DD-MM-YYYY format (e.g., 16-01-2004)
  */
 
 import { useState, useMemo } from 'react';
@@ -13,7 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { formatDateDDMONYYYY } from '@/lib/bangladesh-locations';
+import { formatDateDDMMYYYY } from '@/lib/bangladesh-locations';
 
 interface MobileDateInputProps {
   value?: Date | string;
@@ -112,12 +112,12 @@ export function MobileDateInput({
               </span>
             )}
             
-            {/* Value - DD-MON-YYYY format */}
+            {/* Value - DD-MM-YYYY format */}
             <span className={cn(
               'text-[15px] font-medium block mt-1',
               hasValue ? 'text-foreground' : 'text-transparent'
             )}>
-              {dateValue ? formatDateDDMONYYYY(dateValue) : 'Select'}
+              {dateValue ? formatDateDDMMYYYY(dateValue) : 'DD-MM-YYYY'}
             </span>
             
             <CalendarIcon className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />

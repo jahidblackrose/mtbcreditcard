@@ -1,6 +1,6 @@
 /**
  * Step 2: Personal Information
- * With District/Thana dropdowns and DD-MON-YYYY date format
+ * With District/Thana dropdowns and DD-MM-YYYY date format
  */
 
 import { useState, useMemo } from 'react';
@@ -18,7 +18,8 @@ import { Button } from '@/components/ui/button';
 import { CalendarIcon } from 'lucide-react';
 import { subYears } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { BANGLADESH_DISTRICTS, getThanasByDistrict, formatDateDDMONYYYY } from '@/lib/bangladesh-locations';
+import { BANGLADESH_DISTRICTS, getThanasByDistrict, formatDateDDMMYYYY } from '@/lib/bangladesh-locations';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 import type { PersonalInfoData } from '@/types/application-form.types';
 
 interface PersonalInfoStepProps {
@@ -86,6 +87,7 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
     defaultValues: {
       nameOnCard: initialData?.nameOnCard || '',
       nationality: initialData?.nationality || 'Bangladeshi',
+      homeDistrict: initialData?.homeDistrict || '',
       gender: initialData?.gender || undefined,
       dateOfBirth: initialData?.dateOfBirth || '',
       religion: initialData?.religion || undefined,
@@ -233,7 +235,7 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
                           )}
                         >
                           <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
-                          {field.value ? formatDateDDMONYYYY(new Date(field.value)) : <span>Select date</span>}
+                          {field.value ? formatDateDDMMYYYY(new Date(field.value)) : <span>DD-MM-YYYY</span>}
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
@@ -459,7 +461,7 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
                           )}
                         >
                           <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
-                          {field.value ? formatDateDDMONYYYY(new Date(field.value)) : <span>Select date</span>}
+                          {field.value ? formatDateDDMMYYYY(new Date(field.value)) : <span>DD-MM-YYYY</span>}
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
@@ -498,7 +500,7 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
                           )}
                         >
                           <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
-                          {field.value ? formatDateDDMONYYYY(new Date(field.value)) : <span>Select date</span>}
+                          {field.value ? formatDateDDMMYYYY(new Date(field.value)) : <span>DD-MM-YYYY</span>}
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
