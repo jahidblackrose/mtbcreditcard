@@ -16,7 +16,7 @@ import { subYears } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { BANGLADESH_DISTRICTS, getThanasByDistrict } from '@/lib/bangladesh-locations';
 import { SearchableSelect } from '@/components/ui/searchable-select';
-import { SimpleDatePicker } from '@/components/ui/simple-date-picker';
+import { TailwindDatePicker } from '@/components/ui/tailwind-date-picker';
 import type { PersonalInfoData } from '@/types/application-form.types';
 
 interface PersonalInfoStepProps {
@@ -216,11 +216,12 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Date of Birth *</FormLabel>
-                  <SimpleDatePicker
+                  <TailwindDatePicker
                     value={field.value}
                     onChange={(date) => field.onChange(date?.toISOString() || '')}
                     minDate={minDateOfBirth}
                     maxDate={maxDateOfBirth}
+                    placeholder="DD/MM/YYYY"
                   />
                   <FormDescription>
                     You must be at least 18 years old
@@ -418,10 +419,11 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Passport Issue Date</FormLabel>
-                  <SimpleDatePicker
+                  <TailwindDatePicker
                     value={field.value}
                     onChange={(date) => field.onChange(date?.toISOString() || '')}
                     maxDate={new Date()}
+                    placeholder="DD/MM/YYYY"
                   />
                   <FormMessage />
                 </FormItem>
@@ -434,10 +436,11 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Passport Expiry Date</FormLabel>
-                  <SimpleDatePicker
+                  <TailwindDatePicker
                     value={field.value}
                     onChange={(date) => field.onChange(date?.toISOString() || '')}
                     minDate={new Date()}
+                    placeholder="DD/MM/YYYY"
                   />
                   <FormMessage />
                 </FormItem>

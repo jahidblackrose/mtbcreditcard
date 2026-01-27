@@ -32,7 +32,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
-import { SimpleDatePicker } from '@/components/ui/simple-date-picker';
+import { TailwindDatePicker } from '@/components/ui/tailwind-date-picker';
 import { subYears } from 'date-fns';
 import { CreditCard, User, Users, MapPin, FileText, Phone, Percent } from 'lucide-react';
 import type { SupplementaryCardData } from '@/types/application-form.types';
@@ -254,14 +254,14 @@ export function SupplementaryCardStep({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Date of Birth *</FormLabel>
-                  <SimpleDatePicker
+                  <TailwindDatePicker
                     value={field.value}
                     onChange={(date) => {
                       field.onChange(date?.toISOString() || '');
                       handleFieldChange();
                     }}
                     maxDate={maxDOB}
-                    placeholder="DD-MM-YYYY"
+                    placeholder="DD/MM/YYYY"
                   />
                   <FormDescription>Must be at least 18 years old</FormDescription>
                   <FormMessage />
@@ -465,14 +465,14 @@ export function SupplementaryCardStep({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Passport Issue Date</FormLabel>
-                  <SimpleDatePicker
+                  <TailwindDatePicker
                     value={field.value}
                     onChange={(date) => {
                       field.onChange(date?.toISOString() || '');
                       handleFieldChange();
                     }}
                     maxDate={new Date()}
-                    placeholder="DD-MM-YYYY"
+                    placeholder="DD/MM/YYYY"
                   />
                   <FormMessage />
                 </FormItem>
@@ -485,14 +485,14 @@ export function SupplementaryCardStep({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Passport Expiry Date</FormLabel>
-                  <SimpleDatePicker
+                  <TailwindDatePicker
                     value={field.value}
                     onChange={(date) => {
                       field.onChange(date?.toISOString() || '');
                       handleFieldChange();
                     }}
                     minDate={new Date()}
-                    placeholder="DD-MM-YYYY"
+                    placeholder="DD/MM/YYYY"
                   />
                   <FormMessage />
                 </FormItem>
