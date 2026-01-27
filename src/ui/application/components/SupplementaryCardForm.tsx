@@ -33,7 +33,7 @@ import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { SimpleDatePicker } from '@/components/ui/simple-date-picker';
+import { TailwindDatePicker } from '@/components/ui/tailwind-date-picker';
 import { subYears } from 'date-fns';
 import { User, Phone, Mail, FileText, CreditCard } from 'lucide-react';
 
@@ -209,11 +209,11 @@ export function SupplementaryCardForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Date of Birth *</FormLabel>
-                    <SimpleDatePicker
+                    <TailwindDatePicker
                       value={field.value}
                       onChange={(date) => field.onChange(date?.toISOString() || '')}
                       maxDate={maxDOB}
-                      placeholder="DD-MM-YYYY"
+                      placeholder="DD/MM/YYYY"
                     />
                     <FormDescription>Must be at least 18 years old</FormDescription>
                     <FormMessage />
@@ -413,11 +413,11 @@ export function SupplementaryCardForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Passport Issue Date</FormLabel>
-                    <SimpleDatePicker
+                    <TailwindDatePicker
                       value={field.value}
                       onChange={(date) => field.onChange(date?.toISOString() || '')}
                       maxDate={new Date()}
-                      placeholder="DD-MM-YYYY"
+                      placeholder="DD/MM/YYYY"
                     />
                     <FormMessage />
                   </FormItem>
@@ -430,11 +430,11 @@ export function SupplementaryCardForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Passport Expiry Date</FormLabel>
-                    <SimpleDatePicker
+                    <TailwindDatePicker
                       value={field.value}
                       onChange={(date) => field.onChange(date?.toISOString() || '')}
                       minDate={new Date()}
-                      placeholder="DD-MM-YYYY"
+                      placeholder="DD/MM/YYYY"
                     />
                     <FormMessage />
                   </FormItem>

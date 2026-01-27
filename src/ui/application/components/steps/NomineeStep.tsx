@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
-import { SimpleDatePicker } from '@/components/ui/simple-date-picker';
+import { TailwindDatePicker } from '@/components/ui/tailwind-date-picker';
 import { FaceCapture } from '@/ui/application/components/FaceCapture';
 import type { NomineeData } from '@/types/application-form.types';
 
@@ -109,13 +109,14 @@ export function NomineeStep({ initialData, onSave }: NomineeStepProps) {
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Date of Birth</FormLabel>
-                  <SimpleDatePicker
+                  <TailwindDatePicker
                     value={field.value}
                     onChange={(date) => {
                       field.onChange(date?.toISOString() || '');
                       handleFieldChange();
                     }}
                     maxDate={new Date()}
+                    placeholder="DD/MM/YYYY"
                   />
                   <FormMessage />
                 </FormItem>

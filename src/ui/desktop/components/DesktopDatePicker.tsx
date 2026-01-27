@@ -1,17 +1,17 @@
 /**
- * Desktop Date Picker - Simple Bootstrap-style with Calendar popup
+ * Desktop Date Picker - Tailwind-style with Calendar popup
  * 
- * Uses SimpleCalendar for rock-solid stability:
- * - NO year dropdown scrolling
- * - Month/Year navigation via arrows only
- * - DD-MM-YYYY format
+ * Uses TailwindCalendar for rock-solid stability:
+ * - Date/Month/Year views
+ * - DD/MM/YYYY format
+ * - Never auto-closes during navigation
  */
 
 import { useState, useRef, useEffect } from 'react';
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { SimpleCalendar } from '@/components/ui/simple-calendar';
+import { TailwindCalendar } from '@/components/ui/tailwind-date-picker';
 
 interface DesktopDatePickerProps {
   label: string;
@@ -25,19 +25,19 @@ interface DesktopDatePickerProps {
   disabled?: boolean;
 }
 
-// Format date as DD-MM-YYYY
+// Format date as DD/MM/YYYY
 function formatDateDDMMYYYY(date: Date): string {
   const day = date.getDate().toString().padStart(2, '0');
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
   const year = date.getFullYear();
-  return `${day}-${month}-${year}`;
+  return `${day}/${month}/${year}`;
 }
 
 export function DesktopDatePicker({
   label,
   value,
   onChange,
-  placeholder = 'DD-MM-YYYY',
+  placeholder = 'DD/MM/YYYY',
   error,
   helperText,
   minDate,
@@ -64,7 +64,7 @@ export function DesktopDatePicker({
 
     const timeoutId = setTimeout(() => {
       document.addEventListener('mousedown', handleClickOutside);
-    }, 0);
+    }, 10);
 
     return () => {
       clearTimeout(timeoutId);
@@ -81,10 +81,11 @@ export function DesktopDatePicker({
   };
 
   return (
-    <div ref={containerRef} className="w-full relative">
-      <label className="block text-sm font-medium text-foreground mb-1.5">
+    <div ref={containerRef} className="relative space-y-2">
+      <label className="text-sm font-medium text-foreground">
         {label}
       </label>
+
       <Button
         type="button"
         variant="outline"
@@ -92,11 +93,8 @@ export function DesktopDatePicker({
         onClick={toggleCalendar}
         className={cn(
           'w-full justify-start text-left font-normal',
-          'bg-background border-input hover:bg-background hover:border-muted-foreground/50',
-          'px-4 py-2.5 h-auto text-sm',
-          'focus:ring-2 focus:ring-success/30 focus:border-success',
           !value && 'text-muted-foreground',
-          error && 'border-destructive focus:ring-destructive/30 focus:border-destructive'
+          error && 'border-destructive'
         )}
       >
         {value ? formatDateDDMMYYYY(value) : placeholder}
@@ -109,8 +107,9 @@ export function DesktopDatePicker({
           className="absolute z-[500] mt-1 left-0"
           onClick={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
         >
-          <SimpleCalendar
+          <TailwindCalendar
             selected={value}
             onSelect={handleSelect}
             minDate={minDate}

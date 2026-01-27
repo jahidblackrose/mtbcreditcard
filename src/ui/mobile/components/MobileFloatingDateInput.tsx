@@ -1,6 +1,6 @@
 /**
  * Mobile Floating Label Date Input - Banking App Style
- * Uses SimpleCalendar for rock-solid stability
+ * Uses TailwindCalendar for rock-solid stability
  * 
  * Matches attachment:
  * - Empty: placeholder inside
@@ -12,7 +12,7 @@ import { useState, useMemo, useRef, useEffect } from 'react';
 import { subYears } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { SimpleCalendar } from '@/components/ui/simple-calendar';
+import { TailwindCalendar } from '@/components/ui/tailwind-date-picker';
 
 interface MobileFloatingDateInputProps {
   value?: Date | string;
@@ -26,12 +26,12 @@ interface MobileFloatingDateInputProps {
   className?: string;
 }
 
-// Format date as DD-MM-YYYY
+// Format date as DD/MM/YYYY
 function formatDateDDMMYYYY(date: Date): string {
   const day = date.getDate().toString().padStart(2, '0');
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
   const year = date.getFullYear();
-  return `${day}-${month}-${year}`;
+  return `${day}/${month}/${year}`;
 }
 
 export function MobileFloatingDateInput({
@@ -85,7 +85,7 @@ export function MobileFloatingDateInput({
 
     const timeoutId = setTimeout(() => {
       document.addEventListener('mousedown', handleClickOutside);
-    }, 0);
+    }, 10);
 
     return () => {
       clearTimeout(timeoutId);
@@ -138,7 +138,7 @@ export function MobileFloatingDateInput({
           'text-[15px] font-medium block mt-1',
           hasValue ? 'text-foreground' : 'text-transparent'
         )}>
-          {dateValue ? formatDateDDMMYYYY(dateValue) : 'DD-MM-YYYY'}
+          {dateValue ? formatDateDDMMYYYY(dateValue) : 'DD/MM/YYYY'}
         </span>
         
         <CalendarIcon className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -150,8 +150,9 @@ export function MobileFloatingDateInput({
           className="absolute z-[500] mt-1 left-0"
           onClick={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
         >
-          <SimpleCalendar
+          <TailwindCalendar
             selected={dateValue}
             onSelect={handleSelect}
             minDate={minDate}

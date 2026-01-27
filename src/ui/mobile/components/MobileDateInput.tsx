@@ -1,15 +1,22 @@
 /**
  * Mobile Date Input - Banking App Style with Floating Labels
- * Uses SimpleCalendar for rock-solid stability
- * DD-MM-YYYY format (e.g., 16-01-2004)
+ * Uses TailwindCalendar for rock-solid stability
+ * DD/MM/YYYY format
  */
 
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { subYears } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { SimpleCalendar } from '@/components/ui/simple-calendar';
-import { formatDateDDMMYYYY } from '@/lib/bangladesh-locations';
+import { TailwindCalendar } from '@/components/ui/tailwind-date-picker';
+
+// Format date as DD/MM/YYYY
+function formatDateDDMMYYYY(date: Date): string {
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+}
 
 interface MobileDateInputProps {
   value?: Date | string;
@@ -28,7 +35,7 @@ export function MobileDateInput({
   value,
   onChange,
   label,
-  placeholder = 'DD-MM-YYYY',
+  placeholder = 'DD/MM/YYYY',
   error,
   minDate,
   maxDate,
@@ -76,7 +83,7 @@ export function MobileDateInput({
 
     const timeoutId = setTimeout(() => {
       document.addEventListener('mousedown', handleClickOutside);
-    }, 0);
+    }, 10);
 
     return () => {
       clearTimeout(timeoutId);
@@ -95,7 +102,6 @@ export function MobileDateInput({
 
   const hasValue = !!dateValue;
   const isFloating = isFocused || hasValue || isOpen;
-  const displayLabel = label || placeholder;
 
   return (
     <div ref={containerRef} className={cn('w-full relative', className)}>
@@ -114,7 +120,7 @@ export function MobileDateInput({
         )}
       >
         {/* Floating Label */}
-        {displayLabel && (
+        {label && (
           <span
             className={cn(
               'absolute left-5 transition-all duration-200 pointer-events-none',
@@ -123,16 +129,16 @@ export function MobileDateInput({
                 : 'top-1/2 -translate-y-1/2 text-[15px] text-muted-foreground font-normal'
             )}
           >
-            {displayLabel}
+            {label}
           </span>
         )}
         
-        {/* Value - DD-MM-YYYY format */}
+        {/* Value */}
         <span className={cn(
           'text-[15px] font-medium block mt-1',
-          hasValue ? 'text-foreground' : 'text-transparent'
+          hasValue ? 'text-foreground' : 'text-muted-foreground'
         )}>
-          {dateValue ? formatDateDDMMYYYY(dateValue) : 'DD-MM-YYYY'}
+          {dateValue ? formatDateDDMMYYYY(dateValue) : placeholder}
         </span>
         
         <CalendarIcon className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -144,8 +150,9 @@ export function MobileDateInput({
           className="absolute z-[500] mt-1 left-0"
           onClick={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
         >
-          <SimpleCalendar
+          <TailwindCalendar
             selected={dateValue}
             onSelect={handleSelect}
             minDate={minDate}
