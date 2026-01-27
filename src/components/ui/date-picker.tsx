@@ -1,10 +1,11 @@
 /**
  * Reusable DatePicker component with proper popover behavior
  * Closes automatically after date selection
+ * Uses DD-MM-YYYY format
  */
 
 import * as React from "react";
-import { format, subYears } from "date-fns";
+import { subYears } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -15,6 +16,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+
+// Format date as DD-MM-YYYY
+function formatDateDDMMYYYY(date: Date): string {
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}-${month}-${year}`;
+}
 
 interface DatePickerProps {
   value?: Date | string;
@@ -85,7 +94,7 @@ export function DatePicker({
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {dateValue ? format(dateValue, "PPP") : <span>{placeholder}</span>}
+          {dateValue ? formatDateDDMMYYYY(dateValue) : <span>{placeholder}</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent 

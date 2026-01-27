@@ -16,9 +16,16 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { SupplementaryCardData } from '@/types/application-form.types';
+
+// Format date as DD-MM-YYYY
+function formatDateDDMMYYYY(date: Date): string {
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}-${month}-${year}`;
+}
 
 interface SupplementaryCardStepProps {
   initialData?: Partial<SupplementaryCardData>;
@@ -235,7 +242,7 @@ export function SupplementaryCardStep({
                             !field.value && "text-muted-foreground"
                           )}
                         >
-                          {field.value ? format(new Date(field.value), "PPP") : <span>Pick date</span>}
+                          {field.value ? formatDateDDMMYYYY(new Date(field.value)) : <span>DD-MM-YYYY</span>}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
                       </FormControl>
@@ -382,7 +389,7 @@ export function SupplementaryCardStep({
                             !field.value && "text-muted-foreground"
                           )}
                         >
-                          {field.value ? format(new Date(field.value), "PP") : <span>Expiry</span>}
+                          {field.value ? formatDateDDMMYYYY(new Date(field.value)) : <span>DD-MM-YYYY</span>}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
                       </FormControl>

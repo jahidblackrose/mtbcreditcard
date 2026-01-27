@@ -105,6 +105,7 @@ export interface AddressData {
 export interface PersonalInfoData {
   nameOnCard: string; // BLOCK LETTERS
   nationality: string;
+  homeDistrict: string; // Searchable district selection
   gender: Gender;
   dateOfBirth: string;
   religion: Religion;

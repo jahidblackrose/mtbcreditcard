@@ -110,6 +110,7 @@ export const cardSelectionSchema = z.object({
 export const personalInfoSchema = z.object({
   nameOnCard: blockLettersNameSchema,
   nationality: z.string().min(2).max(50).default('Bangladeshi'),
+  homeDistrict: z.string().min(2, 'Home District is required').max(50),
   gender: z.enum(['MALE', 'FEMALE', 'OTHER']),
   dateOfBirth: dateStringSchema,
   religion: z.enum(['ISLAM', 'HINDUISM', 'CHRISTIANITY', 'BUDDHISM', 'OTHER']),
