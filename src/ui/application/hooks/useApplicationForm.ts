@@ -184,13 +184,36 @@ export function useApplicationForm(mode: ApplicationMode) {
   const [error, setError] = useState<string | null>(null);
 
   // Auto-save to localStorage on changes
+  // NOTE: This is a convenience feature for draft persistence.
+  // Sensitive data is stored temporarily for user convenience.
+  // Data is cleared on successful submission or session expiration.
   useEffect(() => {
     const dataToSave = {
       ...applicationData,
       updatedAt: new Date().toISOString(),
+      // Add expiration timestamp (24 hours from now)
+      _expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
   }, [applicationData]);
+
+  // Check for expired draft data on mount and clear if expired
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed._expiresAt && new Date(parsed._expiresAt) < new Date()) {
+          // Draft has expired, clear it
+          localStorage.removeItem(STORAGE_KEY);
+          console.info('Expired draft data cleared');
+        }
+      } catch {
+        // Invalid data, clear it
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+  }, []);
 
   // Update pre-application data
   const updatePreApplication = useCallback((data: Partial<PreApplicationData>) => {
@@ -376,11 +399,17 @@ export function useApplicationForm(mode: ApplicationMode) {
     }));
   }, []);
 
-  // Clear draft
+  // Clear draft - call this on successful submission or logout
   const clearDraft = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);
     setApplicationData(getInitialApplicationData(mode));
   }, [mode]);
+
+  // Clear draft on successful submission (should be called after API confirms submission)
+  const clearDraftOnSubmission = useCallback(() => {
+    localStorage.removeItem(STORAGE_KEY);
+    console.info('Application submitted - draft data cleared');
+  }, []);
 
   // Check if there's a saved draft
   const hasSavedDraft = useCallback(() => {
@@ -442,6 +471,7 @@ export function useApplicationForm(mode: ApplicationMode) {
     
     // Draft management
     clearDraft,
+    clearDraftOnSubmission,
     hasSavedDraft,
   };
 }

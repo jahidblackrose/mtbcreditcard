@@ -12,7 +12,11 @@ import { http } from './httpClient';
 import type { ApiResponse, User, UserSession, StaffUser, FullUserSession } from '@/types';
 
 // ============================================
-// MOCK DATA
+// MOCK DATA - DEVELOPMENT ONLY
+// ============================================
+// WARNING: This mock data is for DEVELOPMENT/DEMO purposes only.
+// In REAL mode, all authentication is handled by the backend.
+// These credentials must NEVER be used in production.
 // ============================================
 
 const MOCK_USER: User = {
@@ -33,35 +37,48 @@ interface MockRMUser {
   password: string;
 }
 
-const mockRMUsers: MockRMUser[] = [
-  {
-    id: 'rm-001',
-    staffId: 'MTB-RM-001',
-    fullName: 'Aminul Haque',
-    email: 'aminul.haque@mtb.com',
-    branch: 'Gulshan Branch',
-    role: 'RM',
-    password: 'password123',
-  },
-  {
-    id: 'rm-002',
-    staffId: 'MTB-RM-002',
-    fullName: 'Fatima Akter',
-    email: 'fatima.akter@mtb.com',
-    branch: 'Dhanmondi Branch',
-    role: 'RM',
-    password: 'password123',
-  },
-  {
-    id: 'bm-001',
-    staffId: 'MTB-BM-001',
-    fullName: 'Karim Ahmed',
-    email: 'karim.ahmed@mtb.com',
-    branch: 'Gulshan Branch',
-    role: 'BRANCH_MANAGER',
-    password: 'password123',
-  },
-];
+/**
+ * MOCK MODE ONLY - These credentials are for development/demo purposes.
+ * In production (REAL mode), authentication is handled server-side.
+ * DO NOT use real credentials here - these are intentionally weak demo values.
+ */
+const getMockRMUsers = (): MockRMUser[] => {
+  // Runtime check: Never return mock users in REAL mode
+  if (env.MODE === 'REAL') {
+    console.warn('Mock RM users should not be accessed in REAL mode');
+    return [];
+  }
+  
+  return [
+    {
+      id: 'rm-001',
+      staffId: 'MTB-RM-001',
+      fullName: 'Aminul Haque',
+      email: 'aminul.haque@mtb.com',
+      branch: 'Gulshan Branch',
+      role: 'RM',
+      password: 'password123', // MOCK ONLY - demo password
+    },
+    {
+      id: 'rm-002',
+      staffId: 'MTB-RM-002',
+      fullName: 'Fatima Akter',
+      email: 'fatima.akter@mtb.com',
+      branch: 'Dhanmondi Branch',
+      role: 'RM',
+      password: 'password123', // MOCK ONLY - demo password
+    },
+    {
+      id: 'bm-001',
+      staffId: 'MTB-BM-001',
+      fullName: 'Karim Ahmed',
+      email: 'karim.ahmed@mtb.com',
+      branch: 'Gulshan Branch',
+      role: 'BRANCH_MANAGER',
+      password: 'password123', // MOCK ONLY - demo password
+    },
+  ];
+};
 
 // ============================================
 // APPLICANT AUTH (OTP-based)
@@ -98,6 +115,9 @@ export async function requestOtp(
 
 /**
  * Verifies OTP and logs in
+ * 
+ * MOCK MODE: Accepts '123456' as demo OTP for development only.
+ * REAL MODE: Server-side validation with proper rate limiting, expiry, and lockout.
  */
 export async function verifyOtp(
   mobileNumber: string,
@@ -106,7 +126,14 @@ export async function verifyOtp(
   if (env.MODE === 'MOCK') {
     await new Promise(resolve => setTimeout(resolve, 600));
     
-    if (otp !== '123456') {
+    // MOCK MODE ONLY - In production, OTP validation happens server-side with:
+    // - Time-based expiration (5-10 minutes)
+    // - Maximum 3-5 attempts before lockout
+    // - Rate limiting per mobile number
+    // - Secure OTP delivery via SMS gateway
+    const MOCK_DEMO_OTP = '123456'; // Demo OTP for development only
+    
+    if (otp !== MOCK_DEMO_OTP) {
       return {
         status: 401,
         message: 'Invalid OTP. Please try again.',
@@ -172,6 +199,15 @@ export async function logout(): Promise<ApiResponse<void>> {
 
 /**
  * RM Login with Staff ID and Password
+ * 
+ * MOCK MODE: Uses localStorage for session (development only).
+ * REAL MODE: Server returns secure HTTP-only cookies; no client-side session storage.
+ * 
+ * WARNING: localStorage approach is for MOCK MODE ONLY.
+ * In production, session management is handled server-side with:
+ * - Secure HTTP-only cookies
+ * - Server-side session validation on every request
+ * - Signed/encrypted session tokens
  */
 export async function rmLogin(
   staffId: string,
@@ -180,7 +216,8 @@ export async function rmLogin(
   if (env.MODE === 'MOCK') {
     await new Promise((resolve) => setTimeout(resolve, 800));
 
-    const user = mockRMUsers.find(
+    const mockUsers = getMockRMUsers();
+    const user = mockUsers.find(
       (u) => u.staffId.toLowerCase() === staffId.toLowerCase() && u.password === password
     );
 
@@ -198,6 +235,9 @@ export async function rmLogin(
       expiresAt: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
     };
 
+    // MOCK MODE ONLY: Store session in localStorage for demo purposes.
+    // In REAL mode, the server handles session via secure HTTP-only cookies.
+    // This client-side storage is NOT secure for production use.
     localStorage.setItem('mtb_rm_session', JSON.stringify({
       session,
       user: {
@@ -208,6 +248,7 @@ export async function rmLogin(
         branch: user.branch,
         role: user.role,
       },
+      _mockModeOnly: true, // Flag indicating this is mock data
     }));
 
     return {

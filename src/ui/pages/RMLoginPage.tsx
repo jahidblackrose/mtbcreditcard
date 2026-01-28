@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2, Lock, User, Building2 } from 'lucide-react';
+import { Loader2, Lock, User, AlertTriangle } from 'lucide-react';
 import { MainLayout } from '../layouts';
 import { ErrorMessage } from '../components';
 import { Button } from '@/components/ui/button';
@@ -24,6 +24,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { rmLogin } from '@/api/auth.api';
+import { env } from '@/config';
 import mtbLogo from '@/assets/mtb-logo.png';
 
 const loginSchema = z.object({
@@ -141,14 +142,19 @@ export function RMLoginPage() {
               </form>
             </Form>
 
-            {/* Demo credentials */}
-            <div className="mt-6 p-4 bg-muted/50 rounded-lg border border-border">
-              <p className="text-xs font-medium text-muted-foreground mb-2">Demo Credentials:</p>
-              <div className="space-y-1 text-xs text-muted-foreground">
-                <p><span className="font-mono">Staff ID:</span> MTB-RM-001</p>
-                <p><span className="font-mono">Password:</span> password123</p>
+            {/* Demo credentials - MOCK MODE ONLY */}
+            {env.MODE === 'MOCK' && (
+              <div className="mt-6 p-4 bg-amber-500/10 rounded-lg border border-amber-500/30">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertTriangle className="h-4 w-4 text-amber-500" />
+                  <p className="text-xs font-medium text-amber-600 dark:text-amber-400">Development Mode Only</p>
+                </div>
+                <div className="space-y-1 text-xs text-muted-foreground">
+                  <p><span className="font-mono">Staff ID:</span> MTB-RM-001</p>
+                  <p><span className="font-mono">Password:</span> password123</p>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="mt-6 text-center">
               <Button variant="link" onClick={() => navigate('/')} className="text-sm">
