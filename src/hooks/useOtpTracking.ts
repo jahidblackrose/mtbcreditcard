@@ -62,7 +62,7 @@ export function useOtpTracking(sessionId: string | null): UseOtpTrackingReturn {
       if (response.status === 200 && response.data) {
         setOtpState({
           mobileNumber,
-          remainingAttempts: response.data.remainingAttempts,
+          remainingAttempts: response.data.attempts_remaining,
           maxAttempts: 5,
           isLocked: false,
         });
