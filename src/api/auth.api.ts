@@ -10,6 +10,7 @@
 import { env } from '@/config';
 import { http } from './httpClient';
 import type { ApiResponse, User, UserSession, StaffUser, FullUserSession } from '@/types';
+import { MOCK_RM_CREDENTIALS, validateRMCredentials } from './mockData';
 
 // ============================================
 // MOCK DATA - DEVELOPMENT ONLY
@@ -25,59 +26,6 @@ const MOCK_USER: User = {
   email: 'test@mtb.com.bd',
   mobileNumber: '+8801712345678',
   role: 'APPLICANT',
-};
-
-interface MockRMUser {
-  id: string;
-  staffId: string;
-  fullName: string;
-  email: string;
-  branch: string;
-  role: 'RM' | 'BRANCH_MANAGER' | 'ADMIN';
-  password: string;
-}
-
-/**
- * MOCK MODE ONLY - These credentials are for development/demo purposes.
- * In production (REAL mode), authentication is handled server-side.
- * DO NOT use real credentials here - these are intentionally weak demo values.
- */
-const getMockRMUsers = (): MockRMUser[] => {
-  // Runtime check: Never return mock users in REAL mode
-  if (env.MODE === 'REAL') {
-    console.warn('Mock RM users should not be accessed in REAL mode');
-    return [];
-  }
-  
-  return [
-    {
-      id: 'rm-001',
-      staffId: 'MTB-RM-001',
-      fullName: 'Aminul Haque',
-      email: 'aminul.haque@mtb.com',
-      branch: 'Gulshan Branch',
-      role: 'RM',
-      password: 'password123', // MOCK ONLY - demo password
-    },
-    {
-      id: 'rm-002',
-      staffId: 'MTB-RM-002',
-      fullName: 'Fatima Akter',
-      email: 'fatima.akter@mtb.com',
-      branch: 'Dhanmondi Branch',
-      role: 'RM',
-      password: 'password123', // MOCK ONLY - demo password
-    },
-    {
-      id: 'bm-001',
-      staffId: 'MTB-BM-001',
-      fullName: 'Karim Ahmed',
-      email: 'karim.ahmed@mtb.com',
-      branch: 'Gulshan Branch',
-      role: 'BRANCH_MANAGER',
-      password: 'password123', // MOCK ONLY - demo password
-    },
-  ];
 };
 
 // ============================================
@@ -216,10 +164,7 @@ export async function rmLogin(
   if (env.MODE === 'MOCK') {
     await new Promise((resolve) => setTimeout(resolve, 800));
 
-    const mockUsers = getMockRMUsers();
-    const user = mockUsers.find(
-      (u) => u.staffId.toLowerCase() === staffId.toLowerCase() && u.password === password
-    );
+    const user = validateRMCredentials(staffId, password);
 
     if (!user) {
       return {
@@ -229,8 +174,8 @@ export async function rmLogin(
     }
 
     const session: UserSession = {
-      userId: user.id,
-      role: user.role,
+      userId: user.staff_id,
+      role: user.role as 'RM' | 'BRANCH_MANAGER' | 'ADMIN',
       isAuthenticated: true,
       expiresAt: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
     };
@@ -241,11 +186,11 @@ export async function rmLogin(
     localStorage.setItem('mtb_rm_session', JSON.stringify({
       session,
       user: {
-        id: user.id,
-        staffId: user.staffId,
-        fullName: user.fullName,
-        email: user.email,
-        branch: user.branch,
+        id: user.staff_id,
+        staffId: user.staff_id,
+        fullName: user.name,
+        email: `${user.staff_id}@mtb.com`,
+        branch: user.branch_code,
         role: user.role,
       },
       _mockModeOnly: true, // Flag indicating this is mock data

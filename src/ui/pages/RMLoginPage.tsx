@@ -150,8 +150,8 @@ export function RMLoginPage() {
                   <p className="text-xs font-medium text-amber-600 dark:text-amber-400">Development Mode Only</p>
                 </div>
                 <div className="space-y-1 text-xs text-muted-foreground">
-                  <p><span className="font-mono">Staff ID:</span> MTB-RM-001</p>
-                  <p><span className="font-mono">Password:</span> password123</p>
+                  <p><span className="font-mono">Staff ID:</span> admin, rm001, rm002, verifier</p>
+                  <p><span className="font-mono">Password:</span> admin123 (admin) or password (others)</p>
                 </div>
               </div>
             )}

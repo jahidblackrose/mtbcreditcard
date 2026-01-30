@@ -10,4 +10,5 @@ export { SubmissionSuccess } from './SubmissionSuccess';
 export { OtpVerificationScreen } from './OtpVerificationScreen';
 export { ExistingApplicantSupplementary } from './ExistingApplicantSupplementary';
 export { SupplementaryCardForm } from './SupplementaryCardForm';
+export { ApplicationStatusTracker } from './ApplicationStatusTracker';
 export * from './steps';
