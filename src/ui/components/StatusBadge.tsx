@@ -1,7 +1,7 @@
 /**
  * MTB Credit Card Application - Status Badge
  * 
- * Displays application status with appropriate styling.
+ * Pill-style badges with semantic colors.
  */
 
 import { cn } from '@/lib/utils';
@@ -19,31 +19,31 @@ const statusConfig: Record<ApplicationStatus, { label: string; className: string
   },
   PENDING_OTP: {
     label: 'Pending OTP',
-    className: 'bg-warning/10 text-warning',
+    className: 'bg-warning/15 text-warning',
   },
   SUBMITTED: {
     label: 'Submitted',
-    className: 'bg-info/10 text-info',
+    className: 'bg-info/15 text-info',
   },
   UNDER_REVIEW: {
     label: 'Under Review',
-    className: 'bg-warning/10 text-warning',
+    className: 'bg-warning/15 text-warning',
   },
   DOCUMENTS_REQUIRED: {
     label: 'Documents Required',
-    className: 'bg-warning/10 text-warning',
+    className: 'bg-warning/15 text-warning',
   },
   APPROVED: {
     label: 'Approved',
-    className: 'bg-success/10 text-success',
+    className: 'bg-success/15 text-success',
   },
   REJECTED: {
     label: 'Rejected',
-    className: 'bg-destructive/10 text-destructive',
+    className: 'bg-destructive/15 text-destructive',
   },
   CARD_ISSUED: {
     label: 'Card Issued',
-    className: 'bg-success/10 text-success',
+    className: 'bg-success/15 text-success',
   },
 };
 
@@ -53,7 +53,7 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+        'inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold',
         config.className,
         className
       )}

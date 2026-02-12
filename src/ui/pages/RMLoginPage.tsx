@@ -1,7 +1,7 @@
 /**
  * MTB Credit Card Application - RM Login Page
  * 
- * Login form for Relationship Managers (Assisted Mode).
+ * Premium navy-themed login for Relationship Managers.
  */
 
 import { useState } from 'react';
@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2, Lock, User, AlertTriangle } from 'lucide-react';
+import { Loader2, Lock, User, AlertTriangle, Shield } from 'lucide-react';
 import { MainLayout } from '../layouts';
 import { ErrorMessage } from '../components';
 import { Button } from '@/components/ui/button';
@@ -59,7 +59,6 @@ export function RMLoginPage() {
         return;
       }
 
-      // Navigate to RM Dashboard
       navigate('/rm/dashboard');
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
@@ -70,14 +69,18 @@ export function RMLoginPage() {
 
   return (
     <MainLayout hideNav>
-      <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-br from-background via-background to-muted/30">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4">
-              <img src={mtbLogo} alt="MTB Bank" className="h-12 w-auto" />
+      <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-background">
+        <Card className="w-full max-w-md shadow-[0_2px_8px_0_rgb(0_0_0/0.06)]">
+          <CardHeader className="text-center pb-4">
+            <div className="mx-auto mb-3">
+              <img src={mtbLogo} alt="MTB Bank" className="h-11 w-auto" />
             </div>
-            <CardTitle className="text-2xl">RM Portal Login</CardTitle>
-            <CardDescription>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/8 text-primary text-[11px] font-medium mx-auto mb-3">
+              <Shield className="h-3 w-3" />
+              Secure Staff Portal
+            </div>
+            <CardTitle className="text-xl">RM Portal Login</CardTitle>
+            <CardDescription className="text-[13px]">
               Sign in to access the Credit Card Application Portal
             </CardDescription>
           </CardHeader>
@@ -91,7 +94,7 @@ export function RMLoginPage() {
                   name="staffId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Staff ID</FormLabel>
+                      <FormLabel className="text-[13px]">Staff ID</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -112,7 +115,7 @@ export function RMLoginPage() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel className="text-[13px]">Password</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -144,20 +147,20 @@ export function RMLoginPage() {
 
             {/* Demo credentials - MOCK MODE ONLY */}
             {env.MODE === 'MOCK' && (
-              <div className="mt-6 p-4 bg-amber-500/10 rounded-lg border border-amber-500/30">
-                <div className="flex items-center gap-2 mb-2">
-                  <AlertTriangle className="h-4 w-4 text-amber-500" />
-                  <p className="text-xs font-medium text-amber-600 dark:text-amber-400">Development Mode Only</p>
+              <div className="mt-5 p-3.5 bg-warning/8 rounded-lg border border-warning/20">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <AlertTriangle className="h-3.5 w-3.5 text-warning" />
+                  <p className="text-[11px] font-semibold text-warning">Development Mode Only</p>
                 </div>
-                <div className="space-y-1 text-xs text-muted-foreground">
+                <div className="space-y-0.5 text-[11px] text-muted-foreground">
                   <p><span className="font-mono">Staff ID:</span> admin, rm001, rm002, verifier</p>
                   <p><span className="font-mono">Password:</span> admin123 (admin) or password (others)</p>
                 </div>
               </div>
             )}
 
-            <div className="mt-6 text-center">
-              <Button variant="link" onClick={() => navigate('/')} className="text-sm">
+            <div className="mt-5 text-center">
+              <Button variant="link" onClick={() => navigate('/')} className="text-[13px]">
                 ← Back to Home
               </Button>
             </div>
