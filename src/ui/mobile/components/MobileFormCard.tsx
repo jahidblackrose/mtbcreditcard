@@ -1,7 +1,7 @@
 /**
- * Mobile Form Card - Banking App Style Input Container
+ * Mobile Form Card - Premium Banking Style
  * 
- * Rounded card with white background for form inputs.
+ * Clean white card with subtle shadow for form sections.
  */
 
 import { ReactNode } from 'react';
@@ -16,8 +16,8 @@ export function MobileFormCard({ children, className }: MobileFormCardProps) {
   return (
     <div
       className={cn(
-        // White background, very light border, minimal shadow like attachment
-        'bg-white rounded-2xl border border-gray-200 p-5',
+        'bg-card rounded-xl border border-border p-5',
+        'shadow-[0_1px_3px_0_rgb(0_0_0/0.04)]',
         className
       )}
     >
@@ -35,7 +35,7 @@ interface MobileFormSectionProps {
 export function MobileFormSection({ title, children, className }: MobileFormSectionProps) {
   return (
     <div className={cn('mb-6', className)}>
-      <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-3">
+      <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-3">
         {title}
       </h3>
       <div className="space-y-3">

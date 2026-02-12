@@ -21,183 +21,184 @@
 /**
  * MTB Credit Card Application - Design System
  * 
- * Brand Colors derived from MTB logo:
- * - Orange/Red: Primary action, CTAs
- * - Green/Teal: Success, positive states
- * - Blue: Trust, information
- * - Magenta/Pink: Accent highlights
+ * Premium Banking Color Palette:
+ * - Deep Navy #0B2E59 → Primary
+ * - Royal Blue #1F3D7A → Secondary accent
+ * - Soft Gold #C9A227 → Accent highlights
+ * - Success Green #1E8449
+ * - Warning #F39C12
+ * - Danger #C0392B
  * 
  * All colors MUST be HSL.
  */
 
 @layer base {
   :root {
-    /* === Core Brand Colors (MTB Green/Teal/Blue family - NO orange) === */
-    --mtb-green: 145 63% 42%;
-    --mtb-teal: 175 70% 41%;
-    --mtb-blue: 210 80% 50%;
-    --mtb-magenta: 330 75% 50%;
+    /* === Brand Colors === */
+    --navy: 213 80% 19%;
+    --navy-light: 217 59% 30%;
+    --gold: 45 70% 47%;
+    --gold-light: 45 60% 60%;
     
-    /* === Mobile CTA Button - Exact #A1ED6F (93 79% 68% HSL) === */
-    --mobile-cta: 93 79% 68%;
-    --mobile-cta-text: 0 0% 7%;
+    /* === Mobile CTA Button - Navy solid === */
+    --mobile-cta: 213 80% 19%;
+    --mobile-cta-text: 0 0% 100%;
     
     /* === Base Surfaces === */
-    --background: 0 0% 100%;
-    --foreground: 220 25% 12%;
+    --background: 210 20% 97%;
+    --foreground: 217 33% 17%;
     
-    /* Mobile app background (off-white) */
-    --mobile-background: 0 0% 98%;
+    /* Mobile app background */
+    --mobile-background: 210 20% 97%;
     
     --card: 0 0% 100%;
-    --card-foreground: 220 25% 12%;
+    --card-foreground: 217 33% 17%;
     
     --popover: 0 0% 100%;
-    --popover-foreground: 220 25% 12%;
+    --popover-foreground: 217 33% 17%;
     
-    /* === Primary (MTB Teal - Main CTA) === */
-    --primary: 175 70% 41%;
+    /* === Primary (Deep Navy) === */
+    --primary: 213 80% 19%;
     --primary-foreground: 0 0% 100%;
     
-    /* === Secondary (Neutral - Supporting UI) === */
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 220 25% 12%;
+    /* === Secondary (Light gray surfaces) === */
+    --secondary: 210 20% 96%;
+    --secondary-foreground: 217 33% 17%;
     
-    /* === Muted (Subtle backgrounds) === */
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 10% 46%;
+    /* === Muted === */
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 16% 47%;
     
-    /* === Accent (MTB Green - Highlights) === */
-    --accent: 145 63% 42%;
+    /* === Accent (Soft Gold) === */
+    --accent: 45 70% 47%;
     --accent-foreground: 0 0% 100%;
     
     /* === Semantic Colors === */
-    --success: 145 63% 42%;
+    --success: 150 63% 32%;
     --success-foreground: 0 0% 100%;
     
-    --info: 210 80% 50%;
+    --info: 217 59% 30%;
     --info-foreground: 0 0% 100%;
     
-    --warning: 45 93% 47%;
-    --warning-foreground: 220 25% 12%;
+    --warning: 37 90% 51%;
+    --warning-foreground: 217 33% 17%;
     
-    --destructive: 0 84% 60%;
+    --destructive: 6 63% 46%;
     --destructive-foreground: 0 0% 100%;
     
     /* === Borders & Inputs === */
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 175 70% 41%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 213 80% 19%;
     
     --radius: 0.75rem;
     
-    /* === Sidebar (Staff/Assisted Mode) === */
-    --sidebar-background: 220 14% 98%;
-    --sidebar-foreground: 220 15% 26%;
-    --sidebar-primary: 175 70% 41%;
+    /* === Sidebar (RM Portal - Dark Navy) === */
+    --sidebar-background: 213 80% 12%;
+    --sidebar-foreground: 210 20% 90%;
+    --sidebar-primary: 45 70% 47%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 145 63% 95%;
-    --sidebar-accent-foreground: 145 63% 25%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 175 70% 41%;
+    --sidebar-accent: 213 60% 18%;
+    --sidebar-accent-foreground: 210 20% 96%;
+    --sidebar-border: 213 60% 22%;
+    --sidebar-ring: 45 70% 47%;
     
     /* === Gradients === */
     --gradient-mtb: linear-gradient(90deg, 
-      hsl(145, 63%, 42%) 0%, 
-      hsl(175, 70%, 41%) 50%,
-      hsl(210, 80%, 50%) 100%
+      hsl(213, 80%, 19%) 0%, 
+      hsl(217, 59%, 30%) 50%,
+      hsl(213, 80%, 25%) 100%
     );
     
     --gradient-primary: linear-gradient(135deg, 
-      hsl(175, 70%, 41%) 0%, 
-      hsl(145, 63%, 42%) 100%
+      hsl(213, 80%, 19%) 0%, 
+      hsl(217, 59%, 30%) 100%
     );
     
     --gradient-success: linear-gradient(135deg, 
-      hsl(145, 63%, 42%) 0%, 
-      hsl(175, 70%, 41%) 100%
+      hsl(150, 63%, 32%) 0%, 
+      hsl(150, 50%, 40%) 100%
     );
   }
 
   .dark {
-    /* === Dark Mode - Core Brand Colors (MTB Green/Teal/Blue - NO orange) === */
-    --mtb-green: 145 55% 48%;
-    --mtb-teal: 175 65% 48%;
-    --mtb-blue: 210 75% 55%;
-    --mtb-magenta: 330 70% 58%;
+    /* === Dark Mode === */
+    --navy: 213 70% 30%;
+    --navy-light: 217 50% 40%;
+    --gold: 45 65% 55%;
+    --gold-light: 45 55% 65%;
     
     /* === Base Surfaces === */
     --background: 220 25% 8%;
-    --foreground: 220 14% 96%;
+    --foreground: 210 20% 96%;
     
-    /* Mobile app background (dark off-white) */
     --mobile-background: 220 25% 10%;
     
     --card: 220 25% 11%;
-    --card-foreground: 220 14% 96%;
+    --card-foreground: 210 20% 96%;
     
     --popover: 220 25% 11%;
-    --popover-foreground: 220 14% 96%;
+    --popover-foreground: 210 20% 96%;
     
-    /* === Primary (MTB Teal) === */
-    --primary: 175 65% 48%;
-    --primary-foreground: 220 25% 8%;
+    /* === Primary (Navy - lighter in dark) === */
+    --primary: 213 70% 40%;
+    --primary-foreground: 0 0% 100%;
     
     /* === Secondary === */
     --secondary: 220 20% 18%;
-    --secondary-foreground: 220 14% 96%;
+    --secondary-foreground: 210 20% 96%;
     
     /* === Muted === */
     --muted: 220 20% 18%;
-    --muted-foreground: 220 10% 65%;
+    --muted-foreground: 215 16% 65%;
     
-    /* === Accent (MTB Green) === */
-    --accent: 145 55% 48%;
+    /* === Accent (Gold) === */
+    --accent: 45 65% 55%;
     --accent-foreground: 220 25% 8%;
     
     /* === Semantic Colors === */
-    --success: 145 55% 48%;
-    --success-foreground: 220 25% 8%;
+    --success: 150 55% 40%;
+    --success-foreground: 0 0% 100%;
     
-    --info: 210 75% 55%;
-    --info-foreground: 220 25% 8%;
+    --info: 217 50% 45%;
+    --info-foreground: 0 0% 100%;
     
-    --warning: 45 88% 52%;
+    --warning: 37 85% 55%;
     --warning-foreground: 220 25% 8%;
     
-    --destructive: 0 72% 51%;
+    --destructive: 6 55% 50%;
     --destructive-foreground: 0 0% 100%;
     
     /* === Borders & Inputs === */
     --border: 220 20% 22%;
     --input: 220 20% 22%;
-    --ring: 175 65% 48%;
+    --ring: 213 70% 40%;
     
     /* === Sidebar === */
-    --sidebar-background: 220 25% 10%;
-    --sidebar-foreground: 220 14% 90%;
-    --sidebar-primary: 175 65% 48%;
+    --sidebar-background: 220 25% 8%;
+    --sidebar-foreground: 210 20% 90%;
+    --sidebar-primary: 45 65% 55%;
     --sidebar-primary-foreground: 220 25% 8%;
-    --sidebar-accent: 145 40% 15%;
-    --sidebar-accent-foreground: 145 55% 70%;
+    --sidebar-accent: 220 25% 14%;
+    --sidebar-accent-foreground: 210 20% 90%;
     --sidebar-border: 220 20% 18%;
-    --sidebar-ring: 175 65% 48%;
+    --sidebar-ring: 45 65% 55%;
     
-    /* === Gradients (slightly brighter for dark mode) === */
+    /* === Gradients === */
     --gradient-mtb: linear-gradient(90deg, 
-      hsl(145, 55%, 48%) 0%, 
-      hsl(175, 65%, 48%) 50%,
-      hsl(210, 75%, 55%) 100%
+      hsl(213, 70%, 30%) 0%, 
+      hsl(217, 50%, 40%) 50%,
+      hsl(213, 70%, 35%) 100%
     );
     
     --gradient-primary: linear-gradient(135deg, 
-      hsl(175, 65%, 48%) 0%, 
-      hsl(145, 55%, 48%) 100%
+      hsl(213, 70%, 30%) 0%, 
+      hsl(217, 50%, 40%) 100%
     );
     
     --gradient-success: linear-gradient(135deg, 
-      hsl(145, 55%, 48%) 0%, 
-      hsl(175, 65%, 48%) 100%
+      hsl(150, 55%, 40%) 0%, 
+      hsl(150, 45%, 48%) 100%
     );
   }
 }
@@ -219,16 +220,16 @@
 }
 
 @layer components {
-  /* MTB Brand Gradient Bar - used for headers/accents */
+  /* MTB Brand Gradient Bar - thin navy gradient */
   .mtb-gradient-bar {
     background: var(--gradient-mtb);
-    height: 4px;
+    height: 3px;
   }
   
-  /* Card with subtle shadow */
+  /* Card with subtle shadow - banking style */
   .mtb-card {
-    @apply bg-card rounded-lg border border-border;
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
+    @apply bg-card rounded-xl border border-border;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.03);
   }
   
   /* Focus ring style */
@@ -256,18 +257,18 @@
   }
   
   .mobile-input-focus:focus {
-    @apply ring-2 ring-success/30 border-success;
+    @apply ring-2 ring-primary/20 border-primary;
     transform: translateY(-1px);
   }
   
-  /* Mobile CTA Button - Exact #A1ED6F styling */
+  /* Mobile CTA Button - Navy solid, white text */
   .mobile-cta-button {
-    background-color: #A1ED6F;
-    color: #111111;
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
   }
   
   .mobile-cta-button:hover:not(:disabled) {
-    background-color: #94e05c;
+    background-color: hsl(213, 80%, 24%);
   }
   
   .mobile-cta-button:disabled {
@@ -276,37 +277,28 @@
   
   /* Force dark text on white inputs for all themes */
   .force-dark-text {
-    color: #333333 !important;
+    color: #1E293B !important;
   }
   
   .force-dark-text::placeholder {
-    color: #888888 !important;
+    color: #64748B !important;
+  }
+
+  /* Gold accent border (RM sidebar active) */
+  .gold-accent-border {
+    border-left: 3px solid hsl(var(--accent));
   }
 }
 
 /* Input visibility and focus fixes */
 @layer base {
-  /*
-   * Themed form controls
-   * -------------------
-   * Do NOT hardcode light-mode colors globally (breaks dark mode).
-   * Use semantic tokens so inputs, placeholders, and caret remain readable
-   * in both light and dark themes.
-   */
   input, textarea, select {
     color: hsl(var(--foreground)) !important;
     caret-color: hsl(var(--foreground)) !important;
     background-color: hsl(var(--background)) !important;
   }
 
-  /*
-   * input-otp integration fix
-   * ------------------------
-   * We globally force dark input text for readability, but `input-otp` uses a
-   * hidden native input (`[data-input-otp]`) that MUST stay transparent.
-   * Otherwise the full OTP value renders left-aligned and looks like it “stacks”
-   * into the first box.
-   */
+  /* input-otp fix */
   [data-input-otp] {
     color: transparent !important;
     caret-color: transparent !important;
@@ -335,6 +327,4 @@
   select:focus {
     outline: none !important;
   }
-  
-  /* Keep input-otp's hidden native input transparent (do not theme it) */
 }

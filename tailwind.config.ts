@@ -48,12 +48,14 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // MTB Brand Colors (Green/Teal/Blue family - no orange)
-        mtb: {
-          green: "hsl(var(--mtb-green))",
-          teal: "hsl(var(--mtb-teal))",
-          blue: "hsl(var(--mtb-blue))",
-          magenta: "hsl(var(--mtb-magenta))",
+        // Brand Colors (Navy/Gold)
+        navy: {
+          DEFAULT: "hsl(var(--navy))",
+          light: "hsl(var(--navy-light))",
+        },
+        gold: {
+          DEFAULT: "hsl(var(--gold))",
+          light: "hsl(var(--gold-light))",
         },
         // Semantic Colors
         success: {
@@ -68,7 +70,7 @@ export default {
           DEFAULT: "hsl(var(--warning))",
           foreground: "hsl(var(--warning-foreground))",
         },
-        // Mobile CTA (exact #A1ED6F)
+        // Mobile CTA
         "mobile-cta": {
           DEFAULT: "hsl(var(--mobile-cta))",
           foreground: "hsl(var(--mobile-cta-text))",

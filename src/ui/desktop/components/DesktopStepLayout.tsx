@@ -1,15 +1,11 @@
 /**
- * Desktop Step Layout - Bootstrap-style 12-grid Layout with Collapsible Sidebar
+ * Desktop Step Layout - Premium Banking Dashboard
  * 
- * For screens > 768px:
- * - MTB branding header with logo and menu
- * - Collapsible sidebar stepper (3 columns)
- * - Main content area (9-12 columns based on sidebar state)
- * - Standard Bootstrap-style inputs
+ * Navy-themed with collapsible sidebar stepper, clean card layout.
  */
 
 import { ReactNode, useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Check, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { ArrowLeft, Check, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import mtbLogo from '@/assets/mtb-logo.png';
 import { ThemeToggle } from '@/ui/components/ThemeToggle';
@@ -56,39 +52,42 @@ export function DesktopStepLayout({
   const contentRef = useRef<HTMLDivElement>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  // Auto-scroll to top on step change (NO auto-focus to prevent cursor in inputs)
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentStep]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {/* MTB Brand Gradient Bar */}
+      {/* Brand Line */}
       <div className="mtb-gradient-bar" />
       
-      {/* Header with Logo and Navigation */}
+      {/* Header */}
       <header className="border-b border-border bg-card">
-        <div className="container mx-auto px-6 lg:px-8 py-4 flex items-center justify-between">
+        <div className="container mx-auto px-6 lg:px-8 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <img 
               src={mtbLogo} 
               alt="Mutual Trust Bank PLC" 
-              className="h-10 w-auto"
+              className="h-9 w-auto"
             />
-            <span className="text-sm font-medium text-foreground hidden lg:block">
-              Credit Card Application
-            </span>
+            <div className="hidden lg:flex flex-col">
+              <span className="text-sm font-semibold text-foreground leading-tight">
+                Credit Card Application
+              </span>
+              <span className="text-[10px] text-muted-foreground leading-tight">
+                Mutual Trust Bank PLC
+              </span>
+            </div>
           </div>
           
-          {/* Desktop Menu */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-6">
             <a href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Home
             </a>
-            <a href="/apply" className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
+            <a href="/apply" className="text-sm font-medium text-primary transition-colors">
               Apply Now
             </a>
-            <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <a href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Track Application
             </a>
           </nav>
@@ -99,23 +98,20 @@ export function DesktopStepLayout({
         </div>
       </header>
       
-      {/* Main Content - Bootstrap 12-Grid Style */}
+      {/* Main Content */}
       <div className="flex-1 container mx-auto px-6 lg:px-8 py-8">
         <div className="grid grid-cols-12 gap-6 lg:gap-8">
-          {/* Sidebar Stepper - Collapsible */}
+          {/* Sidebar Stepper */}
           <aside className={cn(
             "hidden lg:block transition-all duration-300",
             sidebarOpen ? "col-span-3" : "col-span-1"
           )}>
             <div className="sticky top-8">
-              {/* Sidebar Toggle Button */}
+              {/* Toggle */}
               <button
                 type="button"
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className={cn(
-                  "mb-3 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium",
-                  "text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                )}
+                className="mb-3 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
               >
                 {sidebarOpen ? (
                   <>
@@ -130,14 +126,14 @@ export function DesktopStepLayout({
               {/* Sidebar Content */}
               <div className={cn(
                 "bg-card rounded-xl border border-border overflow-hidden transition-all duration-300",
-                sidebarOpen ? "p-6" : "p-3"
+                sidebarOpen ? "p-5" : "p-3"
               )}>
                 {sidebarOpen ? (
                   <>
-                    <h3 className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wide">
+                    <h3 className="text-[11px] font-bold text-muted-foreground mb-4 uppercase tracking-widest">
                       Application Progress
                     </h3>
-                    <nav className="space-y-1">
+                    <nav className="space-y-0.5">
                       {steps.map((step, index) => {
                         const stepNum = index + 1;
                         const isActive = stepNum === currentStep;
@@ -151,35 +147,33 @@ export function DesktopStepLayout({
                             disabled={!isClickable}
                             className={cn(
                               'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all',
-                              isActive && 'bg-primary/10',
+                              isActive && 'bg-primary/8 border-l-2 border-primary',
                               isClickable && !isActive && 'hover:bg-muted',
-                              !isClickable && 'opacity-50 cursor-not-allowed'
+                              !isClickable && 'opacity-40 cursor-not-allowed'
                             )}
                           >
-                            {/* Step indicator */}
                             <div className={cn(
-                              'w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0',
-                              'text-xs font-semibold',
+                              'w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0',
+                              'text-[11px] font-semibold',
                               isCompleted && 'bg-success text-success-foreground',
                               isActive && !isCompleted && 'bg-primary text-primary-foreground',
                               !isActive && !isCompleted && 'bg-muted text-muted-foreground'
                             )}>
                               {isCompleted ? (
-                                <Check className="w-4 h-4" />
+                                <Check className="w-3.5 h-3.5" />
                               ) : (
                                 stepNum
                               )}
                             </div>
                             
-                            {/* Step title */}
                             <span className={cn(
-                              'text-sm truncate',
+                              'text-[13px] truncate',
                               isActive && 'font-medium text-foreground',
                               !isActive && 'text-muted-foreground'
                             )}>
                               {step.title}
                               {step.isOptional && (
-                                <span className="text-xs text-muted-foreground ml-1">(Optional)</span>
+                                <span className="text-[10px] text-muted-foreground ml-1">(Optional)</span>
                               )}
                             </span>
                           </button>
@@ -188,7 +182,6 @@ export function DesktopStepLayout({
                     </nav>
                   </>
                 ) : (
-                  // Collapsed view - just step numbers
                   <nav className="space-y-2">
                     {steps.map((step, index) => {
                       const stepNum = index + 1;
@@ -203,16 +196,16 @@ export function DesktopStepLayout({
                           disabled={!isClickable}
                           title={step.title}
                           className={cn(
-                            'w-8 h-8 rounded-full flex items-center justify-center mx-auto',
-                            'text-xs font-semibold transition-all',
+                            'w-7 h-7 rounded-full flex items-center justify-center mx-auto',
+                            'text-[11px] font-semibold transition-all',
                             isCompleted && 'bg-success text-success-foreground',
                             isActive && !isCompleted && 'bg-primary text-primary-foreground',
                             !isActive && !isCompleted && 'bg-muted text-muted-foreground',
-                            !isClickable && 'opacity-50 cursor-not-allowed'
+                            !isClickable && 'opacity-40 cursor-not-allowed'
                           )}
                         >
                           {isCompleted ? (
-                            <Check className="w-4 h-4" />
+                            <Check className="w-3.5 h-3.5" />
                           ) : (
                             stepNum
                           )}
@@ -225,14 +218,14 @@ export function DesktopStepLayout({
             </div>
           </aside>
           
-          {/* Main Form Area - Expands when sidebar is collapsed */}
+          {/* Main Form Area */}
           <main className={cn(
             "col-span-12 transition-all duration-300",
             sidebarOpen ? "lg:col-span-9" : "lg:col-span-11"
           )}>
             {/* Page Header */}
             <div className="mb-6">
-              <div className="flex items-center gap-4 mb-2">
+              <div className="flex items-center gap-3 mb-1">
                 {showBackButton && onBack && (
                   <button
                     type="button"
@@ -244,51 +237,51 @@ export function DesktopStepLayout({
                   </button>
                 )}
                 <div>
-                  <h1 className="text-2xl font-bold text-foreground">
+                  <h1 className="text-xl font-bold text-foreground">
                     {title}
                   </h1>
                   {description && (
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <p className="text-sm text-muted-foreground mt-0.5">
                       {description}
                     </p>
                   )}
                 </div>
               </div>
               
-              {/* Progress indicator for tablet and when sidebar is hidden */}
+              {/* Progress for tablet / hidden sidebar */}
               <div className={cn(
                 "flex items-center gap-4 mt-4",
                 sidebarOpen ? "lg:hidden" : ""
               )}>
-                <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-success rounded-full transition-all duration-500"
+                    className="h-full bg-primary rounded-full transition-all duration-500"
                     style={{ width: `${(currentStep / totalSteps) * 100}%` }}
                   />
                 </div>
-                <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">
+                <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">
                   Step {currentStep} of {totalSteps}
                 </span>
               </div>
             </div>
             
-            {/* Form Content - Better spacing and max-width for readability */}
+            {/* Form Card */}
             <div 
               ref={contentRef}
-              className="bg-card rounded-xl border border-border p-6 lg:p-8"
+              className="bg-card rounded-xl border border-border p-6 lg:p-8 shadow-[0_1px_3px_0_rgb(0_0_0/0.04)]"
             >
               <div className="max-w-4xl">
                 {children}
               </div>
             </div>
             
-            {/* Action Buttons - Better alignment */}
-            <div className="flex justify-between items-center mt-8 gap-4">
+            {/* Action Buttons */}
+            <div className="flex justify-between items-center mt-6 gap-4">
               {showBackButton && onBack ? (
                 <button
                   type="button"
                   onClick={onBack}
-                  className="px-6 py-3 rounded-lg border border-border text-sm font-medium text-foreground hover:bg-muted transition-colors"
+                  className="px-6 py-2.5 rounded-xl border border-border text-sm font-medium text-foreground hover:bg-muted transition-colors"
                 >
                   Back
                 </button>
@@ -302,10 +295,10 @@ export function DesktopStepLayout({
                   onClick={onProceed}
                   disabled={proceedDisabled || isLoading}
                   className={cn(
-                    'px-10 py-3 rounded-lg text-sm font-semibold transition-all',
+                    'px-8 py-2.5 rounded-xl text-sm font-semibold transition-all',
                     'disabled:opacity-50 disabled:cursor-not-allowed',
-                    'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-success',
-                    'mobile-cta-button hover:brightness-95'
+                    'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary',
+                    'mobile-cta-button'
                   )}
                 >
                   {isLoading ? (
@@ -326,8 +319,7 @@ export function DesktopStepLayout({
         </div>
       </div>
       
-      {/* Footer */}
-      <footer className="border-t border-border py-6 text-center text-sm text-muted-foreground">
+      <footer className="border-t border-border py-5 text-center text-xs text-muted-foreground bg-card">
         <p>© 2024 Mutual Trust Bank PLC. All rights reserved.</p>
       </footer>
     </div>

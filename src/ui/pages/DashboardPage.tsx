@@ -1,9 +1,7 @@
 /**
  * MTB Credit Card Application - Dashboard Page
  * 
- * Shows application status and tracking.
- * Different view for applicants vs staff (assisted mode).
- * 
+ * Customer dashboard for tracking applications.
  * API: Uses dashboard.api.ts ONLY
  */
 
@@ -15,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Search, FileText, Clock, CheckCircle } from 'lucide-react';
+import { Search, FileText, CreditCard } from 'lucide-react';
 import type { ApplicationSummary, PaginatedResponse } from '@/types';
 
 export function DashboardPage() {
@@ -66,21 +64,21 @@ export function DashboardPage() {
 
   return (
     <MainLayout>
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-8">
+      <div className="container mx-auto px-4 py-8 max-w-3xl">
+        <h1 className="text-2xl font-bold text-foreground mb-6">
           Application Dashboard
         </h1>
 
         {/* Track Application */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="text-lg">Track Your Application</CardTitle>
-            <CardDescription>
+        <Card className="mb-6">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Track Your Application</CardTitle>
+            <CardDescription className="text-[13px]">
               Enter your reference number to check application status
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex gap-4 flex-col sm:flex-row">
+            <div className="flex gap-3 flex-col sm:flex-row">
               <div className="flex-1">
                 <Label htmlFor="refNumber" className="sr-only">Reference Number</Label>
                 <Input
@@ -90,11 +88,11 @@ export function DashboardPage() {
                   onChange={(e) => setReferenceNumber(e.target.value)}
                 />
               </div>
-              <Button onClick={handleTrack} disabled={tracking || !referenceNumber}>
+              <Button onClick={handleTrack} disabled={tracking || !referenceNumber} className="gap-2">
                 {tracking ? (
-                  <LoadingSpinner size="sm" className="mr-2" />
+                  <LoadingSpinner size="sm" />
                 ) : (
-                  <Search className="mr-2 h-4 w-4" />
+                  <Search className="h-4 w-4" />
                 )}
                 Track
               </Button>
@@ -105,12 +103,12 @@ export function DashboardPage() {
             )}
 
             {trackedApp && (
-              <Card className="mt-4 border-primary/20">
+              <Card className="mt-4 border-primary/20 shadow-none">
                 <CardContent className="pt-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium">{trackedApp.referenceNumber}</p>
-                      <p className="text-sm text-muted-foreground">{trackedApp.applicantName}</p>
+                      <p className="font-medium text-sm">{trackedApp.referenceNumber}</p>
+                      <p className="text-[13px] text-muted-foreground">{trackedApp.applicantName}</p>
                     </div>
                     <StatusBadge status={trackedApp.status} />
                   </div>
@@ -122,40 +120,42 @@ export function DashboardPage() {
 
         {/* My Applications */}
         <section>
-          <h2 className="text-lg font-semibold text-foreground mb-4">
+          <h2 className="text-base font-semibold text-foreground mb-4">
             My Applications
           </h2>
           
           {applications.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">No applications found</p>
-                <Button variant="outline" className="mt-4">
+                <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mx-auto mb-3">
+                  <FileText className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <p className="text-sm text-muted-foreground">No applications found</p>
+                <Button variant="outline" className="mt-4 text-[13px]">
                   Start New Application
                 </Button>
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {applications.map((app) => (
-                <Card key={app.id}>
+                <Card key={app.id} className="hover:shadow-md transition-shadow">
                   <CardContent className="py-4">
-                    <div className="flex items-center justify-between flex-wrap gap-4">
-                      <div className="flex items-center gap-4">
-                        <div className="bg-muted p-3 rounded-lg">
-                          <FileText className="h-5 w-5 text-muted-foreground" />
+                    <div className="flex items-center justify-between flex-wrap gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center flex-shrink-0">
+                          <CreditCard className="h-5 w-5 text-primary" />
                         </div>
                         <div>
-                          <p className="font-medium">{app.referenceNumber}</p>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="font-medium text-sm">{app.referenceNumber}</p>
+                          <p className="text-[13px] text-muted-foreground">
                             {app.cardType.replace(/_/g, ' ')}
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3">
                         <StatusBadge status={app.status} />
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" className="text-[13px]">
                           View Details
                         </Button>
                       </div>

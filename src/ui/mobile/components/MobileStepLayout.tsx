@@ -1,11 +1,7 @@
 /**
- * Mobile Step Layout - Banking App Style
+ * Mobile Step Layout - Premium Banking Style
  * 
- * Provides consistent layout for all application steps:
- * - Sticky top bar with back, progress, step counter
- * - Page header with title and description
- * - Content area
- * - Sticky bottom CTA button
+ * Navy-themed step navigation with clean, secure feel.
  */
 
 import { ReactNode, useEffect, useRef, forwardRef } from 'react';
@@ -44,28 +40,26 @@ export const MobileStepLayout = forwardRef<HTMLDivElement, MobileStepLayoutProps
   }, ref) {
     const contentRef = useRef<HTMLDivElement>(null);
 
-    // Auto-scroll to top on step change (NO auto-focus to prevent cursor in inputs)
     useEffect(() => {
-      // Scroll to top only - no auto-focus
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [currentStep]);
 
     const progressPercentage = (currentStep / totalSteps) * 100;
 
     return (
-      <div ref={ref} className={cn('min-h-screen flex flex-col bg-mobile-background', className)}>
-        {/* MLine Gradient Bar - MTB Brand Accent at top */}
+      <div ref={ref} className={cn('min-h-screen flex flex-col bg-background', className)}>
+        {/* Thin Brand Accent */}
         <div className="mtb-gradient-bar" />
         
         {/* Sticky Top Bar */}
-        <div className="sticky top-0 z-50 bg-mobile-background px-4 py-3 safe-area-top">
+        <div className="sticky top-0 z-50 bg-card border-b border-border px-4 py-3 safe-area-top">
           <div className="flex items-center justify-between gap-4">
             {/* Back Button */}
             {showBackButton && onBack ? (
               <button
                 type="button"
                 onClick={onBack}
-                className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors"
+                className="p-2 -ml-2 rounded-lg hover:bg-muted transition-colors"
                 aria-label="Go back"
               >
                 <ArrowLeft className="h-5 w-5 text-foreground" />
@@ -78,7 +72,7 @@ export const MobileStepLayout = forwardRef<HTMLDivElement, MobileStepLayoutProps
             <div className="flex-1 max-w-[200px]">
               <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-success rounded-full transition-all duration-500 ease-out"
+                  className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
                   style={{ width: `${progressPercentage}%` }}
                 />
               </div>
@@ -86,14 +80,14 @@ export const MobileStepLayout = forwardRef<HTMLDivElement, MobileStepLayoutProps
 
             {/* Step Counter */}
             <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">
-              {currentStep} OF {totalSteps}
+              {currentStep} of {totalSteps}
             </span>
           </div>
         </div>
 
         {/* Page Header */}
-        <div className="px-4 pt-4 pb-2">
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">
+        <div className="px-4 pt-5 pb-2">
+          <h1 className="text-xl font-bold text-foreground tracking-tight">
             {title}
           </h1>
           {description && (
@@ -111,24 +105,24 @@ export const MobileStepLayout = forwardRef<HTMLDivElement, MobileStepLayoutProps
           {children}
         </div>
 
-        {/* Sticky Bottom CTA - Exact #A1ED6F lime green */}
+        {/* Sticky Bottom CTA - Navy solid button */}
         {onProceed && (
-          <div className="fixed bottom-0 left-0 right-0 bg-mobile-background px-6 py-4 safe-area-bottom">
+          <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border px-5 py-4 safe-area-bottom">
             <button
               type="button"
               onClick={onProceed}
               disabled={proceedDisabled || isLoading}
               className={cn(
-                'w-full py-4 rounded-full text-base font-semibold transition-all',
+                'w-full py-3.5 rounded-xl text-base font-semibold transition-all',
                 'disabled:opacity-50 disabled:cursor-not-allowed',
-                'focus:outline-none focus:ring-2 focus:ring-offset-2',
+                'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary',
                 'active:scale-[0.98]',
                 'mobile-cta-button'
               )}
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-5 w-5" style={{ color: '#A1ED6F' }} viewBox="0 0 24 24">
+                  <svg className="animate-spin h-5 w-5 text-primary-foreground" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
