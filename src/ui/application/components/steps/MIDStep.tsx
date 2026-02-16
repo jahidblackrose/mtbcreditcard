@@ -1,9 +1,11 @@
 /**
  * Step 12: Most Important Document (MID) - Declarations & Document Checklist
+ * Enhanced with consistent UX patterns
  */
 
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { FileCheck, ClipboardCheck, Upload, Check, AlertCircle } from 'lucide-react';
 import { midSchema, type MIDFormData } from '@/lib/validation-schemas';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -11,7 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Upload, Check, AlertCircle } from 'lucide-react';
+import { StepFormWrapper, FormSection } from '@/components';
 import type { MIDData, DeclarationItem, DocumentChecklistItem } from '@/types/application-form.types';
 
 interface MIDStepProps {
@@ -115,8 +117,14 @@ export function MIDStep({ initialData, onSave }: MIDStepProps) {
   const allDeclarationsAnswered = declarationFields.every(d => d.answer !== null);
 
   return (
-    <Form {...form}>
-      <form className="space-y-6">
+    <StepFormWrapper form={form}
+      stepNumber={12}
+      title="Declarations & Documents"
+      description="Please review all declarations and upload required documents"
+      hint="Please review all declarations carefully. These are regulatory requirements for all credit card applicants."
+    >
+      <Form {...form}>
+        <form className="space-y-6">
         {/* Declarations Section */}
         <Card>
           <CardHeader>
@@ -279,5 +287,6 @@ export function MIDStep({ initialData, onSave }: MIDStepProps) {
         </Card>
       </form>
     </Form>
+  </StepFormWrapper>
   );
 }

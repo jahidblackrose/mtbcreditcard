@@ -1,28 +1,31 @@
 /**
  * MTB Credit Card Application - Resume Dashboard
- * 
+ *
  * Dashboard-like interface for resuming applications:
  * - Resume existing application (shows list of applications)
  * - Add supplementary card only
  * - Check application status
+ *
+ * Enhanced with improved UX, loading states, and visual feedback.
  */
 
 import { useState } from 'react';
-import { 
-  CreditCard, 
-  FileText, 
-  Plus, 
-  Search, 
-  ArrowLeft, 
-  Loader2, 
-  User, 
-  Phone, 
-  Clock, 
-  CheckCircle, 
+import {
+  CreditCard,
+  FileText,
+  Plus,
+  Search,
+  ArrowLeft,
+  Loader2,
+  User,
+  Phone,
+  Clock,
+  CheckCircle,
   AlertCircle,
   ChevronRight,
-  RefreshCcw
+  RefreshCcw,
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,6 +33,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { getApplicationsByMobile, MOCK_APPLICATIONS } from '@/api/mockData';
 import { ApplicationStatusTracker } from './ApplicationStatusTracker';
+import { ApplicationCardSkeleton, EmptyState } from '@/components';
 
 interface ResumeDashboardProps {
   onResumeApplication: (mobileNumber: string, applicationId?: string) => void;
@@ -119,20 +123,20 @@ export function ResumeDashboard({
 
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { label: string; className: string; icon: typeof Clock }> = {
-      DRAFT: { label: 'Draft', className: 'bg-muted text-muted-foreground', icon: Clock },
-      SUBMITTED: { label: 'Submitted', className: 'bg-blue-500/10 text-blue-600', icon: Clock },
-      UNDER_REVIEW: { label: 'Under Review', className: 'bg-primary/10 text-primary', icon: Loader2 },
-      DOCUMENTS_REQUIRED: { label: 'Documents Required', className: 'bg-amber-500/10 text-amber-600', icon: AlertCircle },
-      APPROVED: { label: 'Approved', className: 'bg-success/10 text-success', icon: CheckCircle },
-      REJECTED: { label: 'Rejected', className: 'bg-destructive/10 text-destructive', icon: AlertCircle },
+      DRAFT: { label: 'Draft', className: 'bg-gray-100 text-gray-700 border-gray-300', icon: Clock },
+      SUBMITTED: { label: 'Submitted', className: 'bg-blue-100 text-blue-700 border-blue-300', icon: Clock },
+      UNDER_REVIEW: { label: 'Under Review', className: 'bg-purple-100 text-purple-700 border-purple-300', icon: Loader2 },
+      DOCUMENTS_REQUIRED: { label: 'Documents Required', className: 'bg-amber-100 text-amber-700 border-amber-300', icon: AlertCircle },
+      APPROVED: { label: 'Approved', className: 'bg-green-100 text-green-700 border-green-300', icon: CheckCircle },
+      REJECTED: { label: 'Rejected', className: 'bg-red-100 text-red-700 border-red-300', icon: AlertCircle },
     };
-    
-    const config = statusConfig[status] || { label: status, className: 'bg-muted', icon: Clock };
+
+    const config = statusConfig[status] || { label: status, className: 'bg-gray-100 text-gray-700 border-gray-300', icon: Clock };
     const Icon = config.icon;
-    
+
     return (
-      <Badge variant="secondary" className={cn('flex items-center gap-1', config.className)}>
-        <Icon className={cn('h-3 w-3', status === 'UNDER_REVIEW' && 'animate-spin')} />
+      <Badge variant="secondary" className={cn('flex items-center gap-1.5 px-3 py-1 border', config.className)}>
+        <Icon className={cn('h-3.5 w-3.5', status === 'UNDER_REVIEW' && 'animate-spin')} />
         {config.label}
       </Badge>
     );
@@ -160,93 +164,120 @@ export function ResumeDashboard({
     );
   }
 
-  // Main dashboard view
+  // Main dashboard view - Enhanced with better animations and design
   if (view === 'main') {
     return (
-      <Card className="max-w-lg mx-auto">
-        <CardHeader className="text-center">
-          <div className="mx-auto w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-            <FileText className="h-7 w-7 text-primary" />
-          </div>
-          <CardTitle className="text-2xl">Application Dashboard</CardTitle>
-          <CardDescription>
-            Manage your credit card applications
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {/* Resume Existing Application */}
-          <Button
-            onClick={() => setView('resume')}
-            className="w-full h-auto py-4 flex items-start gap-4 mobile-cta-button hover:opacity-90"
-            size="lg"
-          >
-            <div className="w-10 h-10 rounded-full bg-black/10 flex items-center justify-center flex-shrink-0">
-              <RefreshCcw className="h-5 w-5" />
-            </div>
-            <div className="text-left flex-1">
-              <span className="font-semibold block">Resume Application</span>
-              <span className="text-xs opacity-80">Continue your saved credit card application</span>
-            </div>
-            <ChevronRight className="h-5 w-5 opacity-50" />
-          </Button>
-
-          {/* Supplementary Card Only - Existing Customer */}
-          <Button
-            onClick={onSupplementaryOnly}
-            variant="outline"
-            className="w-full h-auto py-4 flex items-start gap-4 border-primary text-primary hover:bg-primary/5"
-            size="lg"
-          >
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <Plus className="h-5 w-5" />
-            </div>
-            <div className="text-left flex-1">
-              <span className="font-semibold block">Add Supplementary Card</span>
-              <span className="text-xs text-muted-foreground">Request a supplementary card for existing account</span>
-            </div>
-            <ChevronRight className="h-5 w-5 opacity-50" />
-          </Button>
-
-          {/* Check Application Status */}
-          <Button
-            onClick={() => setView('status')}
-            variant="outline"
-            className="w-full h-auto py-4 flex items-start gap-4 border-border hover:bg-muted"
-            size="lg"
-          >
-            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-              <Search className="h-5 w-5 text-muted-foreground" />
-            </div>
-            <div className="text-left text-foreground flex-1">
-              <span className="font-semibold block">Check Application Status</span>
-              <span className="text-xs text-muted-foreground">Track your submitted application</span>
-            </div>
-            <ChevronRight className="h-5 w-5 opacity-50" />
-          </Button>
-
-          <div className="pt-4">
-            <Button
-              variant="ghost"
-              onClick={onBack}
-              className="w-full text-muted-foreground"
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        <Card className="max-w-lg mx-auto shadow-lg border-0">
+          <CardHeader className="text-center pb-6">
+            <motion.div
+              className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg"
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 10 }}
             >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Selection
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+              <FileText className="h-8 w-8 text-white" />
+            </motion.div>
+            <CardTitle className="text-2xl font-bold text-gray-900">Application Dashboard</CardTitle>
+            <CardDescription className="text-base">
+              Manage your credit card applications
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {/* Resume Existing Application */}
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                onClick={() => setView('resume')}
+                className="w-full h-auto py-4 px-5 flex items-start gap-4 bg-blue-600 hover:bg-blue-700 text-white border-0 shadow-md hover:shadow-lg transition-all"
+                size="lg"
+              >
+                <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                  <RefreshCcw className="h-6 w-6" />
+                </div>
+                <div className="text-left flex-1">
+                  <span className="font-semibold block text-base">Resume Application</span>
+                  <span className="text-xs opacity-90">Continue your saved credit card application</span>
+                </div>
+                <ChevronRight className="h-5 w-5 opacity-70" />
+              </Button>
+            </motion.div>
+
+            {/* Supplementary Card Only - Existing Customer */}
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                onClick={onSupplementaryOnly}
+                variant="outline"
+                className="w-full h-auto py-4 px-5 flex items-start gap-4 border-2 border-blue-200 text-blue-700 hover:bg-blue-50 shadow-sm"
+                size="lg"
+              >
+                <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
+                  <Plus className="h-6 w-6" />
+                </div>
+                <div className="text-left flex-1">
+                  <span className="font-semibold block text-base">Add Supplementary Card</span>
+                  <span className="text-xs text-blue-600/70">Request a supplementary card for existing account</span>
+                </div>
+                <ChevronRight className="h-5 w-5 opacity-50" />
+              </Button>
+            </motion.div>
+
+            {/* Check Application Status */}
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                onClick={() => setView('status')}
+                variant="outline"
+                className="w-full h-auto py-4 px-5 flex items-start gap-4 border-2 border-gray-200 hover:bg-gray-50 shadow-sm"
+                size="lg"
+              >
+                <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
+                  <Search className="h-6 w-6 text-gray-600" />
+                </div>
+                <div className="text-left text-gray-900 flex-1">
+                  <span className="font-semibold block text-base">Check Application Status</span>
+                  <span className="text-xs text-gray-500">Track your submitted application</span>
+                </div>
+                <ChevronRight className="h-5 w-5 opacity-50" />
+              </Button>
+            </motion.div>
+
+            <div className="pt-6 border-t border-gray-100">
+              <Button
+                variant="ghost"
+                onClick={onBack}
+                className="w-full text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Home
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
     );
   }
 
-  // Resume application view - Enter mobile
+  // Resume application view - Enhanced with better UX
   if (view === 'resume') {
     return (
-      <Card className="max-w-md mx-auto">
-        <CardHeader className="text-center">
-          <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-            <User className="h-6 w-6 text-primary" />
-          </div>
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -20 }}
+        transition={{ duration: 0.3 }}
+      >
+        <Card className="max-w-md mx-auto shadow-lg">
+          <CardHeader className="text-center">
+            <motion.div
+              className="mx-auto w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mb-4"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring', delay: 0.1 }}
+            >
+              <User className="h-7 w-7 text-blue-600" />
+            </motion.div>
           <CardTitle>Resume Application</CardTitle>
           <CardDescription>
             Enter your registered mobile number to find your applications
@@ -312,122 +343,167 @@ export function ResumeDashboard({
           </Button>
         </CardContent>
       </Card>
+    </motion.div>
     );
   }
 
-  // Applications list view
+  // Applications list view - Enhanced with better UX
   if (view === 'applications-list') {
     return (
-      <div className="max-w-2xl mx-auto space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CreditCard className="h-5 w-5" />
-              Your Applications
-            </CardTitle>
-            <CardDescription>
-              Found {existingApplications.length} application(s) for {mobileNumber}
-            </CardDescription>
-          </CardHeader>
-        </Card>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="max-w-2xl mx-auto space-y-4"
+      >
+        <motion.div
+          initial={{ y: -20 }}
+          animate={{ y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <Card className="shadow-md border-0">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
+              <CardTitle className="flex items-center gap-2 text-gray-900">
+                <CreditCard className="h-5 w-5 text-blue-600" />
+                Your Applications
+              </CardTitle>
+              <CardDescription className="text-gray-700">
+                Found {existingApplications.length} application{existingApplications.length > 1 ? 's' : ''} for {mobileNumber}
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </motion.div>
 
-        <div className="space-y-3">
-          {existingApplications.map((app) => (
-            <Card 
-              key={app.application_id} 
-              className={cn(
-                "cursor-pointer transition-all hover:shadow-md",
-                app.status === 'DRAFT' && 'border-primary/50'
-              )}
-              onClick={() => handleSelectApplication(app)}
-            >
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="font-semibold">{app.card_product_name}</p>
-                      {getStatusBadge(app.status)}
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      Ref: {app.reference_number}
-                    </p>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <User className="h-3 w-3" />
-                        {app.applicant_name}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {formatDate(app.last_updated_at)}
-                      </span>
-                    </div>
-                    
-                    {/* Progress for drafts */}
-                    {app.status === 'DRAFT' && (
-                      <div className="mt-3">
-                        <div className="flex items-center justify-between text-xs mb-1">
-                          <span>Progress: Step {app.current_step} of {app.total_steps}</span>
-                          <span className="text-primary font-medium">
-                            {Math.round((app.current_step / app.total_steps) * 100)}%
-                          </span>
-                        </div>
-                        <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                          <div 
-                            className="h-full bg-primary rounded-full transition-all"
-                            style={{ width: `${(app.current_step / app.total_steps) * 100}%` }}
-                          />
-                        </div>
-                      </div>
+        {isSearching ? (
+          <div className="space-y-3">
+            <ApplicationCardSkeleton count={2} />
+          </div>
+        ) : existingApplications.length === 0 ? (
+          <EmptyState
+            icon={<CreditCard className="h-12 w-12 text-gray-400" />}
+            title="No Applications Found"
+            description="We couldn't find any applications associated with this mobile number."
+            action={{
+              label: 'Start New Application',
+              onClick: () => {
+                setView('main');
+                setMobileNumber('');
+              },
+            }}
+          />
+        ) : (
+          <div className="space-y-3">
+            <AnimatePresence>
+              {existingApplications.map((app, index) => (
+                <motion.div
+                  key={app.application_id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  className="cursor-pointer"
+                  onClick={() => handleSelectApplication(app)}
+                >
+                  <Card
+                    className={cn(
+                      'shadow-sm hover:shadow-lg transition-all duration-300 border-2',
+                      app.status === 'DRAFT' ? 'border-blue-300 hover:border-blue-400' : 'border-gray-200 hover:border-gray-300'
                     )}
-                  </div>
-                  
-                  <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-1" />
-                </div>
-                
-                {/* Action hints */}
-                <div className="mt-3 pt-3 border-t border-border/50">
-                  {app.status === 'DRAFT' ? (
-                    <Button size="sm" className="w-full mobile-cta-button">
-                      <RefreshCcw className="h-4 w-4 mr-2" />
-                      Resume Application
-                    </Button>
-                  ) : app.status === 'APPROVED' ? (
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      className="w-full border-primary text-primary"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onSupplementaryOnly();
-                      }}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Supplementary Card
-                    </Button>
-                  ) : (
-                    <Button size="sm" variant="outline" className="w-full">
-                      <Search className="h-4 w-4 mr-2" />
-                      View Status
-                    </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                  >
+                    <CardContent className="p-5">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-2">
+                            <p className="font-bold text-lg">{app.card_product_name}</p>
+                            {getStatusBadge(app.status)}
+                          </div>
+                          <p className="text-sm text-gray-600 mb-3 font-mono">
+                            Ref: {app.reference_number}
+                          </p>
+                          <div className="flex items-center gap-4 text-xs text-gray-500">
+                            <span className="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded">
+                              <User className="h-3.5 w-3.5" />
+                              {app.applicant_name}
+                            </span>
+                            <span className="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded">
+                              <Clock className="h-3.5 w-3.5" />
+                              {formatDate(app.last_updated_at)}
+                            </span>
+                          </div>
+
+                          {/* Progress for drafts */}
+                          {app.status === 'DRAFT' && (
+                            <div className="mt-4 bg-blue-50 rounded-lg p-3">
+                              <div className="flex items-center justify-between text-xs mb-2">
+                                <span className="font-medium text-blue-900">Progress: Step {app.current_step} of {app.total_steps}</span>
+                                <span className="text-blue-700 font-bold">
+                                  {Math.round((app.current_step / app.total_steps) * 100)}%
+                                </span>
+                              </div>
+                              <div className="h-2 rounded-full bg-blue-200 overflow-hidden">
+                                <motion.div
+                                  className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full"
+                                  initial={{ width: 0 }}
+                                  animate={{ width: `${(app.current_step / app.total_steps) * 100}%` }}
+                                  transition={{ duration: 0.8, delay: index * 0.1 }}
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        <ChevronRight className="h-6 w-6 text-gray-400 flex-shrink-0 mt-2" />
+                      </div>
+
+                      {/* Action hints */}
+                      <div className="mt-4 pt-4 border-t border-gray-100">
+                        {app.status === 'DRAFT' ? (
+                          <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700">
+                            <RefreshCcw className="h-4 w-4 mr-2" />
+                            Resume Application
+                          </Button>
+                        ) : app.status === 'APPROVED' ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="w-full border-green-500 text-green-700 hover:bg-green-50"
+                          >
+                            <CheckCircle className="h-4 w-4 mr-2" />
+                            View Status
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="w-full hover:bg-gray-50"
+                          >
+                            <Search className="h-4 w-4 mr-2" />
+                            View Status
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
 
         <Button
           variant="ghost"
           onClick={() => {
-            setView('resume');
+            setView('main');
+            setMobileNumber('');
+            setSearchError(null);
             setExistingApplications([]);
           }}
-          className="w-full"
+          className="w-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 mt-6"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Search Different Number
+          Back to Dashboard
         </Button>
-      </div>
+      </motion.div>
     );
   }
 

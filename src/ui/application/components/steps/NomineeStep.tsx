@@ -1,9 +1,11 @@
 /**
  * Step 7: MTB Protection Plan (MPP) - Nominee
+ * Enhanced with consistent UX patterns
  */
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { UserShield, User, ShieldCheck, UserCircle } from 'lucide-react';
 import { nomineeSchema, type NomineeFormData } from '@/lib/validation-schemas';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -12,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { TailwindDatePicker } from '@/components/ui/tailwind-date-picker';
+import { StepFormWrapper, FormSection, FieldRow, FieldTripleRow } from '@/components';
 import { FaceCapture } from '@/ui/application/components/FaceCapture';
 import type { NomineeData } from '@/types/application-form.types';
 
@@ -58,11 +61,18 @@ export function NomineeStep({ initialData, onSave }: NomineeStepProps) {
   };
 
   return (
-    <Form {...form}>
-      <form className="space-y-6" onChange={handleFieldChange}>
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Nominee Information</h3>
-          
+    <StepFormWrapper form={form}
+      stepNumber={7}
+      title="Nominee Information"
+      description="Please provide your nominee details for MTB Protection Plan"
+      hint="A nominee is someone who will receive your credit card benefits in case of unforeseen circumstances. This is required for all applicants."
+    >
+      <Form {...form}>
+        <form className="space-y-6" onChange={handleFieldChange}>
+        <FormSection
+          description="Details about your nominee for MTB Protection Plan"
+          icon={<UserCircle className="h-5 w-5" />}
+        >
           <FormField
             control={form.control}
             name="nomineeName"
@@ -72,6 +82,7 @@ export function NomineeStep({ initialData, onSave }: NomineeStepProps) {
                 <FormControl>
                   <Input {...field} placeholder="Full name of nominee" />
                 </FormControl>
+                <FormDescription>Legal name as per NID</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -156,17 +167,21 @@ export function NomineeStep({ initialData, onSave }: NomineeStepProps) {
                     onChange={(e) => field.onChange(e.target.value.replace(/\D/g, ''))}
                   />
                 </FormControl>
+                <FormDescription>11 digits starting with 01</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
-        </div>
+        </FormSection>
 
         <Separator />
 
         {/* Nominee Photo */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Nominee Photo</h3>
+        <FormSection
+          title="Nominee Photo"
+          description="Upload a clear photo of your nominee"
+          icon={<User className="h-5 w-5" />}
+        >
           <FormField
             control={form.control}
             name="photoUrl"
@@ -187,14 +202,16 @@ export function NomineeStep({ initialData, onSave }: NomineeStepProps) {
               </FormItem>
             )}
           />
-        </div>
+        </FormSection>
 
         <Separator />
 
         {/* MPP Declaration */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">MPP Declaration</h3>
-          
+        <FormSection
+          title="MPP Declaration"
+          description="Please read and accept the MTB Protection Plan terms"
+          icon={<ShieldCheck className="h-5 w-5" />}
+        >
           <div className="p-4 bg-muted rounded-lg text-sm">
             {MPP_DECLARATION}
           </div>
@@ -222,8 +239,9 @@ export function NomineeStep({ initialData, onSave }: NomineeStepProps) {
               </FormItem>
             )}
           />
-        </div>
-      </form>
-    </Form>
+        </FormSection>
+        </form>
+      </Form>
+    </StepFormWrapper>
   );
 }

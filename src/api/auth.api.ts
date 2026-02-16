@@ -203,7 +203,7 @@ export async function rmLogin(
     };
   }
 
-  return http.post('/auth/rm/login', { staffId, password });
+  return http.post('/auth/staff/login', { staff_id: staffId, password });
 }
 
 /**
@@ -221,7 +221,7 @@ export async function rmLogout(): Promise<ApiResponse<void>> {
     };
   }
 
-  return http.post('/auth/rm/logout');
+  return http.post('/auth/staff/logout');
 }
 
 /**
@@ -270,5 +270,5 @@ export async function getRMSession(): Promise<ApiResponse<{
     }
   }
 
-  return http.get('/auth/rm/session');
+  return http.get('/auth/staff/session');
 }

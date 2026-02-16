@@ -1,13 +1,16 @@
 /**
  * Step 10: Image & Signature Upload
+ * Enhanced with consistent UX patterns
  */
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Camera, PenTool } from 'lucide-react';
 import { imageSignatureSchema, type ImageSignatureFormData } from '@/lib/validation-schemas';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { StepFormWrapper } from '@/components';
 import { FaceCapture } from '@/ui/application/components/FaceCapture';
 import { SignatureCapture } from '@/ui/application/components/SignatureCapture';
 import type { ImageSignatureData } from '@/types/application-form.types';
@@ -38,8 +41,14 @@ export function ImageSignatureStep({ initialData, hasSupplementary, onSave }: Im
   };
 
   return (
-    <Form {...form}>
-      <form className="space-y-6">
+    <StepFormWrapper form={form}
+      stepNumber={10}
+      title="Photo & Signature"
+      description="Please upload your photo and signature"
+      hint="Please ensure your photo is clear, recent, and taken against a plain background. Your signature should be on white paper."
+    >
+      <Form {...form}>
+        <form className="space-y-6">
         {/* Primary Applicant */}
         <Card>
           <CardHeader>
@@ -151,5 +160,6 @@ export function ImageSignatureStep({ initialData, hasSupplementary, onSave }: Im
         )}
       </form>
     </Form>
+  </StepFormWrapper>
   );
 }

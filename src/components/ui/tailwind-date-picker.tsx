@@ -199,7 +199,7 @@ function TailwindCalendar({
           {DAYS.map((day) => (
             <div
               key={day}
-              className="h-8 w-8 flex items-center justify-center text-xs font-medium text-muted-foreground"
+              className="h-8 w-8 flex items-center justify-center text-xs font-semibold text-gray-900"
             >
               {day}
             </div>
@@ -226,11 +226,13 @@ function TailwindCalendar({
                 disabled={isDisabled}
                 className={cn(
                   "h-8 w-8 rounded-md text-sm font-normal transition-colors",
-                  "hover:bg-accent hover:text-accent-foreground",
-                  "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
-                  isSelected && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground",
-                  isTodayDate && !isSelected && "bg-accent text-accent-foreground font-semibold",
-                  isDisabled && "opacity-50 cursor-not-allowed hover:bg-transparent"
+                  "hover:bg-accent/80",
+                  "focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1",
+                  // MTB Green styling for dates - BLACK text
+                  isSelected && "bg-accent text-white hover:bg-accent/90 font-semibold",
+                  !isSelected && !isTodayDate && "bg-accent/5 text-gray-900 hover:bg-accent/20",
+                  isTodayDate && !isSelected && "bg-accent/30 text-gray-900 font-bold border-2 border-accent",
+                  isDisabled && "opacity-40 cursor-not-allowed hover:bg-transparent text-gray-400"
                 )}
               >
                 {day}
@@ -295,10 +297,12 @@ function TailwindCalendar({
                 onClick={(e) => handleMonthSelect(index, e)}
                 className={cn(
                   "h-10 rounded-md text-sm font-normal transition-colors",
-                  "hover:bg-accent hover:text-accent-foreground",
-                  "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
-                  isSelectedMonth && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground",
-                  isCurrentMonth && !isSelectedMonth && "bg-accent text-accent-foreground font-semibold"
+                  "hover:bg-accent/80",
+                  "focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1",
+                  // MTB Green styling for months - BLACK text
+                  isSelectedMonth && "bg-accent text-white hover:bg-accent/90",
+                  !isSelectedMonth && "bg-accent/10 text-gray-900 hover:bg-accent/20",
+                  isCurrentMonth && !isSelectedMonth && "bg-accent/30 text-gray-900 font-semibold"
                 )}
               >
                 {month}
@@ -366,6 +370,7 @@ function TailwindCalendar({
           {years.map((year) => {
             const isCurrentYear = year === new Date().getFullYear();
             const isSelectedYear = selected && year === selected.getFullYear();
+            const isInRange = year >= decadeStart && year <= decadeStart + 9;
             const isOutOfRange = year < decadeStart || year > decadeStart + 9;
 
             return (
@@ -375,11 +380,13 @@ function TailwindCalendar({
                 onClick={(e) => handleYearSelect(year, e)}
                 className={cn(
                   "h-10 rounded-md text-sm font-normal transition-colors",
-                  "hover:bg-accent hover:text-accent-foreground",
-                  "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
-                  isSelectedYear && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground",
-                  isCurrentYear && !isSelectedYear && "bg-accent text-accent-foreground font-semibold",
-                  isOutOfRange && "text-muted-foreground"
+                  "hover:bg-accent/80",
+                  "focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1",
+                  // MTB Green styling for years - BLACK text
+                  isSelectedYear && "bg-accent text-white hover:bg-accent/90",
+                  !isSelectedYear && isInRange && "bg-accent/10 text-gray-900 hover:bg-accent/20",
+                  isCurrentYear && !isSelectedYear && "bg-accent/25 text-gray-900 font-semibold",
+                  isOutOfRange && "text-gray-400 bg-muted/20"
                 )}
               >
                 {year}

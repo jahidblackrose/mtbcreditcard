@@ -23,3 +23,12 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# Project-specific - Keep local changes
+backend/
+database/
+docs/
+# Project-specific - Keep local changes
+backend/
+database/
+docs/

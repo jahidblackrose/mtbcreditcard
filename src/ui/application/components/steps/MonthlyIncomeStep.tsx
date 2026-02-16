@@ -1,16 +1,18 @@
 /**
  * Step 4: Monthly Income Details
+ * Enhanced with better UX, clear sections, and helpful hints
  */
 
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { DollarSign, Briefcase, TrendingUp, Plus, Trash2 } from 'lucide-react';
 import { monthlyIncomeSchema, type MonthlyIncomeFormData } from '@/lib/validation-schemas';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Trash2 } from 'lucide-react';
+import { StepFormWrapper, FormSection, FieldRow } from '@/components';
 import type { MonthlyIncomeData } from '@/types/application-form.types';
 
 interface MonthlyIncomeStepProps {
@@ -57,8 +59,14 @@ export function MonthlyIncomeStep({ initialData, onSave }: MonthlyIncomeStepProp
   };
 
   return (
-    <Form {...form}>
-      <form className="space-y-6" onChange={handleFieldChange}>
+    <StepFormWrapper form={form}
+      stepNumber={4}
+      title="Income Information"
+      description="Please provide your monthly income details"
+      hint="Your income information helps us assess your credit eligibility. All amounts are in Bangladeshi Taka (BDT)."
+    >
+      <Form {...form}>
+        <form className="space-y-6" onChange={handleFieldChange}>
         {/* Employment Type Toggle */}
         <FormField
           control={form.control}
@@ -320,7 +328,8 @@ export function MonthlyIncomeStep({ initialData, onSave }: MonthlyIncomeStepProp
             </div>
           ))}
         </div>
-      </form>
-    </Form>
+        </form>
+      </Form>
+    </StepFormWrapper>
   );
 }

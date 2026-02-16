@@ -1,14 +1,17 @@
 /**
  * Step 3: Professional Information
+ * Enhanced with consistent UX patterns
  */
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Briefcase, Building2, MapPin, Calendar } from 'lucide-react';
 import { professionalInfoSchema, type ProfessionalInfoFormData } from '@/lib/validation-schemas';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
+import { StepFormWrapper, FormSection, FieldRow } from '@/components';
 import type { ProfessionalInfoData } from '@/types/application-form.types';
 
 interface ProfessionalInfoStepProps {
@@ -61,8 +64,14 @@ export function ProfessionalInfoStep({ initialData, onSave }: ProfessionalInfoSt
   };
 
   return (
-    <Form {...form}>
-      <form className="space-y-6" onChange={handleFieldChange}>
+    <StepFormWrapper form={form}
+      stepNumber={3}
+      title="Professional Information"
+      description="Please provide your employment and professional details"
+      hint="Your employment information helps us verify your income stability. Please provide accurate current employment details."
+    >
+      <Form {...form}>
+        <form className="space-y-6" onChange={handleFieldChange}>
         {/* Customer Segment */}
         <FormField
           control={form.control}
@@ -88,9 +97,11 @@ export function ProfessionalInfoStep({ initialData, onSave }: ProfessionalInfoSt
         />
 
         {/* Organization Details */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Organization Details</h3>
-          
+        <FormSection
+          title="Organization Details"
+          description="Information about your current employment"
+          icon={<Building2 className="h-5 w-5" />}
+        >
           <FormField
             control={form.control}
             name="organizationName"
@@ -100,12 +111,13 @@ export function ProfessionalInfoStep({ initialData, onSave }: ProfessionalInfoSt
                 <FormControl>
                   <Input {...field} placeholder="Company/Business name" />
                 </FormControl>
+                <FormDescription>Your current employer or business name</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <FieldRow>
             <FormField
               control={form.control}
               name="parentGroup"
@@ -133,7 +145,7 @@ export function ProfessionalInfoStep({ initialData, onSave }: ProfessionalInfoSt
                 </FormItem>
               )}
             />
-          </div>
+          </FieldRow>
 
           <FormField
             control={form.control}
@@ -144,18 +156,21 @@ export function ProfessionalInfoStep({ initialData, onSave }: ProfessionalInfoSt
                 <FormControl>
                   <Input {...field} placeholder="Your job title" />
                 </FormControl>
+                <FormDescription>Your current position or role</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
-        </div>
+        </FormSection>
 
         <Separator />
 
         {/* Office Address */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Office Address</h3>
-          
+        <FormSection
+          title="Office Address"
+          description="Your current workplace location"
+          icon={<MapPin className="h-5 w-5" />}
+        >
           <FormField
             control={form.control}
             name="officeAddress.addressLine1"
@@ -184,7 +199,7 @@ export function ProfessionalInfoStep({ initialData, onSave }: ProfessionalInfoSt
             )}
           />
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <FieldRow>
             <FormField
               control={form.control}
               name="officeAddress.city"
@@ -212,9 +227,9 @@ export function ProfessionalInfoStep({ initialData, onSave }: ProfessionalInfoSt
                 </FormItem>
               )}
             />
-          </div>
+          </FieldRow>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <FieldRow>
             <FormField
               control={form.control}
               name="officeAddress.postalCode"
@@ -247,15 +262,17 @@ export function ProfessionalInfoStep({ initialData, onSave }: ProfessionalInfoSt
                 </FormItem>
               )}
             />
-          </div>
-        </div>
+          </FieldRow>
+        </FormSection>
 
         <Separator />
 
         {/* Experience */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Experience</h3>
-          
+        <FormSection
+          title="Experience"
+          description="Your employment history and tenure"
+          icon={<Calendar className="h-5 w-5" />}
+        >
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <label className="text-sm font-medium">Length of Service / Business</label>
@@ -365,15 +382,17 @@ export function ProfessionalInfoStep({ initialData, onSave }: ProfessionalInfoSt
               </div>
             </div>
           </div>
-        </div>
+        </FormSection>
 
         <Separator />
 
         {/* Previous Employment */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Previous Employment (if any)</h3>
-          
-          <div className="grid gap-4 sm:grid-cols-2">
+        <FormSection
+          title="Previous Employment (if any)"
+          description="Your previous work experience"
+          icon={<Briefcase className="h-5 w-5" />}
+        >
+          <FieldRow>
             <FormField
               control={form.control}
               name="previousEmployer"
@@ -401,9 +420,10 @@ export function ProfessionalInfoStep({ initialData, onSave }: ProfessionalInfoSt
                 </FormItem>
               )}
             />
-          </div>
-        </div>
-      </form>
-    </Form>
+          </FieldRow>
+        </FormSection>
+        </form>
+      </Form>
+    </StepFormWrapper>
   );
 }

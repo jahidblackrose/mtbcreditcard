@@ -1,13 +1,15 @@
 /**
  * Step 5: Banking Activity - Accounts (Optional)
+ * Enhanced with consistent UX patterns
  */
 
 import { useForm, useFieldArray } from 'react-hook-form';
+import { Building2, Plus, Trash2, CreditCard } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2 } from 'lucide-react';
+import { StepFormWrapper, FormSection } from '@/components';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { BankAccountData } from '@/types/application-form.types';
@@ -69,20 +71,25 @@ export function BankAccountsStep({ initialData = [], onSave }: BankAccountsStepP
   };
 
   return (
-    <Form {...form}>
-      <form className="space-y-6" onChange={handleFieldChange}>
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold">Existing Bank Accounts</h3>
-            <p className="text-sm text-muted-foreground">
-              This section is optional. Add any existing bank accounts you have.
-            </p>
+    <StepFormWrapper form={form}
+      stepNumber={5}
+      title="Existing Bank Accounts"
+      description="This section is optional. Add any existing bank accounts you have."
+      hint="Providing your existing bank account information helps us understand your banking relationship."
+    >
+      <Form {...form}>
+        <form className="space-y-6" onChange={handleFieldChange}>
+        <FormSection
+          description="This section is optional. Add any existing bank accounts you have."
+          icon={<Building2 className="h-5 w-5" />}
+        >
+          <div className="flex justify-end mb-4">
+            <Button type="button" variant="outline" onClick={addAccount}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Account
+            </Button>
           </div>
-          <Button type="button" variant="outline" onClick={addAccount}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Account
-          </Button>
-        </div>
+        </FormSection>
 
         {fields.length === 0 && (
           <div className="text-center py-12 border-2 border-dashed border-muted rounded-lg">
@@ -109,79 +116,82 @@ export function BankAccountsStep({ initialData = [], onSave }: BankAccountsStepP
               </Button>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <FormField
-                control={form.control}
-                name={`accounts.${index}.bankName`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Bank Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="e.g. Mutual Trust Bank" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name={`accounts.${index}.accountType`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Account Type</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+            <div className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name={`accounts.${index}.bankName`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Bank Name</FormLabel>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select type" />
-                        </SelectTrigger>
+                        <Input {...field} placeholder="e.g. Mutual Trust Bank" />
                       </FormControl>
-                      <SelectContent>
-                        {ACCOUNT_TYPES.map((type) => (
-                          <SelectItem key={type.value} value={type.value}>
-                            {type.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <FormField
-                control={form.control}
-                name={`accounts.${index}.accountNumber`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Account Number</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Account number" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name={`accounts.${index}.accountType`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Account Type</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {ACCOUNT_TYPES.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-              <FormField
-                control={form.control}
-                name={`accounts.${index}.branch`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Branch</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Branch name" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name={`accounts.${index}.accountNumber`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Account Number</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Account number" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name={`accounts.${index}.branch`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Branch</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Branch name" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
           </div>
         ))}
-      </form>
-    </Form>
+        </form>
+      </Form>
+    </StepFormWrapper>
   );
 }

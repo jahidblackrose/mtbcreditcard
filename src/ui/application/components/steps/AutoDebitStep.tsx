@@ -1,15 +1,17 @@
 /**
  * Step 11: Auto Debit Instruction
+ * Enhanced with consistent UX patterns
  */
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { CreditCard, Banknote, RefreshCw } from 'lucide-react';
 import { autoDebitSchema, type AutoDebitFormData } from '@/lib/validation-schemas';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { CreditCard, Banknote } from 'lucide-react';
+import { StepFormWrapper } from '@/components';
 import type { AutoDebitData } from '@/types/application-form.types';
 
 interface AutoDebitStepProps {
@@ -36,8 +38,14 @@ export function AutoDebitStep({ initialData, onSave }: AutoDebitStepProps) {
   };
 
   return (
-    <Form {...form}>
-      <form className="space-y-6" onChange={handleFieldChange}>
+    <StepFormWrapper form={form}
+      stepNumber={11}
+      title="Auto Debit Setup"
+      description="Set up automatic payments from your MTB account"
+      hint="Auto-debit ensures you never miss a payment. We'll automatically deduct the selected amount from your MTB account."
+    >
+      <Form {...form}>
+        <form className="space-y-6" onChange={handleFieldChange}>
         <div className="space-y-2">
           <h3 className="text-lg font-semibold">Auto Debit Instruction</h3>
           <p className="text-sm text-muted-foreground">
@@ -165,5 +173,6 @@ export function AutoDebitStep({ initialData, onSave }: AutoDebitStepProps) {
         </div>
       </form>
     </Form>
+  </StepFormWrapper>
   );
 }

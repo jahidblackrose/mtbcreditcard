@@ -1,17 +1,19 @@
 /**
  * Step 9: References (Mandatory - Two)
- * 
+ * Enhanced with better UX, clear validation, and professional design
  * Fixed focus/cursor issues by using proper input styling
  */
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Users, UserCircle } from 'lucide-react';
 import { referencesSchema, type ReferencesFormData } from '@/lib/validation-schemas';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { StepFormWrapper, FormSection, FieldRow } from '@/components';
 import { cn } from '@/lib/utils';
 import type { ReferencesData } from '@/types/application-form.types';
 
@@ -222,21 +224,21 @@ export function ReferencesStep({ initialData, onSave }: ReferencesStepProps) {
   };
 
   return (
-    <Form {...form}>
-      <form className="space-y-6" onChange={handleFieldChange}>
-        <div className="space-y-2">
-          <h3 className="text-lg font-semibold">References</h3>
-          <p className="text-sm text-muted-foreground">
-            Please provide details of two references. These should be people who know you personally or professionally.
-          </p>
-        </div>
+    <StepFormWrapper form={form}
+      stepNumber={9}
+      title="References"
+      description="Please provide details of two references who know you personally or professionally"
+      hint="References help us verify your information. Please ensure your referees are aware and can be contacted if needed."
+    >
+      <Form {...form}>
+        <form className="space-y-6" onChange={handleFieldChange}>
+          <ReferenceCard refNum={1} />
 
-        <ReferenceCard refNum={1} />
-        
-        <Separator />
-        
-        <ReferenceCard refNum={2} />
-      </form>
-    </Form>
+          <Separator />
+
+          <ReferenceCard refNum={2} />
+        </form>
+      </Form>
+    </StepFormWrapper>
   );
 }

@@ -1,25 +1,8 @@
 /**
  * Step 8: Supplementary Card Information (Optional)
- * 
- * Matches Official MTB Paper Form exactly with all fields:
- * - Full Name
- * - Name on Card (max 22 chars)
- * - Relationship (checkbox style): Brother / Daughter / Parent / Sister / Son / Other
- * - Date of Birth
- * - Gender: Female / Male / Others
- * - Mother's Name
- * - Father's Name
- * - Spouse's Name
- * - Present Address (textarea)
- * - Permanent Address (textarea)
- * - NID / Birth Certificate Number
- * - TIN
- * - Contact Number
- * - E-mail
- * - Passport Number
- * - Passport Issue Date
- * - Passport Expiry Date
- * - Spending Limit (%)
+ *
+ * Matches Official MTB Paper Form exactly with all fields.
+ * Enhanced with consistent UX patterns.
  */
 
 import { useForm } from 'react-hook-form';
@@ -32,6 +15,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { TailwindDatePicker } from '@/components/ui/tailwind-date-picker';
+import { StepFormWrapper } from '@/components';
 import { MobileFormCard, MobileFormSection } from '@/ui/mobile/components/MobileFormCard';
 import { subYears } from 'date-fns';
 import { CreditCard, User, Users, MapPin, FileText, Phone, Percent, X } from 'lucide-react';
@@ -155,8 +139,14 @@ export function SupplementaryCardStep({
 
   // Full form matching paper form exactly - Same design as other steps
   return (
-    <Form {...form}>
-      <form className="space-y-4" onChange={handleFieldChange}>
+    <StepFormWrapper form={form}
+      stepNumber={8}
+      title="Supplementary Card Information"
+      description="Add a supplementary cardholder (Optional)"
+      hint="Supplementary cards allow family members to share your credit limit. They will receive their own card but share your account."
+    >
+      <Form {...form}>
+        <form className="space-y-4" onChange={handleFieldChange}>
         {/* Header with Remove option */}
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -576,5 +566,6 @@ export function SupplementaryCardStep({
         </MobileFormCard>
       </form>
     </Form>
+    </StepFormWrapper>
   );
 }
