@@ -11,7 +11,10 @@
       "Bash(lsof:*)",
       "Bash(npx tsc:*)",
       "Bash(grep:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(taskkill:*)"
     ]
   }
 }

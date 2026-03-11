@@ -1,16 +1,19 @@
 /**
  * OTP Verification Screen
- * Clean, mobile-first OTP verification UI
+ * Card-based design matching Resume Application page
  */
 
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Shield, Loader2, AlertCircle, Clock } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Shield, Loader2, AlertCircle, Clock, ArrowLeft, CheckCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
 } from '@/components/ui/input-otp';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 interface OtpVerificationScreenProps {
   mobileNumber: string;
@@ -69,20 +72,20 @@ export function OtpVerificationScreen({
 
   const handleVerify = async () => {
     if (otpValue.length !== 6 || isLocked) return;
-    
+
     setIsVerifying(true);
     setError(null);
-    
+
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    
+
     // Mock verification - use 123456 for success
     if (otpValue === '123456') {
       onVerify();
     } else {
       const newAttempts = remainingAttempts - 1;
       setRemainingAttempts(newAttempts);
-      
+
       if (newAttempts <= 0) {
         setIsLocked(true);
         setLockoutSeconds(30);
@@ -92,16 +95,16 @@ export function OtpVerificationScreen({
       }
       setOtpValue('');
     }
-    
+
     setIsVerifying(false);
   };
 
   const handleResend = async () => {
     if (resendTimer > 0 || isSending) return;
-    
+
     setIsSending(true);
     setError(null);
-    
+
     try {
       await onResend();
       setResendTimer(120);
@@ -109,181 +112,184 @@ export function OtpVerificationScreen({
     } catch {
       setError('Failed to resend OTP. Please try again.');
     }
-    
+
     setIsSending(false);
   };
 
   const canResend = resendTimer === 0 && !isSending;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* MTB Gradient Bar */}
-      <div className="h-1.5 mtb-gradient-bar" />
-      
-      {/* Top Navigation */}
-      <div className="sticky top-0 z-50 bg-background border-b border-border">
-        <div className="flex items-center h-14 px-4">
-          <button
-            type="button"
-            onClick={onBack}
-            className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors"
-            aria-label="Go back"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <span className="ml-3 text-base font-medium">Verify Mobile</span>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 px-4 py-8">
-        {/* Desktop: centered fixed-width card like Registration */}
-        <div className="mx-auto w-full max-w-sm md:max-w-lg">
-          <div className="md:bg-card md:border md:border-border md:rounded-2xl md:p-8">
-          {/* Icon */}
-          <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 rounded-2xl bg-success/10 flex items-center justify-center">
-              <Shield className="h-8 w-8 text-success" />
-            </div>
-          </div>
-
-          {/* Title */}
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-foreground mb-2">
-              Enter Verification Code
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              We sent a 6-digit code to <span className="font-medium">{mobileNumber}</span>
-            </p>
-          </div>
-
-          {/* Timer Badge */}
-          <div className="flex justify-center mb-6">
-            <div className="inline-flex items-center gap-2 bg-muted/50 rounded-full px-4 py-2">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Code expires in</span>
-              <span className="font-mono font-semibold text-foreground">
-                {formatTime(resendTimer)}
-              </span>
-            </div>
-          </div>
-
-          {/* Locked State */}
-          {isLocked ? (
-            <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-6 mb-6">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-destructive mt-0.5" />
-                <div>
-                  <p className="font-medium text-destructive">Too many attempts</p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Please wait{' '}
-                    <span className="font-mono font-semibold">{lockoutSeconds}s</span>{' '}
-                    before trying again
-                  </p>
+    <div className="min-h-screen bg-mobile-background px-4 py-8">
+      <div className="max-w-lg mx-auto space-y-6">
+        {/* OTP Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <Card className="shadow-lg border-0">
+            <CardHeader className="text-center pb-6">
+              <motion.div
+                className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg"
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+              >
+                <Shield className="h-8 w-8 text-white" />
+              </motion.div>
+              <CardTitle className="text-2xl font-bold text-gray-900">Verify Mobile</CardTitle>
+              <CardDescription className="text-base">
+                We sent a 6-digit code to <span className="font-semibold text-gray-900">{mobileNumber}</span>
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Timer Badge */}
+              <div className="flex justify-center">
+                <div className="inline-flex items-center gap-2 bg-blue-50 rounded-full px-4 py-2">
+                  <Clock className="h-4 w-4 text-blue-600" />
+                  <span className="text-sm text-blue-900">Code expires in</span>
+                  <span className="font-mono font-semibold text-blue-900">
+                    {formatTime(resendTimer)}
+                  </span>
                 </div>
               </div>
-            </div>
-          ) : (
-            <>
-              {/* OTP Input */}
-              <div className="flex justify-center mb-4">
-                <InputOTP
-                  maxLength={6}
-                  value={otpValue}
-                  onChange={(value) => {
-                    setOtpValue(value);
-                    setError(null);
-                  }}
+
+              {/* Locked State */}
+              {isLocked ? (
+                <div className="rounded-xl border border-red-200 bg-red-50 p-6">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium text-red-900">Too many attempts</p>
+                      <p className="text-sm text-red-700 mt-1">
+                        Please wait{' '}
+                        <span className="font-mono font-semibold">{lockoutSeconds}s</span>{' '}
+                        before trying again
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* OTP Input */}
+                  <div className="flex justify-center">
+                    <InputOTP
+                      maxLength={6}
+                      value={otpValue}
+                      onChange={(value) => {
+                        setOtpValue(value);
+                        setError(null);
+                      }}
+                    >
+                      <InputOTPGroup>
+                        <InputOTPSlot index={0} />
+                        <InputOTPSlot index={1} />
+                        <InputOTPSlot index={2} />
+                        <InputOTPSlot index={3} />
+                        <InputOTPSlot index={4} />
+                        <InputOTPSlot index={5} />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </div>
+
+                  {/* Error Message */}
+                  {error && (
+                    <div className="flex items-center justify-center gap-2 text-red-600 text-sm bg-red-50 p-3 rounded-lg">
+                      <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                      <span className="text-center">{error}</span>
+                    </div>
+                  )}
+
+                  {/* Remaining Attempts Warning */}
+                  {remainingAttempts < 5 && remainingAttempts > 0 && !error && (
+                    <div className={cn(
+                      "flex items-center justify-center gap-2 text-sm bg-amber-50 p-3 rounded-lg",
+                      remainingAttempts <= 2 ? "text-red-600" : "text-amber-600"
+                    )}>
+                      <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                      <span>{remainingAttempts} attempt{remainingAttempts === 1 ? '' : 's'} remaining</span>
+                    </div>
+                  )}
+
+                  {/* Demo Hint */}
+                  <div className="text-center bg-gray-50 p-3 rounded-lg">
+                    <p className="text-xs text-gray-600">
+                      Demo: use code <span className="font-mono font-bold bg-white px-2 py-1 rounded border">123456</span>
+                    </p>
+                  </div>
+                </>
+              )}
+
+              {/* Resend Link */}
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={!canResend}
+                  className={cn(
+                    "text-sm font-medium transition-colors",
+                    canResend
+                      ? "text-blue-600 hover:text-blue-700 underline"
+                      : "text-gray-400 cursor-not-allowed"
+                  )}
                 >
-                  <InputOTPGroup>
-                    <InputOTPSlot index={0} />
-                    <InputOTPSlot index={1} />
-                    <InputOTPSlot index={2} />
-                    <InputOTPSlot index={3} />
-                    <InputOTPSlot index={4} />
-                    <InputOTPSlot index={5} />
-                  </InputOTPGroup>
-                </InputOTP>
+                  {isSending ? (
+                    <span className="inline-flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Sending...
+                    </span>
+                  ) : canResend ? (
+                    "Resend Code"
+                  ) : (
+                    `Resend in ${formatTime(resendTimer)}`
+                  )}
+                </button>
               </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-              {/* Error Message */}
-              {error && (
-                <div className="flex items-center justify-center gap-2 text-destructive text-sm mb-4">
-                  <AlertCircle className="h-4 w-4" />
-                  <span>{error}</span>
-                </div>
-              )}
-
-              {/* Remaining Attempts Warning */}
-              {remainingAttempts < 5 && remainingAttempts > 0 && !error && (
-                <div className={cn(
-                  "flex items-center justify-center gap-2 text-sm mb-4",
-                  remainingAttempts <= 2 ? "text-destructive" : "text-warning"
-                )}>
-                  <AlertCircle className="h-4 w-4" />
-                  <span>{remainingAttempts} attempt{remainingAttempts === 1 ? '' : 's'} remaining</span>
-                </div>
-              )}
-
-              {/* Demo Hint */}
-              <p className="text-xs text-center text-muted-foreground mb-6">
-                Demo: use code <span className="font-mono font-bold bg-muted px-1.5 py-0.5 rounded">123456</span>
-              </p>
-            </>
-          )}
-
-          {/* Resend Button */}
-          <div className="text-center">
-            <button
+        {/* Action Buttons */}
+        <div className="space-y-3">
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <Button
               type="button"
-              onClick={handleResend}
-              disabled={!canResend}
+              onClick={handleVerify}
+              disabled={otpValue.length !== 6 || isVerifying || isLocked}
               className={cn(
-                "text-sm font-medium transition-colors",
-                canResend
-                  ? "text-success hover:text-success/80"
-                  : "text-muted-foreground cursor-not-allowed"
+                "w-full h-auto py-4 px-5 flex items-center justify-center gap-3",
+                "bg-blue-600 hover:bg-blue-700 text-white border-0 shadow-md hover:shadow-lg transition-all",
+                "disabled:opacity-50 disabled:cursor-not-allowed"
               )}
             >
-              {isSending ? (
-                <span className="inline-flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Sending...
-                </span>
-              ) : canResend ? (
-                "Resend Code"
+              {isVerifying ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span>Verifying...</span>
+                </>
               ) : (
-                `Resend in ${formatTime(resendTimer)}`
+                <>
+                  <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                    <CheckCircle className="h-6 w-6" />
+                  </div>
+                  <div className="text-left flex-1">
+                    <span className="font-semibold block text-base">Verify & Continue</span>
+                    <span className="text-xs opacity-90">Confirm your mobile number</span>
+                  </div>
+                </>
               )}
-            </button>
-          </div>
-          </div>
-        </div>
-      </div>
+            </Button>
+          </motion.div>
 
-      {/* Sticky Bottom CTA */}
-      <div className="sticky bottom-0 bg-background border-t border-border px-4 py-4 safe-area-bottom">
-        <button
-          type="button"
-          onClick={handleVerify}
-          disabled={otpValue.length !== 6 || isVerifying || isLocked}
-          className={cn(
-            "w-full py-4 rounded-full font-semibold text-base",
-            "bg-success text-success-foreground",
-            "transition-all duration-200",
-            "disabled:opacity-50 disabled:cursor-not-allowed",
-            "focus:outline-none focus:ring-2 focus:ring-success focus:ring-offset-2"
-          )}
-        >
-          {isVerifying ? (
-            <span className="inline-flex items-center justify-center gap-2">
-              <Loader2 className="h-5 w-5 animate-spin" />
-              Verifying...
-            </span>
-          ) : (
-            'Verify & Continue'
-          )}
-        </button>
+          <Button
+            type="button"
+            onClick={onBack}
+            variant="ghost"
+            className="w-full text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Previous
+          </Button>
+        </div>
       </div>
     </div>
   );

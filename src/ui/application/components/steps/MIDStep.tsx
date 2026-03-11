@@ -4,6 +4,7 @@
  */
 
 import { useForm, useFieldArray } from 'react-hook-form';
+import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FileCheck, ClipboardCheck, Upload, Check, AlertCircle } from 'lucide-react';
 import { midSchema, type MIDFormData } from '@/lib/validation-schemas';
@@ -19,6 +20,7 @@ import type { MIDData, DeclarationItem, DocumentChecklistItem } from '@/types/ap
 interface MIDStepProps {
   initialData?: Partial<MIDData>;
   onSave: (data: MIDData) => void;
+  onFormReady?: (form: any) => void;
 }
 
 const DEFAULT_DECLARATIONS: DeclarationItem[] = [
@@ -65,7 +67,7 @@ const DEFAULT_DOCUMENT_CHECKLIST: DocumentChecklistItem[] = [
   { id: 'doc-8', documentType: 'TRADE_LICENSE', label: 'Trade License (for Business)', required: false, uploaded: false },
 ];
 
-export function MIDStep({ initialData, onSave }: MIDStepProps) {
+export function MIDStep({ initialData, onSave, onFormReady }: MIDStepProps) {
   const form = useForm<MIDFormData>({
     resolver: zodResolver(midSchema),
     defaultValues: {
@@ -74,6 +76,13 @@ export function MIDStep({ initialData, onSave }: MIDStepProps) {
     },
     mode: 'onChange',
   });
+
+  // Expose form to parent when ready
+  useEffect(() => {
+    if (onFormReady) {
+      onFormReady(form);
+    }
+  }, [form, onFormReady]);
 
   const { fields: declarationFields, update: updateDeclaration } = useFieldArray({
     control: form.control,

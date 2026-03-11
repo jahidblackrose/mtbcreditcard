@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { LogOut, X } from 'lucide-react';
 
 interface ApplicationHeaderProps {
   currentStep: number;
@@ -9,6 +10,7 @@ interface ApplicationHeaderProps {
   isSaving?: boolean;
   lastSaved?: Date | null;
   mode?: 'SELF' | 'ASSISTED' | 'SUPPLEMENTARY';
+  onLogout?: () => void;
 }
 
 export const ApplicationHeader: React.FC<ApplicationHeaderProps> = ({
@@ -18,7 +20,8 @@ export const ApplicationHeader: React.FC<ApplicationHeaderProps> = ({
   applicationId,
   isSaving = false,
   lastSaved,
-  mode = 'SELF'
+  mode = 'SELF',
+  onLogout
 }) => {
   const progressPercentage = (currentStep / totalSteps) * 100;
 
@@ -56,7 +59,7 @@ export const ApplicationHeader: React.FC<ApplicationHeaderProps> = ({
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           {/* Left: Step Info */}
           <div className="flex items-center space-x-2 sm:space-x-4">
             <div className="flex items-center justify-center w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-accent text-white font-bold text-sm sm:text-lg shadow-md">
@@ -75,8 +78,21 @@ export const ApplicationHeader: React.FC<ApplicationHeaderProps> = ({
             </div>
           </div>
 
-          {/* Right: Save Status & App ID */}
+          {/* Right: Save Status, App ID & Logout */}
           <div className="flex items-center space-x-2 sm:space-x-4">
+            {/* Logout Button */}
+            {onLogout && (
+              <button
+                type="button"
+               onClick={onLogout}
+                className="flex items-center gap-1.5 text-gray-600 hover:text-red-600 hover:bg-red-50 px-2 sm:px-3 h-8 sm:h-9 rounded-md transition-colors cursor-pointer"
+                style={{ zIndex: 100, position: 'relative' }}
+              >
+                <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="text-xs sm:text-sm font-medium hidden sm:inline">Logout</span>
+              </button>
+            )}
+
             {/* Application ID - hidden on mobile */}
             {applicationId && (
               <div className="hidden sm:block text-right">

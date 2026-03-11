@@ -4,6 +4,7 @@
  */
 
 import { useForm } from 'react-hook-form';
+import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { UserShield, User, ShieldCheck, UserCircle } from 'lucide-react';
 import { nomineeSchema, type NomineeFormData } from '@/lib/validation-schemas';
@@ -21,6 +22,7 @@ import type { NomineeData } from '@/types/application-form.types';
 interface NomineeStepProps {
   initialData?: Partial<NomineeData>;
   onSave: (data: NomineeData) => void;
+  onFormReady?: (form: any) => void;
 }
 
 const RELATIONSHIPS = [
@@ -33,7 +35,7 @@ const RELATIONSHIPS = [
 
 const MPP_DECLARATION = `I hereby apply for MTB Protection Plan (MPP) and agree to the terms and conditions. I understand that in case of my demise, the outstanding dues on my credit card will be settled by the insurance company as per the MPP policy terms. I authorize MTB to share my personal information with the insurance partner for processing this protection plan.`;
 
-export function NomineeStep({ initialData, onSave }: NomineeStepProps) {
+export function NomineeStep({ initialData, onSave, onFormReady }: NomineeStepProps) {
   const form = useForm<NomineeFormData>({
     resolver: zodResolver(nomineeSchema),
     defaultValues: {
@@ -47,6 +49,13 @@ export function NomineeStep({ initialData, onSave }: NomineeStepProps) {
     },
     mode: 'onChange',
   });
+
+  // Expose form to parent when ready
+  useEffect(() => {
+    if (onFormReady) {
+      onFormReady(form);
+    }
+  }, [form, onFormReady]);
 
   const handleFieldChange = () => {
     const values = form.getValues();

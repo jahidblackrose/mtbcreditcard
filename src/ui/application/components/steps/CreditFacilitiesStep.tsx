@@ -184,19 +184,15 @@ export function CreditFacilitiesStep({ initialData = [], onSave }: CreditFacilit
                 name={`facilities.${index}.limit`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Limit (BDT)</FormLabel>
+                    <FormLabel>Limit (৳)</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">৳</span>
-                        <Input
-                          {...field}
-                          type="text"
-                          inputMode="numeric"
-                          placeholder="0"
-                          className="pl-8"
-                          onChange={(e) => field.onChange(formatAmount(e.target.value))}
-                        />
-                      </div>
+                      <Input
+                        {...field}
+                        type="text"
+                        inputMode="numeric"
+                        placeholder="0"
+                        onChange={(e) => field.onChange(formatAmount(e.target.value))}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -208,19 +204,15 @@ export function CreditFacilitiesStep({ initialData = [], onSave }: CreditFacilit
                 name={`facilities.${index}.monthlyInstallment`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Monthly Installment (BDT)</FormLabel>
+                    <FormLabel>Monthly Installment (৳)</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">৳</span>
-                        <Input
-                          {...field}
-                          type="text"
-                          inputMode="numeric"
-                          placeholder="0"
-                          className="pl-8"
-                          onChange={(e) => field.onChange(formatAmount(e.target.value))}
-                        />
-                      </div>
+                      <Input
+                        {...field}
+                        type="text"
+                        inputMode="numeric"
+                        placeholder="0"
+                        onChange={(e) => field.onChange(formatAmount(e.target.value))}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

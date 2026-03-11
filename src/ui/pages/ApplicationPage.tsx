@@ -8,7 +8,7 @@
  * Enhanced with improved UX, loading states, and professional design.
  */
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -37,7 +37,18 @@ import { APPLICATION_STEPS, type ApplicationMode } from '@/types/application-for
 import { toast } from 'sonner';
 import * as submissionApi from '@/api/submission.api';
 import { ApplicationHeader, StepNavigation, FormSkeleton, DesktopApplicationLayout } from '@/components';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { motion, AnimatePresence } from 'framer-motion';
+import type { UseFormReturn } from 'react-hook-form';
 
 interface LocationState {
   mode?: ApplicationMode;
@@ -60,6 +71,10 @@ export function ApplicationPage() {
   const [validationError, setValidationError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+
+  // Form references for validation
+  const formRefs = useRef<Map<number, UseFormReturn<any>>>(new Map());
 
   // Session management
   const {
@@ -109,6 +124,23 @@ export function ApplicationPage() {
       createSession(mode);
     }
   }, [session, showOnboarding, mode, createSession]);
+
+  // Block refresh after OTP verification
+  useEffect(() => {
+    if (!showOnboarding && applicationData.otpVerified) {
+      const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+      };
+
+      window.addEventListener('beforeunload', handleBeforeUnload);
+
+      return () => {
+        window.removeEventListener('beforeunload', handleBeforeUnload);
+      };
+    }
+  }, [showOnboarding, applicationData.otpVerified]);
 
   // Auto-save draft when step data changes
   useEffect(() => {
@@ -214,21 +246,82 @@ export function ApplicationPage() {
     });
   };
 
-  const handleNext = useCallback(() => {
+  const handleNext = useCallback(async () => {
     if (applicationData.currentStep === 12) {
       handleSubmit();
       return;
     }
 
-    if (applicationData.currentStep < 12) {
+    // Validate current step form before proceeding
+    const currentForm = formRefs.current.get(applicationData.currentStep);
+    if (currentForm) {
       setIsLoading(true);
       setValidationError(null);
 
-      // Simulate validation and navigation
+      // Trigger validation for all fields
+      const isValid = await currentForm.trigger();
+
+      if (!isValid) {
+        setIsLoading(false);
+
+        // Get all errors
+        const errors = currentForm.formState.errors;
+        const errorKeys = Object.keys(errors);
+        const firstErrorKey = errorKeys[0];
+
+        // Get the first error message
+        const firstErrorMessage = errors[firstErrorKey]?.message?.toString() || 'This field is required';
+
+        // Find and focus the first error field
+        setTimeout(() => {
+          const errorSelectors = [
+            `[name="${firstErrorKey}"]`,
+            `input[name="${firstErrorKey}"]`,
+            `select[name="${firstErrorKey}"]`,
+            `textarea[name="${firstErrorKey}"]`,
+            `[id="${firstErrorKey}"]`,
+          ];
+
+          for (const selector of errorSelectors) {
+            const element = document.querySelector(selector) as HTMLElement;
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              element.focus();
+              // Add highlight effect
+              element.classList.add('ring-2', 'ring-red-500', 'ring-offset-2');
+              setTimeout(() => {
+                element.classList.remove('ring-2', 'ring-red-500', 'ring-offset-2');
+              }, 2000);
+              break;
+            }
+          }
+
+          // Fallback: find any field with error state
+          const errorFields = document.querySelectorAll('[aria-invalid="true"]');
+          if (errorFields.length > 0) {
+            const firstErrorField = errorFields[0] as HTMLElement;
+            firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstErrorField.focus();
+          }
+        }, 100);
+
+        // Show specific error message
+        toast.error(firstErrorMessage);
+        return;
+      }
+
+      // Form is valid, proceed to next step
       setTimeout(() => {
         setIsLoading(false);
         nextStep();
-        // Scroll to top on step change
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 300);
+    } else {
+      // No form to validate (optional steps), proceed directly
+      setIsLoading(true);
+      setTimeout(() => {
+        setIsLoading(false);
+        nextStep();
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }, 300);
     }
@@ -314,6 +407,32 @@ export function ApplicationPage() {
     });
   };
 
+  const handleLogout = () => {
+    setShowLogoutDialog(true);
+  };
+
+  const handleConfirmLogout = () => {
+    // Clear session
+    localStorage.removeItem('mtb_application_session');
+    localStorage.removeItem('mtb_draft_data');
+
+    // Show toast
+    toast.success('Logged out successfully');
+
+    // Navigate to home
+    navigate('/');
+  };
+
+  // Register form for validation
+  const registerForm = useCallback((stepNumber: number, form: UseFormReturn<any>) => {
+    formRefs.current.set(stepNumber, form);
+  }, []);
+
+  // Unregister form when step unmounts
+  const unregisterForm = useCallback((stepNumber: number) => {
+    formRefs.current.delete(stepNumber);
+  }, []);
+
   // Get current step info
   const currentStepInfo = applicationData.currentStep <= 12 
     ? APPLICATION_STEPS[applicationData.currentStep - 1]
@@ -387,6 +506,7 @@ export function ApplicationPage() {
               <CardSelectionStep
                 initialData={applicationData.cardSelection}
                 onSave={updateCardSelection}
+                onFormReady={(form) => registerForm(1, form)}
               />
             </motion.div>
           </AnimatePresence>
@@ -409,6 +529,7 @@ export function ApplicationPage() {
                   email: applicationData.personalInfo.email || applicationData.preApplication.email,
                 }}
                 onSave={updatePersonalInfo}
+                onFormReady={(form) => registerForm(2, form)}
               />
             </motion.div>
           </AnimatePresence>
@@ -426,6 +547,7 @@ export function ApplicationPage() {
               <ProfessionalInfoStep
                 initialData={applicationData.professionalInfo}
                 onSave={updateProfessionalInfo}
+                onFormReady={(form) => registerForm(3, form)}
               />
             </motion.div>
           </AnimatePresence>
@@ -443,6 +565,7 @@ export function ApplicationPage() {
               <MonthlyIncomeStep
                 initialData={applicationData.monthlyIncome}
                 onSave={updateMonthlyIncome}
+                onFormReady={(form) => registerForm(4, form)}
               />
             </motion.div>
           </AnimatePresence>
@@ -500,6 +623,7 @@ export function ApplicationPage() {
               <NomineeStep
                 initialData={applicationData.nominee}
                 onSave={updateNominee}
+                onFormReady={(form) => registerForm(7, form)}
               />
             </motion.div>
           </AnimatePresence>
@@ -540,6 +664,7 @@ export function ApplicationPage() {
               <ReferencesStep
                 initialData={applicationData.references}
                 onSave={updateReferences}
+                onFormReady={(form) => registerForm(9, form)}
               />
             </motion.div>
           </AnimatePresence>
@@ -558,6 +683,7 @@ export function ApplicationPage() {
                 initialData={applicationData.imageSignature}
                 hasSupplementary={applicationData.hasSupplementaryCard}
                 onSave={updateImageSignature}
+                onFormReady={(form) => registerForm(10, form)}
               />
             </motion.div>
           </AnimatePresence>
@@ -575,6 +701,7 @@ export function ApplicationPage() {
               <AutoDebitStep
                 initialData={applicationData.autoDebit}
                 onSave={updateAutoDebit}
+                onFormReady={(form) => registerForm(11, form)}
               />
             </motion.div>
           </AnimatePresence>
@@ -645,6 +772,7 @@ export function ApplicationPage() {
   // Desktop Layout (> 768px) - Professional layout with sidebar
   if (!isMobile) {
     return (
+      <>
       <DesktopApplicationLayout
         currentStep={applicationData.currentStep}
         totalSteps={12}
@@ -655,6 +783,7 @@ export function ApplicationPage() {
         isSaving={isSaving}
         lastSaved={lastSaved}
         mode={mode}
+        onLogout={() => setShowLogoutDialog(true)}
         onStepClick={(step) => {
           // Only allow going to completed steps or previous steps
           if (completedSteps.includes(step) || step < applicationData.currentStep) {
@@ -698,11 +827,34 @@ export function ApplicationPage() {
           {renderStepContent()}
         </AnimatePresence>
       </DesktopApplicationLayout>
+
+      {/* Logout Confirmation Dialog */}
+      <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+        <AlertDialogContent className="z-[9999]">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Logout</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to logout? Your progress will be saved as a draft, but you'll need to verify your mobile number again to continue.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmLogout}
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+            >
+              Logout
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      </>
     );
   }
 
   // Mobile Layout (≤ 768px) - Enhanced with better UX
   return (
+    <>
     <div className="min-h-screen bg-mobile-background pb-24">
       {/* Session Warning */}
       {isSessionWarning && (
@@ -723,6 +875,7 @@ export function ApplicationPage() {
         isSaving={isSaving}
         lastSaved={lastSaved}
         mode={mode}
+        onLogout={() => setShowLogoutDialog(true)}
       />
 
       {/* Main Content */}
@@ -754,5 +907,6 @@ export function ApplicationPage() {
         errorMessage={validationError || undefined}
       />
     </div>
+  </>
   );
 }

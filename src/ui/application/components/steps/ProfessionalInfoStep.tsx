@@ -4,6 +4,7 @@
  */
 
 import { useForm } from 'react-hook-form';
+import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Briefcase, Building2, MapPin, Calendar } from 'lucide-react';
 import { professionalInfoSchema, type ProfessionalInfoFormData } from '@/lib/validation-schemas';
@@ -17,6 +18,7 @@ import type { ProfessionalInfoData } from '@/types/application-form.types';
 interface ProfessionalInfoStepProps {
   initialData?: Partial<ProfessionalInfoData>;
   onSave: (data: ProfessionalInfoData) => void;
+  onFormReady?: (form: any) => void;
 }
 
 const CUSTOMER_SEGMENTS = [
@@ -36,7 +38,7 @@ const emptyAddress = {
   country: 'Bangladesh',
 };
 
-export function ProfessionalInfoStep({ initialData, onSave }: ProfessionalInfoStepProps) {
+export function ProfessionalInfoStep({ initialData, onSave, onFormReady }: ProfessionalInfoStepProps) {
   const form = useForm<ProfessionalInfoFormData>({
     resolver: zodResolver(professionalInfoSchema),
     defaultValues: {
@@ -55,6 +57,13 @@ export function ProfessionalInfoStep({ initialData, onSave }: ProfessionalInfoSt
     },
     mode: 'onChange',
   });
+
+  // Expose form to parent when ready
+  useEffect(() => {
+    if (onFormReady) {
+      onFormReady(form);
+    }
+  }, [form, onFormReady]);
 
   const handleFieldChange = () => {
     const values = form.getValues();

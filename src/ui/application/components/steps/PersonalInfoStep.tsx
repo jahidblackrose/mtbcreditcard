@@ -4,7 +4,7 @@
  * Enhanced with StepFormWrapper for consistent UX
  */
 
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
@@ -25,6 +25,7 @@ import type { PersonalInfoData } from '@/types/application-form.types';
 interface PersonalInfoStepProps {
   initialData?: Partial<PersonalInfoData>;
   onSave: (data: PersonalInfoData) => void;
+  onFormReady?: (form: any) => void;
 }
 
 
@@ -72,7 +73,7 @@ const emptyAddress = {
   country: 'Bangladesh',
 };
 
-export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps) {
+export function PersonalInfoStep({ initialData, onSave, onFormReady }: PersonalInfoStepProps) {
   // Date constraints
   const maxDateOfBirth = subYears(new Date(), 18);
   const minDateOfBirth = new Date('1900-01-01');
@@ -106,6 +107,13 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
     },
     mode: 'onChange',
   });
+
+  // Expose form to parent when ready
+  useEffect(() => {
+    if (onFormReady) {
+      onFormReady(form);
+    }
+  }, [form, onFormReady]);
 
   const maritalStatus = form.watch('maritalStatus');
   const sameAsPermanent = form.watch('sameAsPermanent');

@@ -5,6 +5,7 @@
  */
 
 import { useForm } from 'react-hook-form';
+import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Users, UserCircle } from 'lucide-react';
 import { referencesSchema, type ReferencesFormData } from '@/lib/validation-schemas';
@@ -20,6 +21,7 @@ import type { ReferencesData } from '@/types/application-form.types';
 interface ReferencesStepProps {
   initialData?: Partial<ReferencesData>;
   onSave: (data: ReferencesData) => void;
+  onFormReady?: (form: any) => void;
 }
 
 const RELATIONSHIPS = [
@@ -81,7 +83,7 @@ const ReferenceInput = ({
   />
 );
 
-export function ReferencesStep({ initialData, onSave }: ReferencesStepProps) {
+export function ReferencesStep({ initialData, onSave, onFormReady }: ReferencesStepProps) {
   const form = useForm<ReferencesFormData>({
     resolver: zodResolver(referencesSchema),
     defaultValues: {
@@ -90,6 +92,13 @@ export function ReferencesStep({ initialData, onSave }: ReferencesStepProps) {
     },
     mode: 'onChange',
   });
+
+  // Expose form to parent when ready
+  useEffect(() => {
+    if (onFormReady) {
+      onFormReady(form);
+    }
+  }, [form, onFormReady]);
 
   const handleFieldChange = () => {
     const values = form.getValues();

@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Check, ChevronRight, Circle } from 'lucide-react';
+import { Check, ChevronRight, Circle, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { APPLICATION_STEPS } from '@/types/application-form.types';
@@ -33,18 +33,18 @@ export function DesktopSidebar({
       "w-full bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden",
       className
     )}>
-      {/* Compact Header - Dark Green */}
-      <div className="px-3 py-2 sm:px-4 sm:py-3 bg-gradient-to-r from-accent to-accent/90 border-b border-accent">
-        <h2 className="text-[10px] sm:text-sm font-bold text-white">Application Steps</h2>
-        <p className="text-[8px] sm:text-xs text-white/90 mt-0.5">
+      {/* Compact Header - Secondary/Gray */}
+      <div className="px-3 py-2 sm:px-4 sm:py-3 bg-gradient-to-r from-gray-100 to-gray-50 border-b border-gray-200">
+        <h2 className="text-[10px] sm:text-sm font-bold text-gray-900">Application Steps</h2>
+        <p className="text-[8px] sm:text-xs text-gray-600 mt-0.5">
           Step {currentStep} of {APPLICATION_STEPS.length}
         </p>
       </div>
 
       {/* Compact Progress Bar */}
-      <div className="h-0.5 bg-gray-100">
+      <div className="h-0.5 bg-gray-200">
         <motion.div
-          className="h-full bg-accent"
+          className="h-full bg-gray-600"
           initial={{ width: 0 }}
           animate={{ width: `${(currentStep / APPLICATION_STEPS.length) * 100}%` }}
           transition={{ duration: 0.3 }}
@@ -149,6 +149,7 @@ interface DesktopApplicationLayoutProps {
   isSaving?: boolean;
   lastSaved?: Date | null;
   mode?: string;
+  onLogout?: () => void;
   onStepClick?: (step: number) => void;
   children: React.ReactNode;
   navigation?: React.ReactNode;
@@ -164,6 +165,7 @@ export function DesktopApplicationLayout({
   isSaving,
   lastSaved,
   mode,
+  onLogout,
   onStepClick,
   children,
   navigation,
@@ -222,6 +224,19 @@ export function DesktopApplicationLayout({
                 </div>
               )}
             </div>
+
+            {/* Logout Button */}
+            {onLogout && (
+              <button
+                type="button"
+                onClick={onLogout}
+                className="flex items-center gap-1.5 text-gray-600 hover:text-red-600 hover:bg-red-50 h-8 px-2 sm:px-3 ml-2 sm:ml-3 rounded-md transition-colors cursor-pointer"
+                style={{ zIndex: 100, position: 'relative' }}
+              >
+                <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="text-xs sm:text-sm font-medium">Logout</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

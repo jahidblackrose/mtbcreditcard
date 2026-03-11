@@ -4,6 +4,7 @@
  */
 
 import { useForm } from 'react-hook-form';
+import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Camera, PenTool } from 'lucide-react';
 import { imageSignatureSchema, type ImageSignatureFormData } from '@/lib/validation-schemas';
@@ -19,9 +20,10 @@ interface ImageSignatureStepProps {
   initialData?: Partial<ImageSignatureData>;
   hasSupplementary: boolean;
   onSave: (data: ImageSignatureData) => void;
+  onFormReady?: (form: any) => void;
 }
 
-export function ImageSignatureStep({ initialData, hasSupplementary, onSave }: ImageSignatureStepProps) {
+export function ImageSignatureStep({ initialData, hasSupplementary, onSave, onFormReady }: ImageSignatureStepProps) {
   const form = useForm<ImageSignatureFormData>({
     resolver: zodResolver(imageSignatureSchema),
     defaultValues: {
@@ -32,6 +34,13 @@ export function ImageSignatureStep({ initialData, hasSupplementary, onSave }: Im
     },
     mode: 'onChange',
   });
+
+  // Expose form to parent when ready
+  useEffect(() => {
+    if (onFormReady) {
+      onFormReady(form);
+    }
+  }, [form, onFormReady]);
 
   const handleFieldChange = () => {
     const values = form.getValues();

@@ -4,6 +4,7 @@
  */
 
 import { useForm } from 'react-hook-form';
+import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CreditCard, Banknote, RefreshCw } from 'lucide-react';
 import { autoDebitSchema, type AutoDebitFormData } from '@/lib/validation-schemas';
@@ -17,9 +18,10 @@ import type { AutoDebitData } from '@/types/application-form.types';
 interface AutoDebitStepProps {
   initialData?: Partial<AutoDebitData>;
   onSave: (data: AutoDebitData) => void;
+  onFormReady?: (form: any) => void;
 }
 
-export function AutoDebitStep({ initialData, onSave }: AutoDebitStepProps) {
+export function AutoDebitStep({ initialData, onSave, onFormReady }: AutoDebitStepProps) {
   const form = useForm<AutoDebitFormData>({
     resolver: zodResolver(autoDebitSchema),
     defaultValues: {
@@ -29,6 +31,13 @@ export function AutoDebitStep({ initialData, onSave }: AutoDebitStepProps) {
     },
     mode: 'onChange',
   });
+
+  // Expose form to parent when ready
+  useEffect(() => {
+    if (onFormReady) {
+      onFormReady(form);
+    }
+  }, [form, onFormReady]);
 
   const handleFieldChange = () => {
     const values = form.getValues();

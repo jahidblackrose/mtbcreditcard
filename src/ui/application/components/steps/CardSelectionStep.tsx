@@ -4,6 +4,7 @@
  */
 
 import { useForm } from 'react-hook-form';
+import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CreditCard, Sparkles } from 'lucide-react';
 import { cardSelectionSchema, type CardSelectionFormData } from '@/lib/validation-schemas';
@@ -16,6 +17,7 @@ import type { CardSelectionData } from '@/types/application-form.types';
 interface CardSelectionStepProps {
   initialData?: Partial<CardSelectionData>;
   onSave: (data: CardSelectionData) => void;
+  onFormReady?: (form: any) => void;
 }
 
 const CARD_NETWORKS = [
@@ -39,7 +41,7 @@ const CARD_CATEGORIES = [
   { value: 'CO_BRANDED', label: 'Co-Branded' },
 ];
 
-export function CardSelectionStep({ initialData, onSave }: CardSelectionStepProps) {
+export function CardSelectionStep({ initialData, onSave, onFormReady }: CardSelectionStepProps) {
   const form = useForm<CardSelectionFormData>({
     resolver: zodResolver(cardSelectionSchema),
     defaultValues: {
@@ -50,6 +52,13 @@ export function CardSelectionStep({ initialData, onSave }: CardSelectionStepProp
     },
     mode: 'onChange',
   });
+
+  // Expose form to parent when ready
+  useEffect(() => {
+    if (onFormReady) {
+      onFormReady(form);
+    }
+  }, [form, onFormReady]);
 
   const handleFieldChange = () => {
     const values = form.getValues();
