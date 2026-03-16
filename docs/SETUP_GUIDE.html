@@ -1,0 +1,3836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MTB Credit Card System - Developer Documentation</title>
+    <style>
+        :root {
+            --mtb-blue: #003366;
+            --mtb-gold: #D4AF37;
+            --mtb-light-blue: #0066cc;
+            --bg-dark: #1e1e1e;
+            --bg-light: #f5f5f5;
+            --text-dark: #333;
+            --text-light: #e0e0e0;
+            --border-color: #ddd;
+            --code-bg: #2d2d2d;
+            --success: #28a745;
+            --warning: #ffc107;
+            --error: #dc3545;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: var(--bg-light);
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--mtb-blue) 0%, var(--mtb-light-blue) 100%);
+            color: white;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header .subtitle {
+            font-size: 1.2rem;
+            color: var(--mtb-gold);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: var(--mtb-gold);
+        }
+
+        .tab-btn.active {
+            background: var(--mtb-gold);
+            color: var(--mtb-blue);
+            border-color: var(--mtb-gold);
+            font-weight: bold;
+        }
+
+        /* Main Content */
+        main {
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            gap: 2rem;
+        }
+
+        /* Table of Contents */
+        .toc {
+            flex: 0 0 280px;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            height: fit-content;
+            position: sticky;
+            top: 2rem;
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+
+        .toc::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .toc::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .toc::-webkit-scrollbar-thumb {
+            background: var(--mtb-blue);
+            border-radius: 4px;
+        }
+
+        .toc::-webkit-scrollbar-thumb:hover {
+            background: var(--mtb-light-blue);
+        }
+
+        .toc h3 {
+            color: var(--mtb-blue);
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--mtb-gold);
+            padding-bottom: 0.5rem;
+        }
+
+        .toc ul {
+            list-style: none;
+        }
+
+        .toc li {
+            margin-bottom: 0.5rem;
+        }
+
+        .toc a {
+            color: var(--text-dark);
+            text-decoration: none;
+            padding: 0.25rem 0.5rem;
+            display: block;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .toc a:hover {
+            background: var(--bg-light);
+            color: var(--mtb-blue);
+        }
+
+        /* Content */
+        .content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Sections */
+        section {
+            background: white;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        section h2 {
+            color: var(--mtb-blue);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--mtb-gold);
+        }
+
+        section h3 {
+            color: var(--mtb-light-blue);
+            margin: 1.5rem 0 1rem;
+        }
+
+        section h4 {
+            color: var(--text-dark);
+            margin: 1rem 0 0.5rem;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--mtb-blue);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background: var(--bg-light);
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: var(--code-bg);
+            color: var(--text-light);
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: var(--mtb-blue);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: var(--mtb-gold);
+            color: var(--mtb-blue);
+        }
+
+        /* Inline Code */
+        code {
+            background: var(--bg-light);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: var(--mtb-blue);
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: #e3f2fd;
+            border-color: var(--mtb-blue);
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border-color: var(--warning);
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            border-color: var(--error);
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border-color: var(--success);
+        }
+
+        /* Steps */
+        .steps {
+            counter-reset: step-counter;
+            list-style: none;
+        }
+
+        .steps li {
+            counter-increment: step-counter;
+            margin-bottom: 1.5rem;
+            padding-left: 3rem;
+            position: relative;
+        }
+
+        .steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 2.5rem;
+            height: 2.5rem;
+            background: var(--mtb-blue);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        /* Diagram */
+        .diagram {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+            font-family: monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            border: 2px solid var(--mtb-blue);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--mtb-blue);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            main {
+                flex-direction: column;
+                padding: 1rem;
+            }
+
+            .toc {
+                display: none;
+            }
+
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab-btn {
+                width: 100%;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .toc, .tabs, .copy-btn {
+                display: none;
+            }
+
+            .tab-content {
+                display: block !important;
+            }
+
+            section {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>MTB Credit Card Application System</h1>
+        <p class="subtitle">Complete Developer Setup Guide</p>
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="database">1. Database Setup</button>
+            <button class="tab-btn" data-tab="backend">2. Backend API</button>
+            <button class="tab-btn" data-tab="frontend">3. Frontend API</button>
+            <button class="tab-btn" data-tab="support">4. Support & Troubleshooting</button>
+        </nav>
+    </header>
+
+    <main>
+        <aside class="toc">
+            <h3>Table of Contents</h3>
+            <ul id="toc-list"></ul>
+        </aside>
+
+        <div class="content">
+            <!-- Tab 1: Database Setup -->
+            <div id="database" class="tab-content active">
+                <section>
+                    <h2>Database Setup - Oracle Database</h2>
+
+                    <div class="alert alert-info">
+                        <strong>Important:</strong> The MTB Credit Card system requires Oracle Database XE 21c or Enterprise Edition. Oracle XE is free and suitable for development.
+                    </div>
+
+                    <h3>System Requirements</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Minimum Requirement</th>
+                                <th>Recommended</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Operating System</td>
+                                <td>Windows 10+, Linux (Ubuntu 20.04+), or macOS 11+</td>
+                                <td>Windows 11, Ubuntu 22.04 LTS</td>
+                            </tr>
+                            <tr>
+                                <td>RAM</td>
+                                <td>8 GB</td>
+                                <td>16 GB or higher</td>
+                            </tr>
+                            <tr>
+                                <td>Disk Space</td>
+                                <td>15 GB free space</td>
+                                <td>30 GB or higher</td>
+                            </tr>
+                            <tr>
+                                <td>Oracle Version</td>
+                                <td>Oracle Database XE 21c</td>
+                                <td>Oracle Database 21c Enterprise</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Port Requirements</h3>
+                    <ul>
+                        <li><strong>1521</strong> - Oracle Database Listener (default)</li>
+                        <li><strong>8080</strong> - Oracle Application Express (APEX)</li>
+                        <li><strong>5500</strong> - Oracle EM Express (optional management tool)</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Oracle Database Installation</h2>
+
+                    <h3>Windows Installation</h3>
+                    <ol class="steps">
+                        <li>
+                            <strong>Download Oracle Database XE</strong>
+                            <p>Visit <a href="https://www.oracle.com/database/technologies/xe-downloads.html" target="_blank">Oracle's download page</a> and download the Windows x64 version.</p>
+                        </li>
+                        <li>
+                            <strong>Extract and Run Installer</strong>
+                            <div class="code-block">
+                                <button class="copy-btn">Copy</button>
+                                <pre># Right-click the downloaded zip file and extract
+# Run setup.exe as Administrator</pre>
+                            </div>
+                        </li>
+                        <li>
+                            <strong>Configuration Steps</strong>
+                            <ul>
+                                <li>Accept license agreement</li>
+                                <li>Set password for SYS and SYSTEM users (remember this!)</li>
+                                <li>Default port: 1521 (recommended)</li>
+                                <li>Complete installation</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Verify Installation</strong>
+                            <div class="code-block">
+                                <button class="copy-btn">Copy</button>
+                                <pre># Open Command Prompt and check listener
+lsnrctl status
+
+# Expected output: Service "XE" has 1 instance(s)</pre>
+                            </div>
+                        </li>
+                    </ol>
+
+                    <h3>Linux (Ubuntu) Installation</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Update system
+sudo apt update && sudo apt upgrade -y
+
+# Install required packages
+sudo apt install -y wget unzip alien libaio1
+
+# Download Oracle XE 21c
+wget https://download.oracle.com/otn-pub/otn_software/db-express/oracle-database-xe-21c-1.0-1.ol8.x86_64.rpm
+
+# Convert RPM to DEB
+sudo alien --scripts oracle-database-xe-21c-1.0-1.ol8.x86_64.rpm
+
+# Install
+sudo dpkg -i oracle-database-xe_21c-1.0-2_amd64.deb
+
+# Configure database
+sudo /etc/init.d/oracle-xe-21c configure
+
+# Set environment variables
+echo 'export ORACLE_HOME=/opt/oracle/product/21c/dbhomeXE' >> ~/.bashrc
+echo 'export PATH=$ORACLE_HOME/bin:$PATH' >> ~/.bashrc
+echo 'export ORACLE_SID=XE' >> ~/.bashrc
+source ~/.bashrc</pre>
+                    </div>
+
+                    <h3>macOS Installation (via Docker)</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Install Docker Desktop for Mac first
+# Then pull Oracle XE image
+docker pull gvenzl/oracle-xe:21-full
+
+# Run Oracle container
+docker run --name mtb-oracle \
+  -p 1521:1521 \
+  -p 8080:8080 \
+  -e ORACLE_PASSWORD=YourSecurePassword \
+  -v oracle-data:/opt/oracle/oradata \
+  gvenzl/oracle-xe:21-full
+
+# Verify connection
+docker exec -it mtb-oracle sqlplus -s sys/YourSecurePassword@localhost:1521/XE as sysdba</pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Creating Database User and Schema</h2>
+
+                    <h3>Step 1: Connect to Database</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Windows - Use SQL*Plus from Command Prompt
+sqlplus sys/YourPassword@localhost:1521/XE as sysdba
+
+# Linux/Mac - Use SQL*Plus
+sqlplus sys/YourPassword@localhost:1521/XE as sysdba
+
+# Or use SQL Developer GUI tool for easier management</pre>
+                    </div>
+
+                    <h3>Step 2: Create Database User</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>-- Create user for MTB Credit Card application
+CREATE USER mtb_credit IDENTIFIED BY "SecurePassword123!";
+
+-- Grant necessary permissions
+GRANT CONNECT, RESOURCE TO mtb_credit;
+GRANT CREATE VIEW, CREATE SEQUENCE, CREATE PROCEDURE TO mtb_credit;
+GRANT CREATE TABLE, CREATE TRIGGER, CREATE TYPE TO mtb_credit;
+GRANT UNLIMITED TABLESPACE TO mtb_credit;
+GRANT EXECUTE ON DBMS_LOCK TO mtb_credit;
+GRANT SELECT ON SYS.DBA_PENDING_TRANSACTIONS TO mtb_credit;
+GRANT SELECT ON SYS.V_$TRANSACTION TO mtb_credit;
+
+-- Grant access to reference tables (if needed)
+GRANT SELECT ANY TABLE TO mtb_credit;
+
+-- Verify user creation
+SELECT username, account_status FROM dba_users WHERE username = 'MTB_CREDIT';</pre>
+                    </div>
+
+                    <h3>Step 3: Grant Additional Privileges for Application</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>-- For session management and locking
+GRANT ALTER SESSION TO mtb_credit;
+
+-- For reading system statistics
+GRANT SELECT ON V_$SESSION TO mtb_credit;
+GRANT SELECT ON V_$SESSTAT TO mtb_credit;
+GRANT SELECT ON V_$STATNAME TO mtb_credit;
+
+-- For package execution
+GRANT CREATE PUBLIC SYNONYM TO mtb_credit;
+GRANT DROP PUBLIC SYNONYM TO mtb_credit;
+
+COMMIT;</pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Database Schema Setup</h2>
+
+                    <div class="alert alert-warning">
+                        <strong>Important:</strong> Execute the DDL scripts in the exact order shown below. Scripts are numbered to indicate execution order.
+                    </div>
+
+                    <h3>DDL Script Execution Order</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order</th>
+                                <th>Script File</th>
+                                <th>Description</th>
+                                <th>Verification Query</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td><code>00_tables_error_log.sql</code></td>
+                                <td>Error logging table and triggers</td>
+                                <td><code>SELECT * FROM user_tables WHERE table_name = 'TCC_ERROR_LOG';</code></td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td><code>01_tables_reference.sql</code></td>
+                                <td>Reference data tables (cards, banks, etc.)</td>
+                                <td><code>SELECT COUNT(*) FROM TCC_REF_CARD_PRODUCTS;</code></td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td><code>02_tables_applicant_application.sql</code></td>
+                                <td>Core application tables</td>
+                                <td><code>SELECT * FROM user_tables WHERE table_name LIKE 'TCC_APP%';</code></td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td><code>04_tables_session_draft.sql</code></td>
+                                <td>Session and draft management</td>
+                                <td><code>SELECT * FROM user_tables WHERE table_name LIKE 'TCC_SESSION%';</code></td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td><code>05_tables_limit_issuance_mis.sql</code></td>
+                                <td>Limit and MIS tables</td>
+                                <td><code>SELECT * FROM user_tables WHERE table_name LIKE 'TCC_LIMIT%';</code></td>
+                            </tr>
+                            <tr>
+                                <td>6</td>
+                                <td><code>06_tables_extended_entities.sql</code></td>
+                                <td>Extended entity relationships</td>
+                                <td><code>SELECT * FROM user_tables WHERE table_name LIKE 'TCC_EXT%';</code></td>
+                            </tr>
+                            <tr>
+                                <td>7</td>
+                                <td><code>pkg_credit_card_application_spec.sql</code></td>
+                                <td>Package specification (60 procedures)</td>
+                                <td><code>SELECT object_name FROM user_procedures WHERE object_name = 'PKG_CREDIT_CARD_APPLICATION';</code></td>
+                            </tr>
+                            <tr>
+                                <td>8</td>
+                                <td><code>pkg_credit_card_application_body.sql</code></td>
+                                <td>Package body (implementation)</td>
+                                <td><code>SELECT STATUS FROM user_objects WHERE object_name = 'PKG_CREDIT_CARD_APPLICATION';</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>How to Execute Scripts</h3>
+
+                    <h4>Option A: Using SQL*Plus (Command Line)</h4>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Navigate to database directory
+cd E:\project\creditcard\mtbcreditcard\database
+
+# Connect as mtb_credit user
+sqlplus mtb_credit/SecurePassword123!@localhost:1521/XE
+
+# Execute each script in order
+@ddl/00_tables_error_log.sql
+@ddl/01_tables_reference.sql
+@ddl/02_tables_applicant_application.sql
+@ddl/04_tables_session_draft.sql
+@ddl/05_tables_limit_issuance_mis.sql
+@ddl/06_tables_extended_entities.sql
+@packages/pkg_credit_card_application_spec.sql
+@packages/pkg_credit_card_application_body.sql
+
+-- Check for errors
+SHOW ERRORS;</pre>
+                    </div>
+
+                    <h4>Option B: Using SQL Developer (GUI)</h4>
+                    <ol class="steps">
+                        <li>
+                            Open SQL Developer and connect as <code>mtb_credit</code> user
+                        </li>
+                        <li>
+                            Open each SQL file in order (File → Open)
+                        </li>
+                        <li>
+                            Click "Run Script" button (or press F5)
+                        </li>
+                        <li>
+                            Check "Script Output" panel for errors
+                        </li>
+                        <li>
+                            Verify each script before running the next
+                        </li>
+                    </ol>
+                </section>
+
+                <section>
+                    <h2>Verifying Database Setup</h2>
+
+                    <h3>Complete Verification Checklist</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>-- 1. Check all tables created
+SELECT COUNT(*) as table_count FROM user_tables;
+
+-- Expected: 60+ tables (depending on DDL version)
+
+-- 2. Check package status
+SELECT object_name, object_type, status
+FROM user_objects
+WHERE object_name = 'PKG_CREDIT_CARD_APPLICATION';
+
+-- Expected: STATUS = 'VALID'
+
+-- 3. Check procedures count
+SELECT COUNT(*) as procedure_count
+FROM user_procedures
+WHERE object_name = 'PKG_CREDIT_CARD_APPLICATION';
+
+-- Expected: 60 procedures (error codes 501-560)
+
+-- 4. Test package connection
+BEGIN
+    -- This should return reference data
+    PKG_CREDIT_CARD_APPLICATION.GET_CARD_PRODUCTS(
+        P_CURSOR => :result_cursor
+    );
+END;
+/
+
+-- 5. Check reference data exists
+SELECT 'Card Products' as table_name, COUNT(*) as row_count FROM TCC_REF_CARD_PRODUCTS
+UNION ALL
+SELECT 'Banks', COUNT(*) FROM TCC_REF_BANKS
+UNION ALL
+SELECT 'Occupations', COUNT(*) FROM TCC_REF_OCCUPATIONS;
+
+-- 6. Verify sequences created
+SELECT COUNT(*) FROM user_sequences;</pre>
+                    </div>
+
+                    <h3>Test Connection from Backend</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Python test script (save as test_db.py)
+import oracledb
+
+# Connection parameters
+connection = oracledb.connect(
+    user='mtb_credit',
+    password='SecurePassword123!',
+    host='localhost',
+    port=1521,
+    service_name='XE'
+)
+
+print("✅ Connected to Oracle Database!")
+
+# Test query
+cursor = connection.cursor()
+cursor.execute("SELECT COUNT(*) FROM TCC_REF_CARD_PRODUCTS")
+count = cursor.fetchone()[0]
+print(f"✅ Found {count} card products")
+
+cursor.close()
+connection.close()
+print("✅ Database connection test passed!")</pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Common Database Issues and Solutions</h2>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Error Message</th>
+                                <th>Cause</th>
+                                <th>Solution</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ORA-12154: TNS:could not resolve the connect identifier</code></td>
+                                <td>Wrong service name or tnsnames.ora issue</td>
+                                <td>Use format: <code>host:port/service_name</code> instead of TNS alias</td>
+                            </tr>
+                            <tr>
+                                <td><code>ORA-12541: TNS:no listener</code></td>
+                                <td>Oracle listener not running</td>
+                                <td>Run: <code>lsnrctl start</code> (Windows) or <code>sudo lsnrctl start</code> (Linux)</td>
+                            </tr>
+                            <tr>
+                                <td><code>ORA-01017: invalid username/password</code></td>
+                                <td>Wrong credentials or user not created</td>
+                                <td>Recreate user using scripts in "Creating Database User" section</td>
+                            </tr>
+                            <tr>
+                                <td><code>ORA-01950: no privileges on tablespace 'USERS'</code></td>
+                                <td>User lacks tablespace quota</td>
+                                <td>Run: <code>GRANT UNLIMITED TABLESPACE TO mtb_credit;</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>PLS-00201: identifier must be declared</code></td>
+                                <td>Package not created or invalid</code></td>
+                                <td>Recompile: <code>ALTER PACKAGE PKG_CREDIT_CARD_APPLICATION COMPILE;</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>ORA-00942: table or view does not exist</code></td>
+                                <td>DDL scripts not executed in order</td>
+                                <td>Re-run scripts starting from missing table number</td>
+                            </tr>
+                            <tr>
+                                <td><code>DPI-1047: Cannot locate a 64-bit Oracle Client library</code></td>
+                                <td>Oracle Instant Client not installed (Python oracledb)</td>
+                                <td>Download Oracle Instant Client from Oracle website or use thick mode: <code>oracledb.init_oracle_client()</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Database Maintenance Commands</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>-- Check tablespace usage
+SELECT tablespace_name,
+       ROUND(bytes/1024/1024, 2) as size_mb,
+       ROUND(maxbytes/1024/1024, 2) as max_size_mb,
+       ROUND((bytes/maxbytes)*100, 2) as percent_used
+FROM user_ts_quotas;
+
+-- Check active sessions
+SELECT sid, serial#, status, osuser, machine
+FROM v$session
+WHERE username = 'MTB_CREDIT';
+
+-- Kill hanging session (use sid, serial# from above)
+ALTER SYSTEM KILL SESSION 'sid,serial#';
+
+-- Check long-running queries
+SELECT s.sid, s.serial#, s.username, q.sql_text, q.elapsed_time
+FROM v$session s, v$sql q
+WHERE s.sql_id = q.sql_id
+AND s.username = 'MTB_CREDIT'
+AND s.status = 'ACTIVE'
+ORDER BY q.elapsed_time DESC;
+
+-- Compile invalid objects
+BEGIN
+    FOR obj IN (SELECT object_name, object_type FROM user_objects WHERE status = 'INVALID')
+    LOOP
+        EXECUTE IMMEDIATE 'ALTER ' || obj.object_type || ' ' || obj.object_name || ' COMPILE';
+    END LOOP;
+END;
+/</pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Database Architecture Overview</h2>
+
+                    <div class="diagram">
+                        <pre>
+┌──────────────────────────────────────────────────────────────────┐
+│                     MTB CREDIT CARD DATABASE                     │
+│                      Oracle Database 21c                          │
+└──────────────────────────────────────────────────────────────────┘
+                                │
+        ┌───────────────────────┼───────────────────────┐
+        │                       │                       │
+        ▼                       ▼                       ▼
+┌───────────────┐      ┌───────────────┐      ┌───────────────┐
+│  Reference    │      │  Application  │      │   Session &   │
+│    Tables     │      │    Tables     │      │    Draft      │
+├───────────────┤      ├───────────────┤      ├───────────────┤
+│ Card Products │      │ Applicants    │      │ Sessions      │
+│ Banks         │      │ Applications  │      │ Drafts        │
+│ Occupations   │      │ References    │      │ Draft Data    │
+│ Districts     │      │ Documents     │      │ Locks         │
+│ Designations  │      │ Cards         │      │               │
+│ Relations     │      │ Limits        │      │               │
+└───────────────┘      └───────────────┘      └───────────────┘
+        │                       │                       │
+        └───────────────────────┼───────────────────────┘
+                                │
+                                ▼
+                    ┌───────────────────────┐
+                    │    PL/SQL Package     │
+                    │  PKG_CREDIT_CARD_     │
+                    │   APPLICATION         │
+                    ├───────────────────────┤
+                    │  60 Procedures        │
+                    │  (Error 501-560)      │
+                    └───────────────────────┘
+                        </pre>
+                    </div>
+
+                    <h3>Key Tables Reference</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Table Name</th>
+                                <th>Purpose</th>
+                                <th>Key Columns</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>TCC_REF_CARD_PRODUCTS</code></td>
+                                <td>Available card types</td>
+                                <td>card_id, product_name, annual_fee</td>
+                            </tr>
+                            <tr>
+                                <td><code>TCC_APP_APPLICANTS</code></td>
+                                <td>Customer information</td>
+                                <td>applicant_id, nid, mobile, email</td>
+                            </tr>
+                            <tr>
+                                <td><code>TCC_APP_APPLICATIONS</code></td>
+                                <td>Application master</td>
+                                <td>application_id, applicant_id, status</td>
+                            </tr>
+                            <tr>
+                                <td><code>TCC_APP_REFERENCES</code></td>
+                                <td>Reference persons</td>
+                                <td>reference_id, application_id, relation</td>
+                            </tr>
+                            <tr>
+                                <td><code>TCC_SESSIONS</code></td>
+                                <td>User sessions</td>
+                                <td>session_id, mobile, created_at</td>
+                            </tr>
+                            <tr>
+                                <td><code>TCC_DRAFTS</code></td>
+                                <td>Auto-saved drafts</td>
+                                <td>draft_id, session_id, step_data</td>
+                            </tr>
+                            <tr>
+                                <td><code>TCC_ERROR_LOG</code></td>
+                                <td>Error tracking</td>
+                                <td>error_id, error_code, message, stack_trace</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+            </div>
+
+            <!-- Tab 2: Backend API -->
+            <div id="backend" class="tab-content">
+                <section>
+                    <h2>Backend API Setup - FastAPI</h2>
+
+                    <div class="alert alert-info">
+                        <strong>MTB Credit Card Backend:</strong> FastAPI-based RESTful API service that connects React frontend with Oracle Database. Handles authentication, application processing, and session management.
+                    </div>
+
+                    <h3>System Requirements</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Minimum Version</th>
+                                <th>Recommended</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Python</td>
+                                <td>3.11</td>
+                                <td>3.11 or 3.12</td>
+                            </tr>
+                            <tr>
+                                <td>pip</td>
+                                <td>23.0</td>
+                                <td>Latest (24.0+)</td>
+                            </tr>
+                            <tr>
+                                <td>Oracle Database</td>
+                                <td>XE 21c</td>
+                                <td>21c Enterprise</td>
+                            </tr>
+                            <tr>
+                                <td>Redis Server</td>
+                                <td>7.0</td>
+                                <td>7.2+</td>
+                            </tr>
+                            <tr>
+                                <td>Disk Space</td>
+                                <td>500 MB (backend only)</td>
+                                <td>1 GB</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Backend Architecture</h3>
+                    <div class="diagram">
+                        <pre>
+┌─────────────────────────────────────────────────────────────────┐
+│                       FastAPI Backend                            │
+│                         Port: 8000                               │
+└─────────────────────────────────────────────────────────────────┘
+                                  │
+        ┌─────────────────────────┼─────────────────────────┐
+        │                         │                         │
+        ▼                         ▼                         ▼
+┌──────────────┐        ┌──────────────┐        ┌──────────────┐
+│   API Routes │        │   Security   │        │   Database   │
+├──────────────┤        ├──────────────┤        ├──────────────┤
+│ /api/v1/     │        │ JWT Auth     │        │ Oracle       │
+│  reference   │        │ OTP System   │        │ Connection   │
+│  landing     │        │ Rate Limiting│        │ Pool         │
+│  session     │        │              │        │              │
+│  auth        │        │              │        │              │
+│  applications│        │              │        │              │
+│  drafts      │        │              │        │              │
+│  dashboard   │        │              │        │              │
+└──────────────┘        └──────────────┘        └──────────────┘
+        │                         │                         │
+        └─────────────────────────┼─────────────────────────┘
+                                  │
+                                  ▼
+                          ┌──────────────┐
+                          │    Redis     │
+                          │   Sessions   │
+                          │   Caching    │
+                          │  Rate Limit  │
+                          └──────────────┘
+                        </pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Python Environment Setup</h2>
+
+                    <h3>Step 1: Verify Python Installation</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Check Python version (must be 3.11+)
+python --version
+
+# Expected output: Python 3.11.x or 3.12.x
+
+# Check pip version
+pip --version
+
+# Expected output: pip 23.x.x from ...</pre>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <strong>Wrong Python Version?</strong> Download Python 3.11 from <a href="https://www.python.org/downloads/" target="_blank">python.org</a> or use pyenv (Linux/Mac) to install the correct version.
+                    </div>
+
+                    <h3>Step 2: Navigate to Backend Directory</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># From project root
+cd E:\project\creditcard\mtbcreditcard\backend
+
+# Verify you're in the right directory
+ls
+# Should see: app/, tests/, pyproject.toml, Dockerfile, etc.</pre>
+                    </div>
+
+                    <h3>Step 3: Create Virtual Environment</h3>
+                    <h4>Windows</h4>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+venv\Scripts\activate
+
+# You should see (venv) in your command prompt</pre>
+                    </div>
+
+                    <h4>Linux/Mac</h4>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Create virtual environment
+python3 -m venv venv
+
+# Activate virtual environment
+source venv/bin/activate
+
+# You should see (venv) in your command prompt</pre>
+                    </div>
+
+                    <h3>Step 4: Install Dependencies</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Install package in editable mode
+pip install -e .
+
+# This installs all dependencies from pyproject.toml:
+# - fastapi>=0.109.0
+# - uvicorn[standard]>=0.27.0
+# - oracledb>=2.0.0
+# - pyjwt>=2.8.0
+# - passlib[bcrypt]>=1.7.4
+# - redis>=5.0.1
+# - pydantic>=2.5.0
+# - And more...</pre>
+                    </div>
+
+                    <div class="alert alert-success">
+                        <strong>Success:</strong> If installation completes without errors, you should see "Successfully installed mtb-credit-card-backend-1.0.0"
+                    </div>
+
+                    <h3>Step 5: Verify Installation</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Check installed packages
+pip list
+
+# Test FastAPI import
+python -c "import fastapi; print(fastapi.__version__)"
+
+# Test Oracle driver
+python -c "import oracledb; print('Oracle driver ready')"
+
+# Test Redis
+python -c "import redis; print('Redis client ready')"</pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Environment Configuration</h2>
+
+                    <h3>Creating .env File</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Copy example configuration
+cp .env.example .env
+
+# Edit with your favorite editor
+notepad .env      # Windows
+nano .env         # Linux/Mac
+code .env         # VS Code</pre>
+                    </div>
+
+                    <h3>Complete Environment Variables Reference</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Variable</th>
+                                <th>Purpose</th>
+                                <th>Default</th>
+                                <th>Production</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="5"><strong>Application Settings</strong></td>
+                            </tr>
+                            <tr>
+                                <td><code>APP_NAME</code></td>
+                                <td>Application name</td>
+                                <td>MTB Credit Card API</td>
+                                <td>Same</td>
+                                <td>Used in logging</td>
+                            </tr>
+                            <tr>
+                                <td><code>APP_VERSION</code></td>
+                                <td>Version number</td>
+                                <td>1.0.0</td>
+                                <td>Same</td>
+                                <td>For API responses</td>
+                            </tr>
+                            <tr>
+                                <td><code>ENVIRONMENT</code></td>
+                                <td>Deployment environment</td>
+                                <td>development</td>
+                                <td>production</td>
+                                <td>Affects logging, debugging</td>
+                            </tr>
+                            <tr>
+                                <td><code>DEBUG</code></td>
+                                <td>Debug mode</td>
+                                <td>true</td>
+                                <td>false</td>
+                                <td>Show detailed errors</td>
+                            </tr>
+                            <tr>
+                                <td colspan="5"><strong>Server Configuration</strong></td>
+                            </tr>
+                            <tr>
+                                <td><code>HOST</code></td>
+                                <td>Bind address</td>
+                                <td>0.0.0.0</td>
+                                <td>0.0.0.0</td>
+                                <td>Listen on all interfaces</td>
+                            </tr>
+                            <tr>
+                                <td><code>PORT</code></td>
+                                <td>Server port</td>
+                                <td>8000</td>
+                                <td>8000</td>
+                                <td>Backend API port</td>
+                            </tr>
+                            <tr>
+                                <td colspan="5"><strong>Oracle Database</strong></td>
+                            </tr>
+                            <tr>
+                                <td><code>DB_USER</code></td>
+                                <td>Database username</td>
+                                <td>mtb_credit</td>
+                                <td>Same</td>
+                                <td>Must match DB setup</td>
+                            </tr>
+                            <tr>
+                                <td><code>DB_PASSWORD</code></td>
+                                <td>Database password</td>
+                                <td>your_secure_password</td>
+                                <td><strong>CHANGE!</strong></td>
+                                <td>Use strong password</td>
+                            </tr>
+                            <tr>
+                                <td><code>DB_HOST</code></td>
+                                <td>Database host</td>
+                                <td>localhost</td>
+                                <td>db.mtb.com.bd</td>
+                                <td>IP or hostname</td>
+                            </tr>
+                            <tr>
+                                <td><code>DB_PORT</code></td>
+                                <td>Database port</td>
+                                <td>1521</td>
+                                <td>1521</td>
+                                <td>Oracle listener port</td>
+                            </tr>
+                            <tr>
+                                <td><code>DB_SERVICE_NAME</code></td>
+                                <td>Service name</td>
+                                <td>XE</td>
+                                <td>PRODDB</td>
+                                <td>Oracle service name</td>
+                            </tr>
+                            <tr>
+                                <td><code>DB_POOL_MIN</code></td>
+                                <td>Min pool size</td>
+                                <td>2</td>
+                                <td>5</td>
+                                <td>Connections to keep open</td>
+                            </tr>
+                            <tr>
+                                <td><code>DB_POOL_MAX</code></td>
+                                <td>Max pool size</td>
+                                <td>10</td>
+                                <td>50</td>
+                                <td>Max concurrent connections</td>
+                            </tr>
+                            <tr>
+                                <td colspan="5"><strong>Redis Configuration</strong></td>
+                            </tr>
+                            <tr>
+                                <td><code>REDIS_HOST</code></td>
+                                <td>Redis server</td>
+                                <td>localhost</td>
+                                <td>redis.mtb.com.bd</td>
+                                <td>IP or hostname</td>
+                            </tr>
+                            <tr>
+                                <td><code>REDIS_PORT</code></td>
+                                <td>Redis port</td>
+                                <td>6379</td>
+                                <td>6379</td>
+                                <td>Default Redis port</td>
+                            </tr>
+                            <tr>
+                                <td><code>REDIS_PASSWORD</code></td>
+                                <td>Redis password</td>
+                                <td>(empty)</td>
+                                <td><strong>SET!</strong></td>
+                                <td>Required in production</td>
+                            </tr>
+                            <tr>
+                                <td><code>REDIS_DB</code></td>
+                                <td>Redis database number</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>Separate by environment</td>
+                            </tr>
+                            <tr>
+                                <td><code>REDIS_SESSION_TTL</code></td>
+                                <td>Session TTL (seconds)</td>
+                                <td>1800 (30 min)</td>
+                                <td>900 (15 min)</td>
+                                <td>Auto-logout time</td>
+                            </tr>
+                            <tr>
+                                <td colspan="5"><strong>JWT Authentication</strong></td>
+                            </tr>
+                            <tr>
+                                <td><code>JWT_SECRET_KEY</code></td>
+                                <td>Signing key</td>
+                                <td>your-super-secret...</td>
+                                <td><strong>CHANGE!</strong></td>
+                                <td>Use random 64-char string</td>
+                            </tr>
+                            <tr>
+                                <td><code>JWT_ALGORITHM</code></td>
+                                <td>Signing algorithm</td>
+                                <td>HS256</td>
+                                <td>HS256</td>
+                                <td>HMAC SHA-256</td>
+                            </tr>
+                            <tr>
+                                <td><code>JWT_ACCESS_TOKEN_EXPIRE_MINUTES</code></td>
+                                <td>Access token TTL</td>
+                                <td>15</td>
+                                <td>15</td>
+                                <td>Short-lived tokens</td>
+                            </tr>
+                            <tr>
+                                <td><code>JWT_REFRESH_TOKEN_EXPIRE_DAYS</code></td>
+                                <td>Refresh token TTL</td>
+                                <td>7</td>
+                                <td>7</td>
+                                <td>Long-lived refresh</td>
+                            </tr>
+                            <tr>
+                                <td colspan="5"><strong>CORS Settings</strong></td>
+                            </tr>
+                            <tr>
+                                <td><code>FRONTEND_URL</code></td>
+                                <td>Frontend origin</td>
+                                <td>http://localhost:8080</td>
+                                <td>https://mtb.com.bd</td>
+                                <td>Must match frontend</td>
+                            </tr>
+                            <tr>
+                                <td><code>ALLOWED_ORIGINS</code></td>
+                                <td>Allowed origins (comma-separated)</td>
+                                <td>http://localhost:8080</td>
+                                <td>https://mtb.com.bd,https://app.mtb.com.bd</td>
+                                <td>CORS whitelist</td>
+                            </tr>
+                            <tr>
+                                <td colspan="5"><strong>Rate Limiting</strong></td>
+                            </tr>
+                            <tr>
+                                <td><code>OTP_RATE_LIMIT_PER_HOUR</code></td>
+                                <td>OTP requests per hour</td>
+                                <td>5</td>
+                                <td>3</td>
+                                <td>Per mobile number</td>
+                            </tr>
+                            <tr>
+                                <td><code>DRAFT_RATE_LIMIT_PER_MINUTE</code></td>
+                                <td>Draft saves per minute</td>
+                                <td>10</td>
+                                <td>5</td>
+                                <td>Per session</td>
+                            </tr>
+                            <tr>
+                                <td><code>GENERAL_RATE_LIMIT_PER_MINUTE</code></td>
+                                <td>General API rate limit</td>
+                                <td>100</td>
+                                <td>60</td>
+                                <td>Per IP address</td>
+                            </tr>
+                            <tr>
+                                <td colspan="5"><strong>OTP Configuration</strong></td>
+                            </tr>
+                            <tr>
+                                <td><code>OTP_LENGTH</code></td>
+                                <td>OTP digits</td>
+                                <td>6</td>
+                                <td>6</td>
+                                <td>Number of digits</td>
+                            </tr>
+                            <tr>
+                                <td><code>OTP_EXPIRY_MINUTES</code></td>
+                                <td>OTP validity</td>
+                                <td>5</td>
+                                <td>5</td>
+                                <td>Minutes before expiry</td>
+                            </tr>
+                            <tr>
+                                <td><code>OTP_MAX_ATTEMPTS</code></td>
+                                <td>Max wrong attempts</td>
+                                <td>5</td>
+                                <td>3</td>
+                                <td>Before lockout</td>
+                            </tr>
+                            <tr>
+                                <td><code>OTP_LOCKOUT_MINUTES</code></td>
+                                <td>Lockout duration</td>
+                                <td>30</td>
+                                <td>60</td>
+                                <td>Minutes after max attempts</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Example .env File</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Application
+APP_NAME=MTB Credit Card API
+APP_VERSION=1.0.0
+ENVIRONMENT=development
+DEBUG=true
+API_V1_PREFIX=/api/v1
+
+# Server
+HOST=0.0.0.0
+PORT=8000
+
+# Oracle Database
+DB_USER=mtb_credit
+DB_PASSWORD=YourSecurePassword123!
+DB_HOST=localhost
+DB_PORT=1521
+DB_SERVICE_NAME=XE
+DB_POOL_MIN=2
+DB_POOL_MAX=10
+
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
+REDIS_DB=0
+REDIS_SESSION_TTL=1800
+
+# JWT
+JWT_SECRET_KEY=your-super-secret-jwt-key-change-in-production-use-64-chars
+JWT_ALGORITHM=HS256
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES=15
+JWT_REFRESH_TOKEN_EXPIRE_DAYS=7
+
+# CORS
+FRONTEND_URL=http://localhost:8080
+ALLOWED_ORIGINS=http://localhost:8080,http://localhost:5173
+
+# Rate Limiting
+OTP_RATE_LIMIT_PER_HOUR=5
+DRAFT_RATE_LIMIT_PER_MINUTE=10
+GENERAL_RATE_LIMIT_PER_MINUTE=100
+
+# OTP
+OTP_LENGTH=6
+OTP_EXPIRY_MINUTES=5
+OTP_MAX_ATTEMPTS=5
+OTP_LOCKOUT_MINUTES=30</pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Starting the Backend Server</h2>
+
+                    <h3>Development Mode</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Make sure virtual environment is activated
+# Windows: venv\Scripts\activate
+# Linux/Mac: source venv/bin/activate
+
+# Start development server with auto-reload
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# You should see:
+# INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+# INFO:     Started reloader process [xxxxx] using WatchFiles
+# INFO:     Started server process [xxxxx]
+# INFO:     Waiting for application startup.
+# INFO:     Application startup complete.</pre>
+                    </div>
+
+                    <h3>Production Mode</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Start with multiple workers (recommended)
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+
+# Start with Gunicorn (Linux production)
+gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000</pre>
+                    </div>
+
+                    <h3>Verify Backend is Running</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Test health endpoint
+curl http://localhost:8000/health
+
+# Expected response:
+# {
+#   "status": "healthy",
+#   "database": "connected",
+#   "redis": "connected",
+#   "version": "1.0.0"
+# }
+
+# Open API documentation in browser
+# http://localhost:8000/docs - Swagger UI
+# http://localhost:8000/redoc - ReDoc</pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>API Endpoint Documentation</h2>
+
+                    <h3>API Structure</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>API Base URL: http://localhost:8000/api/v1
+
+├── /reference          # Reference data endpoints
+│   ├── GET  /card-products           # Available credit cards
+│   ├── GET  /banks                   # List of banks
+│   ├── GET  /occupations             # Occupation types
+│   └── GET  /relations               # Relation types
+│
+├── /landing            # Landing page data
+│   └── GET  /features                # Product features
+│
+├── /session            # Session management
+│   ├── POST /create                   # Create new session
+│   ├── GET  /{session_id}            # Get session details
+│   └── DELETE /{session_id}          # Delete session
+│
+├── /auth               # Authentication
+│   ├── POST /otp/send                 # Send OTP to mobile
+│   ├── POST /otp/verify               # Verify OTP
+│   ├── POST /staff/login              # Staff login (JWT)
+│   └── POST /staff/refresh            # Refresh JWT token
+│
+├── /applications       # Application CRUD
+│   ├── GET  /                         # List applications
+│   ├── GET  /{application_id}         # Get application details
+│   ├── POST /                         # Create new application
+│   └── PUT  /{application_id}         # Update application
+│
+├── /drafts             # Draft management
+│   ├── GET  /{session_id}             # Get draft for session
+│   ├── POST /{session_id}             # Save draft
+│   └── DELETE /{session_id}           # Delete draft
+│
+├── /submission         # Application submission
+│   ├── POST /validate                 # Validate before submit
+│   ├── POST /submit                   # Submit application
+│   └── GET  /status/{application_id}  # Get submission status
+│
+└── /dashboard          # Dashboards
+    ├── GET  /applicant/{session_id}   # Applicant dashboard
+    ├── GET  /rm/applications          # RM dashboard
+    └── GET  /staff/stats              # Staff statistics</pre>
+                    </div>
+
+                    <h3>Example API Requests</h3>
+                    <h4>1. Get Card Products</h4>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>curl -X GET "http://localhost:8000/api/v1/reference/card-products" \
+  -H "accept: application/json"
+
+# Response:
+# {
+#   "success": true,
+#   "data": [
+#     {
+#       "card_id": 1,
+#       "product_name": "MTB Titanium",
+#       "annual_fee": 2000,
+#       "features": [...]
+#     }
+#   ]
+# }</pre>
+                    </div>
+
+                    <h4>2. Create Session</h4>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>curl -X POST "http://localhost:8000/api/v1/session/create" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "mobile": "01712345678",
+    "ip_address": "127.0.0.1"
+  }'
+
+# Response:
+# {
+#   "success": true,
+#   "session_id": "abc123xyz",
+#   "expires_at": "2024-01-30T15:30:00Z"
+# }</pre>
+                    </div>
+
+                    <h4>3. Send OTP</h4>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>curl -X POST "http://localhost:8000/api/v1/auth/otp/send" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "mobile": "01712345678",
+    "session_id": "abc123xyz"
+  }'
+
+# Response:
+# {
+#   "success": true,
+#   "message": "OTP sent successfully",
+#   "expires_in": 300
+# }</pre>
+                    </div>
+
+                    <h4>4. Verify OTP</h4>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>curl -X POST "http://localhost:8000/api/v1/auth/otp/verify" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "mobile": "01712345678",
+    "otp": "123456",
+    "session_id": "abc123xyz"
+  }'
+
+# Response:
+# {
+#   "success": true,
+#   "authenticated": true,
+#   "applicant_id": 12345
+# }</pre>
+                    </div>
+
+                    <h4>5. Save Draft</h4>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>curl -X POST "http://localhost:8000/api/v1/drafts/abc123xyz" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "step": 1,
+    "data": {
+      "card_type": "titanium",
+      "nid": "1234567890123",
+      "name": "John Doe"
+    }
+  }'
+
+# Response:
+# {
+#   "success": true,
+#   "draft_id": "draft_123",
+#   "saved_at": "2024-01-30T12:00:00Z"
+# }</pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Testing the Backend</h2>
+
+                    <h3>Using Swagger UI (Recommended)</h3>
+                    <ol class="steps">
+                        <li>
+                            Open browser: <code>http://localhost:8000/docs</code>
+                        </li>
+                        <li>
+                            Browse available endpoints
+                        </li>
+                        <li>
+                            Click "Try it out" on any endpoint
+                        </li>
+                        <li>
+                            Fill in parameters and click "Execute"
+                        </li>
+                        <li>
+                            View response directly in browser
+                        </li>
+                    </ol>
+
+                    <h3>Using pytest</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># From backend directory
+cd E:\project\creditcard\mtbcreditcard\backend
+
+# Run all tests
+pytest
+
+# Run with verbose output
+pytest -v
+
+# Run specific test file
+pytest tests/test_auth.py
+
+# Run with coverage report
+pytest --cov=app --cov-report=html
+
+# View coverage report
+# Open htmlcov/index.html in browser</pre>
+                    </div>
+
+                    <h3>Testing Database Connection</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Create test_db_connection.py
+import oracledb
+from app.database.config import get_db_connection
+
+try:
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    cursor.execute("SELECT 1 FROM DUAL")
+    result = cursor.fetchone()
+    print(f"✅ Database connected: {result}")
+    cursor.close()
+    connection.close()
+except Exception as e:
+    print(f"❌ Database connection failed: {e}")</pre>
+                    </div>
+
+                    <h3>Testing Redis Connection</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Create test_redis_connection.py
+import redis
+from app.core.config import settings
+
+try:
+    r = redis.Redis(
+        host=settings.REDIS_HOST,
+        port=settings.REDIS_PORT,
+        password=settings.REDIS_PASSWORD,
+        db=settings.REDIS_DB
+    )
+    r.ping()
+    print("✅ Redis connected successfully")
+except Exception as e:
+    print(f"❌ Redis connection failed: {e}")</pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Common Backend Issues and Solutions</h2>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Error</th>
+                                <th>Cause</th>
+                                <th>Solution</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ModuleNotFoundError: No module named 'fastapi'</code></td>
+                                <td>Dependencies not installed or venv not activated</td>
+                                <td>Activate venv and run <code>pip install -e .</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>DPI-1047: Cannot locate Oracle Client library</code></td>
+                                <td>Oracle Instant Client not installed</td>
+                                <td>Download from Oracle website or use: <code>pip install oracledb --upgrade</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>ORA-12154: TNS:could not resolve identifier</code></td>
+                                <td>Wrong DB connection string</td>
+                                <td>Check .env: DB_HOST, DB_PORT, DB_SERVICE_NAME</td>
+                            </tr>
+                            <tr>
+                                <td><code>Error 111 connecting to Redis: Connection refused</code></td>
+                                <td>Redis not running</td>
+                                <td>Start Redis: <code>redis-server</code> or <code>docker-compose up redis</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>Port 8000 is already in use</code></td>
+                                <td>Another process using port 8000</td>
+                                <td>Windows: <code>netstat -ano | findstr :8000</code> then <code>taskkill /PID xxxx</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>CORS policy error</code></td>
+                                <td>Frontend URL not in ALLOWED_ORIGINS</td>
+                                <td>Add frontend URL to .env ALLOWED_ORIGINS</td>
+                            </tr>
+                            <tr>
+                                <td><code>ValidationError: field required</code></td>
+                                <td>Missing required field in request</td>
+                                <td>Check API docs for required fields</td>
+                            </tr>
+                            <tr>
+                                <td><code>429 Too Many Requests</code></td>
+                                <td>Rate limit exceeded</td>
+                                <td>Wait or increase rate limit in .env</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Useful Commands</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Check what's using a port (Windows)
+netstat -ano | findstr :8000
+
+# Kill process by PID
+taskkill /PID xxxx /F
+
+# Check Python packages
+pip list | grep fastapi
+
+# Reinstall all dependencies
+pip install --force-reinstall -e .
+
+# Check Python path
+python -c "import sys; print('\n'.join(sys.path))"
+
+# Test API endpoint manually
+curl -X GET http://localhost:8000/health
+curl -X GET http://localhost:8000/api/v1/reference/card-products</pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Backend Project Structure</h2>
+
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>backend/
+├── app/
+│   ├── main.py                 # FastAPI application entry point
+│   ├── api/                    # API route handlers
+│   │   ├── __init__.py
+│   │   ├── reference.py        # Reference data endpoints
+│   │   ├── session.py          # Session management
+│   │   ├── auth.py             # OTP & JWT auth
+│   │   ├── applications.py     # Application CRUD
+│   │   ├── drafts.py           # Draft save/restore
+│   │   ├── submission.py       # Submission flows
+│   │   └── dashboard.py        # Dashboard endpoints
+│   ├── core/
+│   │   ├── config.py           # Settings from .env
+│   │   └── security.py         # JWT, password hashing
+│   ├── database/
+│   │   ├── connection.py       # Oracle connection pool
+│   │   └── procedures.py       # Call PL/SQL procedures
+│   ├── models/                 # Pydantic models
+│   │   ├── applicant.py
+│   │   ├── application.py
+│   │   └── session.py
+│   └── utils/
+│       ├── otp.py              # OTP generation/validation
+│       ├── rate_limiter.py     # Redis rate limiting
+│       └── logger.py           # Logging configuration
+├── tests/                      # Test suite
+│   ├── test_auth.py
+│   ├── test_applications.py
+│   └── conftest.py
+├── .env.example                # Environment variables template
+├── pyproject.toml              # Dependencies and project config
+├── Dockerfile                  # Docker image
+└── README.md</pre>
+                    </div>
+
+                    <h3>Key Files Explained</h3>
+                    <ul>
+                        <li><strong>app/main.py</strong> - FastAPI app initialization, middleware, route registration</li>
+                        <li><strong>app/core/config.py</strong> - Loads environment variables using Pydantic Settings</li>
+                        <li><strong>app/database/connection.py</strong> - Oracle connection pool management</li>
+                        <li><strong>app/api/</strong> - Route handlers grouped by feature</li>
+                        <li><strong>tests/</strong> - pytest test files for each API module</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Docker Deployment (Backend)</h2>
+
+                    <h3>Build and Run with Docker</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Build backend image
+cd E:\project\creditcard\mtbcreditcard\backend
+docker build -t mtb-backend:latest .
+
+# Run container
+docker run -d \
+  --name mtb-backend \
+  -p 8000:8000 \
+  --env-file .env \
+  mtb-backend:latest
+
+# View logs
+docker logs -f mtb-backend
+
+# Stop container
+docker stop mtb-backend
+
+# Remove container
+docker rm mtb-backend</pre>
+                    </div>
+
+                    <h3>Docker Compose (Full Stack)</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># From project root
+cd E:\project\creditcard\mtbcreditcard
+
+# Start all services (Oracle, Redis, Backend)
+docker-compose up -d
+
+# View logs for all services
+docker-compose logs -f
+
+# View logs for specific service
+docker-compose logs -f backend
+
+# Stop all services
+docker-compose down
+
+# Stop and remove volumes (clean slate)
+docker-compose down -v</pre>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Tab 3: Frontend API -->
+            <div id="frontend" class="tab-content">
+                <section>
+                    <h2>Frontend Setup - React + Vite</h2>
+
+                    <div class="alert alert-info">
+                        <strong>MTB Credit Card Frontend:</strong> Modern React application built with Vite, TypeScript, Tailwind CSS, and Radix UI components. Provides responsive UI for desktop and mobile users.
+                    </div>
+
+                    <h3>System Requirements</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Minimum Version</th>
+                                <th>Recommended</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Node.js</td>
+                                <td>18.0</td>
+                                <td>20.x LTS or 22.x LTS</td>
+                            </tr>
+                            <tr>
+                                <td>npm</td>
+                                <td>9.0</td>
+                                <td>10.x (comes with Node 20+)</td>
+                            </tr>
+                            <tr>
+                                <td>Browser</td>
+                                <td>Chrome 90+, Firefox 88+, Safari 14+</td>
+                                <td>Latest Chrome/Firefox/Safari/Edge</td>
+                            </tr>
+                            <tr>
+                                <td>Disk Space</td>
+                                <td>1 GB</td>
+                                <td>2 GB</td>
+                            </tr>
+                            <tr>
+                                <td>RAM</td>
+                                <td>4 GB</td>
+                                <td>8 GB+</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Frontend Architecture</h3>
+                    <div class="diagram">
+                        <pre>
+┌────────────────────────────────────────────────────────────────┐
+│                    React Frontend App                           │
+│                       Port: 8080                                │
+└────────────────────────────────────────────────────────────────┘
+                               │
+       ┌───────────────────────┼───────────────────────┐
+       │                       │                       │
+       ▼                       ▼                       ▼
+┌──────────────┐      ┌──────────────┐      ┌──────────────┐
+│     Pages    │      │ Components   │      │     API      │
+├──────────────┤      ├──────────────┤      ├──────────────┤
+│ Landing      │      │ Forms        │      │ Axios Client │
+│ Application  │      │ Modals       │      │ Mock/Real    │
+│ Dashboard    │      │ Layouts      │      │ Endpoints    │
+│ Staff Panel  │      │ UI Elements  │      │              │
+└──────────────┘      └──────────────┘      └──────────────┘
+       │                       │                       │
+       └───────────────────────┼───────────────────────┘
+                               │
+                ┌──────────────┴──────────────┐
+                │                             │
+                ▼                             ▼
+         ┌──────────────┐           ┌──────────────┐
+         │  React Query │           │   Zod        │
+         │   (TanStack) │           │ Validation   │
+         │  State Mgmt  │           │   Schema     │
+         └──────────────┘           └──────────────┘
+                        </pre>
+                    </div>
+
+                    <h3>Technology Stack</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Technology</th>
+                                <th>Purpose</th>
+                                <th>Version</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>React</strong></td>
+                                <td>UI framework</td>
+                                <td>18.3.x</td>
+                            </tr>
+                            <tr>
+                                <td><strong>TypeScript</strong></td>
+                                <td>Type safety</td>
+                                <td>5.8.x</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Vite</strong></td>
+                                <td>Build tool</td>
+                                <td>5.4.x</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tailwind CSS</strong></td>
+                                <td>Styling</td>
+                                <td>3.4.x</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Radix UI</strong></td>
+                                <td>Component primitives</td>
+                                <td>1.x</td>
+                            </tr>
+                            <tr>
+                                <td><strong>React Router</strong></td>
+                                <td>Routing</td>
+                                <td>6.30.x</td>
+                            </tr>
+                            <tr>
+                                <td><strong>TanStack Query</strong></td>
+                                <td>Server state</td>
+                                <td>5.83.x</td>
+                            </tr>
+                            <tr>
+                                <td><strong>React Hook Form</strong></td>
+                                <td>Form handling</td>
+                                <td>7.61.x</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Zod</strong></td>
+                                <td>Validation</td>
+                                <td>3.25.x</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section>
+                    <h2>Node.js Environment Setup</h2>
+
+                    <h3>Step 1: Verify Node.js Installation</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Check Node.js version (must be 18+)
+node --version
+
+# Expected output: v18.x.x, v20.x.x, or v22.x.x
+
+# Check npm version
+npm --version
+
+# Expected output: 9.x.x or 10.x.x</pre>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <strong>Need to install Node.js?</strong> Download from <a href="https://nodejs.org/" target="_blank">nodejs.org</a> or use version manager:
+                        <ul>
+                            <li><strong>Windows:</strong> Download installer from nodejs.org</li>
+                            <li><strong>Mac:</strong> <code>brew install node</code></li>
+                            <li><strong>Linux:</strong> <code>sudo apt install nodejs npm</code> or use nvm</li>
+                        </ul>
+                    </div>
+
+                    <h3>Step 2: Navigate to Project Root</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># You should be at project root
+cd E:\project\creditcard\mtbcreditcard
+
+# Verify package.json exists
+ls package.json
+
+# Expected: package.json file listed</pre>
+                    </div>
+
+                    <h3>Step 3: Install Dependencies</h3>
+                    <h4>Option A: Using npm</h4>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Install all dependencies
+npm install
+
+# This installs 80+ packages including:
+# - React, React-DOM
+# - TypeScript, Vite
+# - Tailwind CSS and plugins
+# - Radix UI components
+# - React Router, TanStack Query
+# - React Hook Form, Zod
+# - And more...</pre>
+                    </div>
+
+                    <h4>Option B: Using bun (faster)</h4>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Install bun first (if needed)
+npm install -g bun
+
+# Install dependencies with bun
+bun install
+
+# Much faster than npm!</pre>
+                    </div>
+
+                    <h3>Step 4: Verify Installation</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Check node_modules created
+ls node_modules
+
+# Verify key packages installed
+npm list react
+npm list vite
+npm list typescript</pre>
+                    </div>
+
+                    <div class="alert alert-success">
+                        <strong>Success:</strong> If installation completes, you should see "added X packages" with no errors.
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Environment Configuration</h2>
+
+                    <h3>Understanding Frontend Environment Variables</h3>
+                    <p>The frontend has a critical mode switch that determines how it operates:</p>
+                    <ul>
+                        <li><strong>MOCK mode</strong> - Uses mock data for development without backend</li>
+                        <li><strong>REAL mode</strong> - Connects to actual backend API</li>
+                    </ul>
+
+                    <h3>Creating .env File</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Create .env file at project root
+# E:\project\creditcard\mtbcreditcard\.env
+
+# Add the following:
+
+# API Configuration
+VITE_API_BASE_URL=http://localhost:8000/api/v1
+
+# App Mode - CRITICAL!
+# MOCK = Uses mock data (no backend needed)
+# REAL = Connects to real backend API
+VITE_APP_MODE=REAL
+
+# Optional: Feature flags
+VITE_ENABLE_DRAFT_AUTOSAVE=true
+VITE_ENABLE_ANALYTICS=false</pre>
+                    </div>
+
+                    <h3>Environment Variables Reference</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Variable</th>
+                                <th>Purpose</th>
+                                <th>Development</th>
+                                <th>Production</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>VITE_API_BASE_URL</code></td>
+                                <td>Backend API base URL</td>
+                                <td><code>http://localhost:8000/api/v1</code></td>
+                                <td><code>https://api.mtb.com.bd/api/v1</code></td>
+                                <td>Must match backend URL</td>
+                            </tr>
+                            <tr>
+                                <td><code>VITE_APP_MODE</code></td>
+                                <td>Mock vs Real mode</td>
+                                <td><code>MOCK</code> or <code>REAL</code></td>
+                                <td><code>REAL</code></td>
+                                <td><strong>Most important!</strong></td>
+                            </tr>
+                            <tr>
+                                <td><code>VITE_ENABLE_DRAFT_AUTOSAVE</code></td>
+                                <td>Enable auto-save drafts</td>
+                                <td><code>true</code></td>
+                                <td><code>true</code></td>
+                                <td>Saves form to backend</td>
+                            </tr>
+                            <tr>
+                                <td><code>VITE_ENABLE_ANALYTICS</code></td>
+                                <td>Enable tracking</td>
+                                <td><code>false</code></td>
+                                <td><code>true</code></td>
+                                <td>Google Analytics etc</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Config File (src/config/env.ts)</h3>
+                    <p>The frontend reads configuration from <code>src/config/env.ts</code>:</p>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>// File: src/config/env.ts
+
+export type AppMode = 'MOCK' | 'REAL';
+
+export interface EnvironmentConfig {
+  API_BASE_URL: string;
+  MODE: AppMode;
+  APP_NAME: string;
+  APP_VERSION: string;
+}
+
+const config: EnvironmentConfig = {
+  // Reads from VITE_API_BASE_URL in .env
+  API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'https://api.mtb.com.bd/v1',
+
+  // Reads from VITE_APP_MODE in .env
+  MODE: (import.meta.env.VITE_APP_MODE as AppMode) || 'MOCK',
+
+  APP_NAME: 'MTB Credit Card Application',
+  APP_VERSION: '1.0.0',
+};
+
+export default config;</pre>
+                    </div>
+
+                    <h3>Switching Between MOCK and REAL Mode</h3>
+                    <div class="alert alert-warning">
+                        <strong>Important:</strong> When switching from MOCK to REAL mode, the app will start calling the backend API. Ensure backend is running first!
+                    </div>
+
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Step 1: Stop frontend dev server (if running)
+# Press Ctrl+C in terminal
+
+# Step 2: Edit .env file
+# Change: VITE_APP_MODE=REAL
+
+# Step 3: Restart dev server
+npm run dev
+
+# Verification: Open browser DevTools Console
+# You should see API requests being made to backend</pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Starting the Frontend Server</h2>
+
+                    <h3>Development Mode</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># From project root
+cd E:\project\creditcard\mtbcreditcard
+
+# Start development server
+npm run dev
+
+# You should see:
+# > vite_react_shadcn_ts@0.0.0 dev
+# > vite
+#
+#   VITE v5.4.19  ready in 1234 ms
+#
+#   ➜  Local:   http://localhost:8080/
+#   ➜  Network: use --host to expose
+#   ➜  press h + enter to show help</pre>
+                    </div>
+
+                    <h3>Access the Application</h3>
+                    <p>Open your browser and navigate to:</p>
+                    <ul>
+                        <li><strong>Local:</strong> <a href="http://localhost:8080" target="_blank">http://localhost:8080</a></li>
+                        <li><strong>Network:</strong> <code>http://YOUR_IP:8080</code></li>
+                    </ul>
+
+                    <h3>Development Server Features</h3>
+                    <ul>
+                        <li><strong>Hot Module Replacement (HMR)</strong> - Changes appear instantly without reload</li>
+                        <li><strong>Fast Refresh</strong> - React component state preserved during edits</li>
+                        <li><strong>TypeScript checking</strong> - Real-time type errors in console</li>
+                        <li><strong>Source maps</strong> - Debug original source code in browser</li>
+                    </ul>
+
+                    <h3>Production Build</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Build for production
+npm run build
+
+# Output in: dist/ directory
+
+# Preview production build
+npm run preview
+
+# Build for development environment
+npm run build:dev</pre>
+                    </div>
+
+                    <h3>Vite Configuration</h3>
+                    <p>The <code>vite.config.ts</code> file configures the build:</p>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>// File: vite.config.ts
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react-swc";
+import path from "path";
+
+export default defineConfig({
+  server: {
+    host: "::",              // Listen on all interfaces
+    port: 8080,              // Frontend port
+    hmr: {
+      overlay: false,        // Disable error overlay
+    },
+  },
+  plugins: [react()],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),  // @/* alias
+    },
+  },
+});</pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Frontend Project Structure</h2>
+
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>src/
+├── main.tsx                 # App entry point
+├── App.tsx                  # Root component
+├── index.css                # Global styles
+├── vite-env.d.ts           # Vite type definitions
+│
+├── config/                  # Configuration
+│   └── env.ts              # Environment config (MOCK/REAL mode)
+│
+├── pages/                   # Page components
+│   ├── LandingPage.tsx
+│   ├── ApplicationForm.tsx
+│   ├── Dashboard.tsx
+│   └── StaffDashboard.tsx
+│
+├── components/              # Reusable components
+│   ├── Header.tsx
+│   ├── Footer.tsx
+│   ├── ProgressBar.tsx
+│   └── DraftAutoSave.tsx
+│
+├── ui/                      # UI components (desktop/mobile)
+│   ├── desktop/             # Desktop-specific UI
+│   │   ├── DesktopForm.tsx
+│   │   └── DesktopLayout.tsx
+│   └── mobile/              # Mobile-specific UI
+│       ├── MobileForm.tsx
+│       └── MobileLayout.tsx
+│
+├── api/                     # API client code
+│   ├── client.ts           # Axios instance config
+│   ├── mock.ts             # Mock data (MOCK mode)
+│   ├── reference.ts        # Reference data APIs
+│   ├── session.ts          # Session management APIs
+│   ├── auth.ts             # OTP/auth APIs
+│   ├── application.ts      # Application CRUD APIs
+│   └── draft.ts            # Draft save/restore APIs
+│
+├── hooks/                   # Custom React hooks
+│   ├── useSession.ts       # Session management
+│   ├── useDraft.ts         # Draft auto-save
+│   ├── useApplication.ts   # Application data
+│   └── useAuth.ts          # Authentication state
+│
+├── types/                   # TypeScript definitions
+│   ├── applicant.ts        # Applicant types
+│   ├── application.ts      # Application types
+│   ├── session.ts          # Session types
+│   └── api.ts              # API response types
+│
+├── lib/                     # Utility functions
+│   ├── validation-schemas.ts  # Zod validation schemas
+│   ├── formatters.ts          # Date, number formatting
+│   └── constants.ts            # App constants
+│
+├── assets/                  # Static assets
+│   └── images/             # Logos, icons</pre>
+                    </div>
+
+                    <h3>Key Files Explained</h3>
+                    <ul>
+                        <li><strong>src/config/env.ts</strong> - Environment config (MOCK vs REAL mode)</li>
+                        <li><strong>src/api/</strong> - API client functions for each backend endpoint</li>
+                        <li><strong>src/hooks/</strong> - Custom React hooks for state and side effects</li>
+                        <li><strong>src/types/</strong> - TypeScript type definitions</li>
+                        <li><strong>src/lib/validation-schemas.ts</strong> - Zod schemas for form validation</li>
+                        <li><strong>src/ui/desktop/ & src/ui/mobile/</strong> - Responsive UI variants</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>API Client Configuration</h2>
+
+                    <h3>Axios Client Setup</h3>
+                    <p>The frontend uses Axios for HTTP requests. Configuration is in <code>src/api/client.ts</code>:</p>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>// File: src/api/client.ts
+import axios from 'axios';
+import config from '@/config/env';
+
+// Create axios instance
+const apiClient = axios.create({
+  baseURL: config.API_BASE_URL,
+  timeout: 30000,  // 30 seconds
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Request interceptor - add auth token
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Response interceptor - handle errors
+apiClient.interceptors.response.use(
+  (response) => response.data,
+  (error) => {
+    // Handle common errors
+    if (error.response?.status === 401) {
+      // Unauthorized - redirect to login
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default apiClient;</pre>
+                    </div>
+
+                    <h3>API Function Example</h3>
+                    <p>Each backend endpoint has a corresponding API function:</p>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>// File: src/api/reference.ts
+import apiClient from './client';
+import type { CardProduct } from '@/types/reference';
+
+export const referenceApi = {
+  // Get all card products
+  getCardProducts: async (): Promise<CardProduct[]> => {
+    return apiClient.get('/reference/card-products');
+  },
+
+  // Get all banks
+  getBanks: async () => {
+    return apiClient.get('/reference/banks');
+  },
+
+  // Get occupations
+  getOccupations: async () => {
+    return apiClient.get('/reference/occupations');
+  },
+};
+
+export default referenceApi;</pre>
+                    </div>
+
+                    <h3>Mock vs Real API Switch</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>// File: src/api/reference.ts
+import config from '@/config/env';
+import realApi from './reference';
+import mockApi from './mock';
+
+// Switch between real and mock based on env
+const referenceApi = config.MODE === 'REAL' ? realApi : mockApi;
+
+export default referenceApi;</pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Component Examples</h2>
+
+                    <h3>Using React Hook Form + Zod</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+
+// Validation schema
+const applicantSchema = z.object({
+  nid: z.string().length(13, 'NID must be 13 digits'),
+  name: z.string().min(3, 'Name is required'),
+  mobile: z.string().regex(/^01[3-9]\d{8}$/, 'Invalid mobile number'),
+  email: z.string().email('Invalid email').optional(),
+});
+
+type ApplicantFormData = z.infer<typeof applicantSchema>;
+
+export function ApplicantForm() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<ApplicantFormData>({
+    resolver: zodResolver(applicantSchema),
+  });
+
+  const onSubmit = async (data: ApplicantFormData) => {
+    try {
+      await applicationApi.create(data);
+      alert('Application submitted!');
+    } catch (error) {
+      alert('Submission failed');
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <div>
+        <label>NID Number</label>
+        <Input {...register('nid')} placeholder="Enter 13-digit NID" />
+        {errors.nid && <p className="text-red-500">{errors.nid.message}</p>}
+      </div>
+
+      <div>
+        <label>Full Name</label>
+        <Input {...register('name')} placeholder="Enter full name" />
+        {errors.name && <p className="text-red-500">{errors.name.message}</p>}
+      </div>
+
+      <div>
+        <label>Mobile Number</label>
+        <Input {...register('mobile')} placeholder="01712345678" />
+        {errors.mobile && <p className="text-red-500">{errors.mobile.message}</p>}
+      </div>
+
+      <Button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? 'Submitting...' : 'Submit Application'}
+      </Button>
+    </form>
+  );
+}</pre>
+                    </div>
+
+                    <h3>Using TanStack Query (React Query)</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import referenceApi from '@/api/reference';
+
+// Fetch card products
+export function useCardProducts() {
+  return useQuery({
+    queryKey: ['card-products'],
+    queryFn: referenceApi.getCardProducts,
+    staleTime: 5 * 60 * 1000,  // 5 minutes
+  });
+}
+
+// Create application mutation
+export function useCreateApplication() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: applicationApi.create,
+    onSuccess: () => {
+      // Invalidate related queries
+      queryClient.invalidateQueries({ queryKey: ['applications'] });
+    },
+  });
+}
+
+// Usage in component
+function CardSelector() {
+  const { data: products, isLoading, error } = useCardProducts();
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error loading products</div>;
+
+  return (
+    <select>
+      {products?.map(product => (
+        <option key={product.card_id} value={product.card_id}>
+          {product.product_name}
+        </option>
+      ))}
+    </select>
+  );
+}</pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Testing the Frontend</h2>
+
+                    <h3>Run Unit Tests</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Run all tests
+npm test
+
+# Run in watch mode
+npm run test:watch
+
+# Run with coverage
+npm test -- --coverage</pre>
+                    </div>
+
+                    <h3>Manual Testing Checklist</h3>
+                    <ol class="steps">
+                        <li>
+                            <strong>Test Landing Page</strong>
+                            <ul>
+                                <li>Page loads without errors</li>
+                                <li>All images display correctly</li>
+                                <li>"Apply Now" button works</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Test Application Form</strong>
+                            <ul>
+                                <li>Form validation works</li>
+                                <li>OTP verification works (REAL mode)</li>
+                                <li>Draft auto-save works</li>
+                                <li>Submission succeeds</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Test Dashboard</strong>
+                            <ul>
+                                <li>Application status displays</li>
+                                <li>Documents can be uploaded</li>
+                                <li>Data refreshes correctly</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>Test Responsive Design</strong>
+                            <ul>
+                                <li>Open DevTools (F12)</li>
+                                <li>Toggle device toolbar (Ctrl+Shift+M)</li>
+                                <li>Test mobile, tablet, desktop views</li>
+                            </ul>
+                        </li>
+                    </ol>
+
+                    <h3>Browser DevTools</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Chrome DevTools Shortcuts
+F12              # Open DevTools
+Ctrl+Shift+M     # Toggle device toolbar
+Ctrl+Shift+C     # Inspect element
+Ctrl+Shift+J     # Open console
+
+# Network Tab - Check API calls
+# Application Tab - Check localStorage
+# Console Tab - Check for errors</pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Common Frontend Issues and Solutions</h2>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Error</th>
+                                <th>Cause</th>
+                                <th>Solution</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>VITE_API_BASE_URL is undefined</code></td>
+                                <td>.env file not created or missing</td>
+                                <td>Create .env at project root with VITE_ variables</td>
+                            </tr>
+                            <tr>
+                                <td><code>CORS policy error</code></td>
+                                <td>Backend not in ALLOWED_ORIGINS</td>
+                                <td>Add <code>http://localhost:8080</code> to backend ALLOWED_ORIGINS</td>
+                            </tr>
+                            <tr>
+                                <td><code>Network Error</code></td>
+                                <td>Backend not running or wrong URL</td>
+                                <td>Check backend is running and VITE_API_BASE_URL is correct</td>
+                            </tr>
+                            <tr>
+                                <td><code>Module not found: Can't resolve '@/...'</code></td>
+                                <td>TypeScript path alias issue</td>
+                                <td>Check tsconfig.json has <code>"@": ["./src"]</code> in paths</td>
+                            </tr>
+                            <tr>
+                                <td><code>Port 8080 already in use</code></td>
+                                <td>Another process using port</td>
+                                <td>Windows: <code>netstat -ano | findstr :8080</code> then kill process</td>
+                            </tr>
+                            <tr>
+                                <td><code>TypeError: Cannot read properties of undefined</code></td>
+                                <td>API response structure mismatch</td>
+                                <td>Check API response matches expected type</td>
+                            </tr>
+                            <tr>
+                                <td><code>Hydration failed</code></td>
+                                <td>Server/client mismatch</td>
+                                <td>Check useEffect for client-only code</td>
+                            </tr>
+                            <tr>
+                                <td>Page not updating after change</td>
+                                <td>HMR not working</td>
+                                <td>Restart dev server or clear browser cache</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Useful Commands</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Clear node_modules and reinstall
+rm -rf node_modules package-lock.json
+npm install
+
+# Clear Vite cache
+npm run dev -- --force
+
+# Check TypeScript errors
+npx tsc --noEmit
+
+# Format code with Prettier
+npm run lint
+
+# Fix linting issues
+npm run lint -- --fix</pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Docker Deployment (Frontend)</h2>
+
+                    <h3>Build and Run with Docker</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Build frontend image
+cd E:\project\creditcard\mtbcreditcard
+docker build -t mtb-frontend:latest .
+
+# Run container
+docker run -d \
+  --name mtb-frontend \
+  -p 8080:80 \
+  -e VITE_API_BASE_URL=http://backend:8000/api/v1 \
+  -e VITE_APP_MODE=REAL \
+  mtb-frontend:latest
+
+# View logs
+docker logs -f mtb-frontend</pre>
+                    </div>
+
+                    <h3>Nginx Configuration (Production)</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># /etc/nginx/sites-available/mtb-credit-card
+server {
+    listen 80;
+    server_name mtb.com.bd www.mtb.com.bd;
+
+    root /var/www/mtb-credit-card/dist;
+    index index.html;
+
+    # SPA fallback
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # API proxy
+    location /api/ {
+        proxy_pass http://localhost:8000/api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    # Static assets caching
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Gzip compression
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript;
+}</pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Making Common Changes</h2>
+
+                    <h3>1. Add a New Form Field</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># Step 1: Update TypeScript type
+# File: src/types/applicant.ts
+export interface Applicant {
+  ...
+  newField?: string;  // Add new field
+}
+
+# Step 2: Update validation schema
+# File: src/lib/validation-schemas.ts
+const applicantSchema = z.object({
+  ...
+  newField: z.string().min(3, 'Required'),
+});
+
+# Step 3: Add to form component
+<Input {...register('newField')} label="New Field" />
+
+# Step 4: Update backend (see Backend docs)
+# File: backend/app/api/models/applicant.py
+class Applicant(BaseModel):
+  ...
+  new_field: str</pre>
+                    </div>
+
+                    <h3>2. Change Theme Colors</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># File: tailwind.config.ts
+export default {
+  theme: {
+    extend: {
+      colors: {
+        mtb: {
+          blue: '#003366',
+          gold: '#D4AF37',
+        },
+      },
+    },
+  },
+};
+
+# Then use in components:
+<Button className="bg-mtb-blue text-white">Click</Button></pre>
+                    </div>
+
+                    <h3>3. Add New API Endpoint</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre># File: src/api/custom.ts
+import apiClient from './client';
+
+export const customApi = {
+  getData: async () => {
+    return apiClient.get('/custom/endpoint');
+  },
+};
+
+# Use in component:
+import { useQuery } from '@tanstack/react-query';
+import customApi from '@/api/custom';
+
+const { data } = useQuery({
+  queryKey: ['custom'],
+  queryFn: customApi.getData,
+});</pre>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Tab 4: Support & Troubleshooting -->
+            <div id="support" class="tab-content">
+                <section>
+                    <h2>Support & Troubleshooting</h2>
+
+                    <div class="alert alert-info">
+                        <strong>Support Database:</strong> This system uses database-based support tracking. All issues are logged in <code>TCC_ERROR_LOG</code> table for analysis and resolution.
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Database Schema - Entity Relationship Diagram</h2>
+
+                    <h3>Complete ER Diagram</h3>
+                    <div class="diagram">
+                        <pre style="font-size: 0.75rem; line-height: 1.2;">
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                        MTB CREDIT CARD DATABASE - ER DIAGRAM                          │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────┐       ┌──────────────────────┐       ┌──────────────────────┐
+│   TCC_REF_CARD_     │       │   TCC_REF_           │       │   TCC_REF_           │
+│   PRODUCTS           │       │   BANKS              │       │   OCCUPATIONS        │
+├──────────────────────┤       ├──────────────────────┤       ├──────────────────────┤
+│ PK card_id           │       │ PK bank_code         │       │ PK occupation_code   │
+│    product_name      │       │    bank_name         │       │    occupation_name    │
+│    card_network      │       │    Swift_code        │       │    category           │
+│    card_tier         │       └──────┬───────────────┘       └──────────────────────┘
+│    annual_fee        │              │
+│    features          │              │
+└──────┬───────────────┘              │
+       │                               │
+       │     ┌─────────────────────────┴──────────────────┐
+       │     │                                            │
+       ▼     ▼                                            ▼
+┌──────────────────────┐       ┌──────────────────────┐       ┌──────────────────────┐
+│   TCC_APP_           │       │   TCC_SESSIONS        │       │   TCC_DRAFTS         │
+│   APPLICANTS         │       ├──────────────────────┤       ├──────────────────────┤
+├──────────────────────┤       │ PK session_id        │       │ PK draft_id          │
+│ PK applicant_id      │       │    mobile_number     │       │ FK session_id        │
+│ FK card_id           │       │    created_at        │       │    step_number       │
+│    nid_number        │       │    expires_at        │       │    step_data         │
+│    name              │       │    is_active         │       │    is_complete       │
+│    mobile_number     │       │    mode              │       │    version           │
+│    email             │       └──────┬───────────────┘       └──────────────────────┘
+│    date_of_birth    │              │
+└──────┬───────────────┘              │
+       │                               │
+       ▼                               │
+┌──────────────────────┐              │
+│   TCC_APP_           │◄─────────────┘
+│   APPLICATIONS       │       │
+├──────────────────────┤       │
+│ PK application_id    │       │
+│ FK applicant_id      │       │
+│ FK card_id           │       │
+│    reference_number  │       │
+│    status            │       │
+│    created_at        │       │
+└──────┬───────────────┘       │
+       │                       │
+       │     ┌─────────────────┴───────────────────┐
+       │     │                                     │
+       ▼     ▼                                     ▼
+┌──────────────────────┐       ┌──────────────────────┐       ┌──────────────────────┐
+│   TCC_APP_           │       │   TCC_APP_           │       │   TCC_APP_           │
+│   REFERENCES         │       │   NOMINEE            │       │   SUPPLEMENTARY      │
+├──────────────────────┤       ├──────────────────────┤       ├──────────────────────┤
+│ PK reference_id      │       │ PK nominee_id        │       │ PK supp_card_id      │
+│ FK application_id    │       │ FK application_id    │       │ FK application_id    │
+│    reference_name    │       │    nominee_name      │       │    supp_name         │
+│    mobile_number     │       │    nid_number        │       │    nid_number        │
+│    relation          │       │    mobile_number     │       │    mobile_number     │
+│    address           │       │    relation          │       │    relation          │
+└──────────────────────┘       └──────────────────────┘       └──────────────────────┘
+
+┌──────────────────────┐       ┌──────────────────────┐       ┌──────────────────────┐
+│   TCC_APP_           │       │   TCC_APP_           │       │   TCC_APP_           │
+│   BANK_ACCOUNTS      │       │   INCOME             │       │   DOCUMENTS          │
+├──────────────────────┤       ├──────────────────────┤       ├──────────────────────┤
+│ PK account_id        │       │ PK income_id         │       │ PK document_id       │
+│ FK application_id    │       │ FK application_id    │       │ FK application_id    │
+│    bank_code         │       │    monthly_income    │       │    document_type     │
+│    account_number    │       │    other_income      │       │    file_path         │
+│    account_type      │       │    income_source     │       │    upload_date       │
+└──────────────────────┘       └──────────────────────┘       └──────────────────────┘
+
+┌──────────────────────┐       ┌──────────────────────┐       ┌──────────────────────┐
+│   TCC_APP_           │       │   TCC_ERROR_LOG      │       │   TCC_LIMIT_         │
+│   CREDIT_FACILITIES   │       ├──────────────────────┤       │   ISSUANCE           │
+├──────────────────────┤       │ PK error_id          │       ├──────────────────────┤
+│ PK facility_id       │       │ FK application_id    │       │ PK limit_id          │
+│ FK application_id    │       │    error_code        │       │ FK application_id    │
+│    has_existing_cards│       │    error_message     │       │    approved_limit    │
+│    existing_cards    │       │    stack_trace       │       │    limit_currency    │
+│    has_existing_loans│       │    created_at        │       └──────────────────────┘
+└──────────────────────┘       └──────────────────────┘
+
+Legend:
+PK = Primary Key
+FK = Foreign Key
+                        </pre>
+                    </div>
+
+                    <h3>Table Relationships</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parent Table</th>
+                                <th>Child Table</th>
+                                <th>Relationship Type</th>
+                                <th>Foreign Key</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>TCC_REF_CARD_PRODUCTS</code></td>
+                                <td><code>TCC_APP_APPLICANTS</code></td>
+                                <td>Many-to-One</td>
+                                <td>card_id</td>
+                            </tr>
+                            <tr>
+                                <td><code>TCC_APP_APPLICANTS</code></td>
+                                <td><code>TCC_APP_APPLICATIONS</code></td>
+                                <td>One-to-Many</td>
+                                <td>applicant_id</td>
+                            </tr>
+                            <tr>
+                                <td><code>TCC_APP_APPLICATIONS</code></td>
+                                <td><code>TCC_APP_REFERENCES</code></td>
+                                <td>One-to-Many</td>
+                                <td>application_id</td>
+                            </tr>
+                            <tr>
+                                <td><code>TCC_APP_APPLICATIONS</code></td>
+                                <td><code>TCC_APP_DOCUMENTS</code></td>
+                                <td>One-to-Many</td>
+                                <td>application_id</td>
+                            </tr>
+                            <tr>
+                                <td><code>TCC_SESSIONS</code></td>
+                                <td><code>TCC_DRAFTS</code></td>
+                                <td>One-to-One</td>
+                                <td>session_id</td>
+                            </tr>
+                            <tr>
+                                <td><code>TCC_APP_APPLICATIONS</code></td>
+                                <td><code>TCC_ERROR_LOG</code></td>
+                                <td>One-to-Many</td>
+                                <td>application_id</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section>
+                    <h2>Application Process Flow</h2>
+
+                    <h3>Complete Application Lifecycle</h3>
+                    <div class="diagram">
+                        <pre style="font-size: 0.8rem; line-height: 1.3;">
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                    MTB CREDIT CARD APPLICATION - PROCESS FLOW                        │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────┐
+│   LANDING    │
+│    PAGE      │
+└──────┬───────┘
+       │ User clicks "Apply Now"
+       ▼
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│  CHECK IF    │────▶│  CREATE      │────▶│  REQUEST OTP │
+│  EXISTING    │ NO  │  SESSION     │     │  (Mobile)    │
+└──────┬───────┘     └──────────────┘     └──────┬───────┘
+       │ YES                                        │
+       ▼                                            ▼
+┌──────────────┐                             ┌──────────────┐
+│  SHOW        │                             │  SEND OTP    │
+│  PENDING     │                             │  (SMS)       │
+│  APPLICATIONS│                             └──────┬───────┘
+└──────────────┘                                    │
+                                                   ▼
+                                            ┌──────────────┐
+                                            │  VERIFY OTP  │
+                                            └──────┬───────┘
+                                                   │
+                                    ┌──────────────┴──────────────┐
+                                    │                             │
+                               VALID                        INVALID
+                                    │                             │
+                                    ▼                             ▼
+                            ┌──────────────┐              ┌──────────────┐
+                            │   STEP 1:    │              │  SHOW ERROR  │
+                            │ CARD SELECT  │              │  LOCK AFTER  │
+                            └──────┬───────┘              │  5 ATTEMPTS  │
+                                   │                       └──────────────┘
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                        12-STEP APPLICATION FORM                     │
+├─────────────────────────────────────────────────────────────────────┤
+│  1. Card Selection    │  5. Bank Accounts  │  9. References        │
+│  2. Personal Info     │  6. Credit Fac.    │  10. Documents        │
+│  3. Professional Info │  7. Nominee         │  11. Auto Debit       │
+│  4. Monthly Income    │  8. Supplementary   │  12. Declarations     │
+│                      │                     │                      │
+│  ⚡ AUTO-SAVE DRAFT AFTER EACH STEP                               │
+└─────────────────────────────────────────────────────────────────────┘
+                                   │
+                                   ▼
+                            ┌──────────────┐
+                            │   SUBMIT     │
+                            │ APPLICATION  │
+                            └──────┬───────┘
+                                   │
+                                   ▼
+                            ┌──────────────┐
+                            │  VALIDATE    │
+                            │  ALL DATA    │
+                            └──────┬───────┘
+                                   │
+                    ┌───────────────┴───────────────┐
+                    │                               │
+                VALID                            INVALID
+                    │                               │
+                    ▼                               ▼
+            ┌──────────────┐              ┌──────────────┐
+            │  SAVE TO DB  │              │  SHOW ERROR  │
+            │  STATUS:     │              │  ALLOW EDIT  │
+            │  SUBMITTED   │              └──────────────┘
+            └──────┬───────┘
+                   │
+                   ▼
+            ┌──────────────┐
+            │  RM/STAFF    │
+            │  REVIEW      │
+            └──────┬───────┘
+                   │
+      ┌────────────┼────────────┐
+      │            │            │
+      ▼            ▼            ▼
+┌──────────┐ ┌──────────┐ ┌──────────┐
+│ APPROVED │ │ REJECTED │ │ DOCUMENTS│
+│          │ │          │ │ REQUIRED │
+└─────┬────┘ └─────┬────┘ └─────┬────┘
+      │            │            │
+      ▼            ▼            ▼
+┌──────────┐ ┌──────────┐ ┌──────────┐
+│ CARD     │ │ NOTIFY   │ │ REQUEST  │
+│ ISSUANCE │ │ APPLICANT│ │ DOCUMENTS│
+└──────────┘ └──────────┘ └──────────┘
+                        </pre>
+                    </div>
+
+                    <h3>Draft Auto-Save Flow</h3>
+                    <div class="diagram">
+                        <pre style="font-size: 0.75rem; line-height: 1.2;">
+USER COMPLETES STEP
+        │
+        ▼
+┌───────────────────┐
+│ SAVE TO DRAFT     │
+│ (Every 30 seconds │
+│  or on change)    │
+└─────────┬─────────┘
+          │
+          ▼
+┌───────────────────┐
+│ INSERT/UPDATE     │
+│ TCC_DRAFTS TABLE  │
+│ - session_id      │
+│ - step_number     │
+│ - step_data       │
+│ - is_complete     │
+│ - version         │
+└─────────┬─────────┘
+          │
+          ▼
+┌───────────────────┐
+│ SUCCESS?          │
+└─────┬───────┬─────┘
+      │ YES    │ NO
+      ▼        ▼
+┌─────────┐ ┌──────────────┐
+│ SHOW    │ │ LOG ERROR    │
+│ SAVED   │ │ TO ERROR_LOG │
+│ TOAST   │ │ RETRY LATER  │
+└─────────┘ └──────────────┘
+                        </pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Support Workflow - Database-Driven</h2>
+
+                    <h3>Support Ticket Flow</h3>
+                    <div class="diagram">
+                        <pre style="font-size: 0.8rem; line-height: 1.3;">
+┌────────────────────────────────────────────────────────────────────┐
+│                   SUPPORT TICKET LIFECYCLE                          │
+└────────────────────────────────────────────────────────────────────┘
+
+CUSTOMER REPORTS ISSUE
+    │
+    ▼
+┌────────────────┐
+│ CREATE TICKET  │
+│ (Call/Email/   │
+│  Portal)       │
+└────────┬───────┘
+         │
+         ▼
+┌────────────────────────────────────┐
+│ INSERT INTO TCC_ERROR_LOG          │
+│ - error_code (procedure code)      │
+│ - error_message (issue desc)       │
+│ - application_id (if applicable)   │
+│ - mobile_number (customer)         │
+│ - priority (HIGH/MEDIUM/LOW)       │
+│ - status (OPEN/IN_PROGRESS/...)    │
+└────────┬───────────────────────────┘
+         │
+         ▼
+┌────────────────────────────────────┐
+│ AUTO-CATEGORIZE                    │
+│ - By error_code                    │
+│ - By priority                      │
+│ - By frequency                     │
+└────────┬───────────────────────────┘
+         │
+    ┌────┴─────┐
+    │          │
+    ▼          ▼
+┌────────┐ ┌────────┐
+│ HIGH   │ │ NORMAL │
+│ PRIORITY│ │        │
+└────┬───┘ └───┬────┘
+     │         │
+     ▼         ▼
+┌────────┐ ┌────────┐
+│ESCALATE│ │ASSIGN  │
+│TO LEAD ││TO RM/  │
+│        ││STAFF   │
+└────┬───┘ └───┬────┘
+     │         │
+     └────┬────┘
+          ▼
+┌────────────────────────────────────┐
+│ STAFF WORKS ON ISSUE               │
+│ - View in dashboard                │
+│ - Check procedure error            │
+│ - Query database for details       │
+│ - Contact customer if needed       │
+└────────┬───────────────────────────┘
+         │
+         ▼
+┌────────────────────────────────────┐
+│ UPDATE TCC_ERROR_LOG               │
+│ SET status = 'IN_PROGRESS'         │
+│ SET assigned_to = 'STAFF_ID'       │
+│ SET resolution_notes = '...'       │
+└────────┬───────────────────────────┘
+         │
+    ┌────┴─────┐
+    │          │
+    ▼          ▼
+┌────────┐ ┌────────┐
+│RESOLVED│ │ESCALATE│
+│        │ │FURTHER │
+└────┬───┘ └───┬────┘
+     │         │
+     ▼         ▼
+┌────────┐ ┌────────┐
+│UPDATE  │ │ESCALATE│
+│STATUS  │ │TO IT   │
+│='CLOSED'│ │TEAM    │
+└────────┘ └────────┘
+                        </pre>
+                    </div>
+
+                    <h3>Error Log Table Structure</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>-- TCC_ERROR_LOG Table
+CREATE TABLE TCC_ERROR_LOG (
+    error_id          NUMBER GENERATED ALWAYS AS IDENTITY,
+    application_id    VARCHAR2(50),
+    session_id        VARCHAR2(100),
+    error_code        NUMBER(3),          -- 501-560 (procedure codes)
+    error_message     CLOB,
+    stack_trace       CLOB,
+    mobile_number     VARCHAR2(20),
+    priority          VARCHAR2(20),       -- HIGH, MEDIUM, LOW
+    status            VARCHAR2(50),       -- OPEN, IN_PROGRESS, RESOLVED, CLOSED
+    assigned_to       VARCHAR2(50),
+    resolution_notes  CLOB,
+    created_at        TIMESTAMP DEFAULT SYSTIMESTAMP,
+    updated_at        TIMESTAMP DEFAULT SYSTIMESTAMP,
+    resolved_at       TIMESTAMP,
+    CONSTRAINT pk_error_log PRIMARY KEY (error_id)
+);
+
+-- Indexes for support queries
+CREATE INDEX idx_error_app ON TCC_ERROR_LOG(application_id);
+CREATE INDEX idx_error_mobile ON TCC_ERROR_LOG(mobile_number);
+CREATE INDEX idx_error_status ON TCC_ERROR_LOG(status);
+CREATE INDEX idx_error_code ON TCC_ERROR_LOG(error_code);
+CREATE INDEX idx_error_priority ON TCC_ERROR_LOG(priority);</pre>
+                    </div>
+
+                    <h3>Support Query Examples</h3>
+
+                    <h4>1. View All Open Tickets</h4>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>SELECT
+    error_id,
+    application_id,
+    mobile_number,
+    error_code,
+    error_message,
+    priority,
+    status,
+    created_at
+FROM TCC_ERROR_LOG
+WHERE status IN ('OPEN', 'IN_PROGRESS')
+ORDER BY
+    priority DESC,
+    created_at ASC;</pre>
+                    </div>
+
+                    <h4>2. Get Tickets by Mobile Number</h4>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>SELECT
+    error_id,
+    error_code,
+    error_message,
+    status,
+    resolution_notes,
+    created_at,
+    resolved_at
+FROM TCC_ERROR_LOG
+WHERE mobile_number = '01712345678'
+ORDER BY created_at DESC;</pre>
+                    </div>
+
+                    <h4>3. View Error Statistics</h4>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>SELECT
+    error_code,
+    status,
+    COUNT(*) as ticket_count,
+    ROUND(AVG(
+        CASE
+            WHEN resolved_at IS NOT NULL
+            THEN (resolved_at - created_at) * 24 * 60
+            ELSE NULL
+        END
+    ), 2) as avg_resolution_minutes
+FROM TCC_ERROR_LOG
+WHERE created_at >= SYSDATE - 30
+GROUP BY error_code, status
+ORDER BY ticket_count DESC;</pre>
+                    </div>
+
+                    <h4>4. Assign Ticket to Staff</h4>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>UPDATE TCC_ERROR_LOG
+SET
+    status = 'IN_PROGRESS',
+    assigned_to = 'STAFF_001',
+    updated_at = SYSTIMESTAMP
+WHERE error_id = 12345
+AND status = 'OPEN';</pre>
+                    </div>
+
+                    <h4>5. Resolve Ticket</h4>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>UPDATE TCC_ERROR_LOG
+SET
+    status = 'RESOLVED',
+    resolution_notes = 'Fixed: Invalid NID format. Corrected and resubmitted.',
+    resolved_at = SYSTIMESTAMP,
+    updated_at = SYSTIMESTAMP
+WHERE error_id = 12345;</pre>
+                    </div>
+
+                    <h4>6. Escalate High Priority Issues</h4>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>SELECT
+    error_id,
+    application_id,
+    mobile_number,
+    error_code,
+    error_message,
+    created_at
+FROM TCC_ERROR_LOG
+WHERE priority = 'HIGH'
+AND status = 'OPEN'
+AND created_at < SYSDATE - (1/24)  -- Older than 1 hour
+ORDER BY created_at ASC;</pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Common Support Scenarios</h2>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Error Code</th>
+                                <th>Issue</th>
+                                <th>Cause</th>
+                                <th>Resolution</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>501</code></td>
+                                <td>Card products not loading</td>
+                                <td>Database connection issue</td>
+                                <td>Check DB listener, verify connection pool</td>
+                            </tr>
+                            <tr>
+                                <td><code>513</code></td>
+                                <td>OTP verification failed</td>
+                                <td>Wrong OTP or expired</td>
+                                <td>Customer to request new OTP</td>
+                            </tr>
+                            <tr>
+                                <td><code>545</code></td>
+                                <td>Session not found</td>
+                                <td>Session expired (30 min)</td>
+                                <td>Create new session</td>
+                            </tr>
+                            <tr>
+                                <td><code>550</code></td>
+                                <td>Draft not found</td>
+                                <td>No draft saved for session</td>
+                                <td>Start application from beginning</td>
+                            </tr>
+                            <tr>
+                                <td><code>ORA-12899</code></td>
+                                <td>Value too large for column</td>
+                                <td>Input exceeds field length</td>
+                                <td>Validate input length, truncate if needed</td>
+                            </tr>
+                            <tr>
+                                <td><code>ORA-00001</code></td>
+                                <td>Unique constraint violated</td>
+                                <td>Duplicate NID or mobile</td>
+                                <td>Check existing applicant record</td>
+                            </tr>
+                            <tr>
+                                <td><code>429</code></td>
+                                <td>Rate limit exceeded</td>
+                                <td>Too many requests</td>
+                                <td>Wait for rate limit reset</td>
+                            </tr>
+                            <tr>
+                                <td><code>500</code></td>
+                                <td>Internal server error</td>
+                                <td>Unhandled exception</td>
+                                <td>Check logs, contact technical team</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Support Escalation Matrix</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Priority</th>
+                                <th>Response Time</th>
+                                <th>Resolution Time</th>
+                                <th>Escalation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>CRITICAL</strong></td>
+                                <td>15 minutes</td>
+                                <td>4 hours</td>
+                                <td>→ Team Lead → Manager</td>
+                            </tr>
+                            <tr>
+                                <td><strong>HIGH</strong></td>
+                                <td>1 hour</td>
+                                <td>1 business day</td>
+                                <td>→ Team Lead</td>
+                            </tr>
+                            <tr>
+                                <td><strong>MEDIUM</strong></td>
+                                <td>4 hours</td>
+                                <td>2 business days</td>
+                                <td>→ Assigned RM/Staff</td>
+                            </tr>
+                            <tr>
+                                <td><strong>LOW</strong></td>
+                                <td>1 business day</td>
+                                <td>5 business days</td>
+                                <td>→ Assigned RM/Staff</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section>
+                    <h2>Database Maintenance Queries</h2>
+
+                    <h3>Cleanup Old Data</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>-- Archive resolved tickets older than 90 days
+CREATE TABLE TCC_ERROR_LOG_ARCHIVE AS
+SELECT * FROM TCC_ERROR_LOG
+WHERE status = 'CLOSED'
+AND resolved_at < SYSDATE - 90;
+
+-- Delete archived tickets
+DELETE FROM TCC_ERROR_LOG
+WHERE status = 'CLOSED'
+AND resolved_at < SYSDATE - 90;
+
+COMMIT;</pre>
+                    </div>
+
+                    <h3>Monitor Active Sessions</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>-- View all active sessions
+SELECT
+    session_id,
+    mobile_number,
+    mode,
+    created_at,
+    expires_at,
+    (expires_at - SYSTIMESTAMP) * 24 * 60 as minutes_remaining
+FROM TCC_SESSIONS
+WHERE is_active = 'Y'
+AND expires_at > SYSTIMESTAMP
+ORDER BY created_at DESC;</pre>
+                    </div>
+
+                    <h3>Find Stuck Applications</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>-- Applications stuck in DRAFT for > 24 hours
+SELECT
+    a.application_id,
+    a.reference_number,
+    ap.mobile_number,
+    ap.name,
+    a.created_at,
+    a.status
+FROM TCC_APP_APPLICATIONS a
+JOIN TCC_APP_APPLICANTS ap ON a.applicant_id = ap.applicant_id
+WHERE a.status = 'DRAFT'
+AND a.created_at < SYSDATE - 1
+ORDER BY a.created_at ASC;</pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Quick Troubleshooting Guide</h2>
+
+                    <h3>Issue: Application Not Submitting</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>-- Check if all required steps are complete
+SELECT
+    application_id,
+    step_number,
+    step_name,
+    is_complete
+FROM TCC_DRAFTS
+WHERE application_id = 'APP_XXX'
+ORDER BY step_number;
+
+-- Expected: All 12 steps with is_complete = 'Y'</pre>
+                    </div>
+
+                    <h3>Issue: Customer Cannot Receive OTP</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>-- Check OTP request history
+SELECT * FROM TCC_ERROR_LOG
+WHERE mobile_number = '01712345678'
+AND error_code = 512  -- OTP request
+ORDER BY created_at DESC
+FETCH FIRST 10 ROWS ONLY;</pre>
+                    </div>
+
+                    <h3>Issue: Document Upload Failed</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>-- Check document upload attempts
+SELECT
+    document_id,
+    application_id,
+    document_type,
+    file_path,
+    upload_date,
+    error_message
+FROM TCC_APP_DOCUMENTS
+WHERE application_id = 'APP_XXX'
+ORDER BY upload_date DESC;</pre>
+                    </div>
+
+                    <h3>Issue: Database Connection Pool Exhausted</h3>
+                    <div class="code-block">
+                        <button class="copy-btn">Copy</button>
+                        <pre>-- Check active DB connections
+SELECT
+    COUNT(*) as active_connections,
+    SUM(CASE WHEN status = 'ACTIVE' THEN 1 ELSE 0 END) as active_sessions
+FROM V$SESSION
+WHERE username = 'MTB_CREDIT';
+
+-- If near max pool size (10), consider increasing pool</pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Support Contact Information</h2>
+
+                    <div class="alert alert-warning">
+                        <strong>Important:</strong> Always create a database ticket before escalating to technical teams.
+                    </div>
+
+                    <h3>Escalation Contacts</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Issue Type</th>
+                                <th>Contact</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Application Issues</strong></td>
+                                <td>RM Support</td>
+                                <td>rm-support@mtb.com.bd</td>
+                                <td>+880-17XXXXXXX</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Database Issues</strong></td>
+                                <td>DBA Team</td>
+                                <td>dba@mtb.com.bd</td>
+                                <td>+880-18XXXXXXX</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Technical/API Issues</strong></td>
+                                <td>Dev Team</td>
+                                <td>dev@mtb.com.bd</td>
+                                <td>+880-19XXXXXXX</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Security Issues</strong></td>
+                                <td>Security Team</td>
+                                <td>security@mtb.com.bd</td>
+                                <td>+880-15XXXXXXX</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Before Escalating</h3>
+                    <ol class="steps">
+                        <li>
+                            <strong>Check Error Logs</strong>
+                            <p>Query <code>TCC_ERROR_LOG</code> for related error codes and messages</p>
+                        </li>
+                        <li>
+                            <strong>Verify Common Issues</strong>
+                            <p>Check if issue matches known scenarios in the troubleshooting table above</p>
+                        </li>
+                        <li>
+                            <strong>Gather Information</strong>
+                            <p>Collect: Application ID, Mobile Number, Error Code, Timestamp, Screenshot</p>
+                        </li>
+                        <li>
+                            <strong>Create Ticket</strong>
+                            <p>Insert into <code>TCC_ERROR_LOG</code> with all details</p>
+                        </li>
+                        <li>
+                            <strong>Escalate</strong>
+                            <p>Contact appropriate team based on issue type</p>
+                        </li>
+                    </ol>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>MTB Credit Card System Documentation | Version 1.0.0 | Last Updated: <span id="date"></span></p>
+    </footer>
+
+    <script>
+        // Update date
+        document.getElementById('date').textContent = new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        // Tab switching
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.dataset.tab;
+
+                // Update active tab button
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                // Show corresponding tab content
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === tabId) {
+                        content.classList.add('active');
+                    }
+                });
+
+                // Update URL hash
+                window.location.hash = tabId;
+
+                // Save to localStorage
+                localStorage.setItem('lastTab', tabId);
+
+                // Regenerate TOC
+                generateTOC();
+            });
+        });
+
+        // Check URL hash or localStorage on load
+        const initialTab = window.location.hash?.replace('#', '') || localStorage.getItem('lastTab') || 'database';
+        const initialBtn = document.querySelector(`[data-tab="${initialTab}"]`);
+        if (initialBtn) {
+            initialBtn.click();
+        }
+
+        // Table of Contents generation
+        function generateTOC() {
+            const activeTab = document.querySelector('.tab-content.active');
+            const tocList = document.getElementById('toc-list');
+            tocList.innerHTML = '';
+
+            const headings = activeTab.querySelectorAll('h2, h3');
+            const tabName = activeTab.id;
+
+            headings.forEach((heading, index) => {
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                const id = `${tabName}-section-${index}`;
+
+                heading.id = id;
+                a.href = `#${id}`;
+                a.textContent = heading.textContent;
+
+                if (heading.tagName === 'H3') {
+                    a.style.paddingLeft = '1.5rem';
+                    a.style.fontSize = '0.9rem';
+                }
+
+                li.appendChild(a);
+                tocList.appendChild(li);
+            });
+        }
+
+        // Generate initial TOC
+        generateTOC();
+
+        // Copy button functionality
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const codeBlock = btn.nextElementSibling.querySelector('pre') || btn.nextElementSibling;
+                const text = codeBlock.textContent;
+
+                navigator.clipboard.writeText(text).then(() => {
+                    const originalText = btn.textContent;
+                    btn.textContent = 'Copied!';
+                    btn.style.background = 'var(--success)';
+
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.style.background = '';
+                    }, 2000);
+                });
+            });
+        });
+
+        // Smooth scroll for TOC links
+        document.addEventListener('click', (e) => {
+            if (e.target.matches('.toc a')) {
+                e.preventDefault();
+                const target = document.querySelector(e.target.hash);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.altKey && e.key >= '1' && e.key <= '4') {
+                const tabIndex = parseInt(e.key) - 1;
+                tabBtns[tabIndex]?.click();
+            }
+        });
+    </script>
+</body>
+</html>

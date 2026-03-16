@@ -1,0 +1,1274 @@
+{
+  "info": {
+    "name": "MTB Credit Card API",
+    "description": "Complete API collection for MTB Credit Card Application System. Includes all endpoints for reference data, authentication, session management, applications, drafts, and dashboard operations.",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "mtb-credit-card-api-v1"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Check API health status"
+          },
+          "response": []
+        },
+        {
+          "name": "Root Endpoint",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"]
+            },
+            "description": "Get API information and links"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "1. Reference Data",
+      "item": [
+        {
+          "name": "Get Card Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/reference/card-products",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "reference", "card-products"]
+            },
+            "description": "Get all available credit card products\n\nProcedure: 501 (get_card_products)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Reference Data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/reference/reference/:type",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "reference", "reference", ":type"],
+              "variable": [
+                {
+                  "key": "type",
+                  "value": "MARITAL_STATUS",
+                  "description": "Reference data type (CARD_NETWORK, CARD_TIER, CARD_CATEGORY, CUSTOMER_SEGMENT, EMPLOYMENT_TYPE, PROFESSION, NID_TYPE, MARITAL_STATUS, GENDER, EDUCATION, ADDRESS_TYPE, BANK, DOCUMENT_TYPE)"
+                }
+              ]
+            },
+            "description": "Get reference data by type\n\nProcedure: 502 (get_reference_data)"
+          },
+          "response": []
+        },
+        {
+          "name": "Check Eligibility",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/reference/check-eligibility?monthly_income=50000",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "reference", "check-eligibility"],
+              "query": [
+                {
+                  "key": "monthly_income",
+                  "value": "50000",
+                  "description": "Monthly income amount"
+                }
+              ]
+            },
+            "description": "Check credit card eligibility based on monthly income\n\nProcedure: 503 (check_eligibility)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Banks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/reference/banks",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "reference", "banks"]
+            },
+            "description": "Get list of banks for bank account selection\n\nProcedure: 504 (get_bank_list)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints for retrieving reference data (cards, banks, occupations, etc.)"
+    },
+    {
+      "name": "2. Authentication",
+      "item": [
+        {
+          "name": "Check Existing Applicant",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nid_number\": \"1234567890123\",\n  \"mobile_number\": \"01712345678\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/auth/check-existing",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "auth", "check-existing"]
+            },
+            "description": "Check if an applicant already exists in the system\n\nProcedure: 511 (check_existing_applicant)"
+          },
+          "response": []
+        },
+        {
+          "name": "Request OTP",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mobile_number\": \"01712345678\",\n  \"session_id\": \"{{session_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/auth/otp/request",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "auth", "otp", "request"]
+            },
+            "description": "Request OTP for mobile verification\n\nRate Limit: 5 requests per hour per mobile number\n\nProcedure: 512 (request_otp)"
+          },
+          "response": []
+        },
+        {
+          "name": "Verify OTP",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mobile_number\": \"01712345678\",\n  \"otp\": \"123456\",\n  \"session_id\": \"{{session_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/auth/otp/verify",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "auth", "otp", "verify"]
+            },
+            "description": "Verify OTP code\n\nRate Limit: Max 5 attempts before lockout (30 minutes)\n\nProcedure: 513 (verify_otp)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get OTP Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/auth/otp/status?mobile_number=01712345678&session_id={{session_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "auth", "otp", "status"],
+              "query": [
+                {
+                  "key": "mobile_number",
+                  "value": "01712345678"
+                },
+                {
+                  "key": "session_id",
+                  "value": "{{session_id}}"
+                }
+              ]
+            },
+            "description": "Get OTP verification status\n\nProcedure: 514 (get_otp_status)"
+          },
+          "response": []
+        },
+        {
+          "name": "Verify OTP Extended",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mobile_number\": \"01712345678\",\n  \"otp\": \"123456\",\n  \"session_id\": \"{{session_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/auth/otp/verify-extended",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "auth", "otp", "verify-extended"]
+            },
+            "description": "Verify OTP with extended response (includes user details)\n\nProcedure: 515 (verify_otp_extended)"
+          },
+          "response": []
+        },
+        {
+          "name": "Staff Login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"staff_id\": \"admin\",\n  \"password\": \"admin123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/auth/staff/login",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "auth", "staff", "login"]
+            },
+            "description": "Staff login with username/password (JWT)\n\nToken Expiry:\n- Access Token: 15 minutes\n- Refresh Token: 7 days"
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/auth/staff/refresh",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "auth", "staff", "refresh"]
+            },
+            "description": "Refresh access token using refresh token"
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints for applicant OTP verification and staff JWT authentication"
+    },
+    {
+      "name": "3. Session Management",
+      "item": [
+        {
+          "name": "Create Session",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mode\": \"SELF\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/session/create",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "session", "create"]
+            },
+            "description": "Create a new application session\n\nProcedure: 544 (create_session)"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.status === 200) {",
+                  "    pm.collectionVariables.set(\"session_id\", jsonData.data.session_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Session",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/session/:session_id",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "session", ":session_id"],
+              "variable": [
+                {
+                  "key": "session_id",
+                  "value": "{{session_id}}"
+                }
+              ]
+            },
+            "description": "Get session details by session ID\n\nProcedure: 545 (get_session)"
+          },
+          "response": []
+        },
+        {
+          "name": "Extend Session",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"extension_minutes\": 30\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/session/:session_id/extend",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "session", ":session_id", "extend"],
+              "variable": [
+                {
+                  "key": "session_id",
+                  "value": "{{session_id}}"
+                }
+              ]
+            },
+            "description": "Extend session TTL\n\nProcedure: 546 (extend_session)"
+          },
+          "response": []
+        },
+        {
+          "name": "Validate Session",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/session/:session_id/validate",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "session", ":session_id", "validate"],
+              "variable": [
+                {
+                  "key": "session_id",
+                  "value": "{{session_id}}"
+                }
+              ]
+            },
+            "description": "Validate a session (check if active and not expired)\n\nProcedure: 548 (validate_session)"
+          },
+          "response": []
+        },
+        {
+          "name": "End Session",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/session/:session_id",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "session", ":session_id"],
+              "variable": [
+                {
+                  "key": "session_id",
+                  "value": "{{session_id}}"
+                }
+              ]
+            },
+            "description": "End/delete a session\n\nProcedure: 547 (end_session)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints for managing application sessions"
+    },
+    {
+      "name": "4. Applications",
+      "item": [
+        {
+          "name": "Create Application",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mode\": \"SELF\",\n  \"card_id\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/applications",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "applications"]
+            },
+            "description": "Create a new credit card application\n\nProcedure: 505 (create_application)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Application",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/applications/:application_id",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "applications", ":application_id"],
+              "variable": [
+                {
+                  "key": "application_id",
+                  "value": "{{application_id}}"
+                }
+              ]
+            },
+            "description": "Get application by ID\n\nProcedure: 506 (get_application)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Application by Reference",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/applications/reference/:reference_number",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "applications", "reference", ":reference_number"],
+              "variable": [
+                {
+                  "key": "reference_number",
+                  "value": "MTBCC-20260130-001"
+                }
+              ]
+            },
+            "description": "Get application by reference number\n\nProcedure: 507 (get_application_by_reference)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Applications by Mobile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/applications/mobile/:mobile_number?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "applications", "mobile", ":mobile_number"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "mobile_number",
+                  "value": "01712345678"
+                }
+              ]
+            },
+            "description": "Get applications by mobile number (paginated)\n\nProcedure: 508 (get_application_by_mobile)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Application Status",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"UNDER_REVIEW\",\n  \"reason\": \"Application submitted for review\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/applications/:application_id/status",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "applications", ":application_id", "status"],
+              "variable": [
+                {
+                  "key": "application_id",
+                  "value": "{{application_id}}"
+                }
+              ]
+            },
+            "description": "Update application status\n\nProcedure: 509 (update_application_status)"
+          },
+          "response": []
+        },
+        {
+          "name": "Submit Application",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{session_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/applications/:application_id/submit",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "applications", ":application_id", "submit"],
+              "variable": [
+                {
+                  "key": "application_id",
+                  "value": "{{application_id}}"
+                }
+              ]
+            },
+            "description": "Submit a credit card application\n\nProcedure: 510 (submit_application)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Application CRUD operations"
+    },
+    {
+      "name": "5. Drafts",
+      "item": [
+        {
+          "name": "Initialize Draft",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{session_id}}\",\n  \"mode\": \"SELF\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/drafts/initialize",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "drafts", "initialize"]
+            },
+            "description": "Initialize a new draft for a session\n\nProcedure: 549 (initialize_draft)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Draft",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/drafts/:session_id",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "drafts", ":session_id"],
+              "variable": [
+                {
+                  "key": "session_id",
+                  "value": "{{session_id}}"
+                }
+              ]
+            },
+            "description": "Get draft by session ID\n\nProcedure: 550 (get_draft)"
+          },
+          "response": []
+        },
+        {
+          "name": "Save Draft Step",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{session_id}}\",\n  \"step_number\": 2,\n  \"step_name\": \"personal_info\",\n  \"data\": {\n    \"name\": \"John Doe\",\n    \"nid_number\": \"1234567890123\",\n    \"mobile_number\": \"01712345678\"\n  },\n  \"is_complete\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/drafts/save",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "drafts", "save"]
+            },
+            "description": "Save a draft step\n\nRate Limit: 10 requests per minute per session\n\nProcedure: 551 (save_draft_step)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Step Versions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/drafts/:session_id/versions",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "drafts", ":session_id", "versions"],
+              "variable": [
+                {
+                  "key": "session_id",
+                  "value": "{{session_id}}"
+                }
+              ]
+            },
+            "description": "Get all step versions for a draft\n\nProcedure: 553 (get_step_versions)"
+          },
+          "response": []
+        },
+        {
+          "name": "Clear Draft",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/drafts/:session_id",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "drafts", ":session_id"],
+              "variable": [
+                {
+                  "key": "session_id",
+                  "value": "{{session_id}}"
+                }
+              ]
+            },
+            "description": "Clear/delete a draft\n\nProcedure: 552 (clear_draft)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Draft management endpoints for auto-save functionality"
+    },
+    {
+      "name": "6. Submission",
+      "item": [
+        {
+          "name": "Submit by Session",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{session_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/submission/by-session",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "submission", "by-session"]
+            },
+            "description": "Submit application by session ID\n\nProcedure: 554 (submit_by_session)"
+          },
+          "response": []
+        },
+        {
+          "name": "Submit Full Application",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"application_data\": {\n    \"card_id\": 1,\n    \"applicant\": {\n      \"name\": \"John Doe\",\n      \"nid_number\": \"1234567890123\",\n      \"mobile_number\": \"01712345678\"\n    },\n    \"step_1\": { \"card_id\": 1 },\n    \"step_2\": { \"name\": \"John Doe\" }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/submission/full",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "submission", "full"]
+            },
+            "description": "Submit full application with all data at once\n\nProcedure: 555 (submit_full_application)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Submission Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/submission/status/:application_id",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "submission", "status", ":application_id"],
+              "variable": [
+                {
+                  "key": "application_id",
+                  "value": "{{application_id}}"
+                }
+              ]
+            },
+            "description": "Get submission status for an application\n\nProcedure: 556 (get_submission_status)"
+          },
+          "response": []
+        },
+        {
+          "name": "Save Full Application",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"application_data\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/submission/save-full",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "submission", "save-full"]
+            },
+            "description": "Save full application (without submitting)\n\nProcedure: 543 (save_full_application)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Submission endpoints for final application submission"
+    },
+    {
+      "name": "7. Dashboard",
+      "item": [
+        {
+          "name": "Applicant Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/dashboard/applicant/:session_id",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "dashboard", "applicant", ":session_id"],
+              "variable": [
+                {
+                  "key": "session_id",
+                  "value": "{{session_id}}"
+                }
+              ]
+            },
+            "description": "Get applicant dashboard data"
+          },
+          "response": []
+        },
+        {
+          "name": "RM Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/dashboard/rm/applications?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "dashboard", "rm", "applications"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Get RM dashboard data (requires authentication)"
+          },
+          "response": []
+        },
+        {
+          "name": "Staff Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/dashboard/staff/stats",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "dashboard", "staff", "stats"]
+            },
+            "description": "Get staff statistics (requires authentication)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Dashboard endpoints for applicants and staff"
+    },
+    {
+      "name": "8. Form Steps",
+      "item": [
+        {
+          "name": "Step 1: Card Selection",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"card_id\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/applications/:application_id/step1/card-selection",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "applications", ":application_id", "step1", "card-selection"],
+              "variable": [
+                {
+                  "key": "application_id",
+                  "value": "{{application_id}}"
+                }
+              ]
+            },
+            "description": "Save Step 1: Card Selection\n\nProcedure: 517 (save_card_selection)"
+          },
+          "response": []
+        },
+        {
+          "name": "Step 2: Personal Info",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nid_number\": \"1234567890123\",\n  \"nid_type\": \"NATIONAL\",\n  \"name\": \"John Doe\",\n  \"father_name\": \"Jane Doe\",\n  \"mother_name\": \"Jane Smith\",\n  \"date_of_birth\": \"1990-01-01\",\n  \"gender\": \"MALE\",\n  \"marital_status\": \"SINGLE\",\n  \"education\": \"BACHELOR\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/applications/:application_id/step2/personal-info",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "applications", ":application_id", "step2", "personal-info"],
+              "variable": [
+                {
+                  "key": "application_id",
+                  "value": "{{application_id}}"
+                }
+              ]
+            },
+            "description": "Save Step 2: Personal Information\n\nProcedure: 518 (save_personal_info)"
+          },
+          "response": []
+        },
+        {
+          "name": "Step 3: Professional Info",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"employment_type\": \"EMPLOYED\",\n  \"profession\": \"PRIVATE_SECTOR\",\n  \"employer_name\": \"ABC Company\",\n  \"designation\": \"Manager\",\n  \"office_address\": \"123 Business Street\",\n  \"years_in_current_job\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/applications/:application_id/step3/professional-info",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "applications", ":application_id", "step3", "professional-info"],
+              "variable": [
+                {
+                  "key": "application_id",
+                  "value": "{{application_id}}"
+                }
+              ]
+            },
+            "description": "Save Step 3: Professional Information\n\nProcedure: 519 (save_professional_info)"
+          },
+          "response": []
+        },
+        {
+          "name": "Step 4: Monthly Income",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"monthly_income\": 80000,\n  \"other_income\": 20000,\n  \"income_source\": \"SALARY\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/applications/:application_id/step4/monthly-income",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "applications", ":application_id", "step4", "monthly-income"],
+              "variable": [
+                {
+                  "key": "application_id",
+                  "value": "{{application_id}}"
+                }
+              ]
+            },
+            "description": "Save Step 4: Monthly Income\n\nProcedure: 520 (save_monthly_income)"
+          },
+          "response": []
+        },
+        {
+          "name": "Step 5: Bank Accounts",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bank_accounts\": [\n    {\n      \"bank_code\": \"MTB\",\n      \"account_number\": \"1234567890\",\n      \"account_type\": \"SAVINGS\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/applications/:application_id/step5/bank-accounts",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "applications", ":application_id", "step5", "bank-accounts"],
+              "variable": [
+                {
+                  "key": "application_id",
+                  "value": "{{application_id}}"
+                }
+              ]
+            },
+            "description": "Save Step 5: Bank Accounts\n\nProcedure: 521 (save_bank_accounts)"
+          },
+          "response": []
+        },
+        {
+          "name": "Step 6: Credit Facilities",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"has_existing_cards\": true,\n  \"existing_cards\": [\n    {\n      \"bank\": \"DBBL\",\n      \"limit\": 100000\n    }\n  ],\n  \"has_existing_loans\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/applications/:application_id/step6/credit-facilities",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "applications", ":application_id", "step6", "credit-facilities"],
+              "variable": [
+                {
+                  "key": "application_id",
+                  "value": "{{application_id}}"
+                }
+              ]
+            },
+            "description": "Save Step 6: Credit Facilities\n\nProcedure: 522 (save_credit_facilities)"
+          },
+          "response": []
+        },
+        {
+          "name": "Step 7: Nominee",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nominee_name\": \"Jane Doe\",\n  \"nominee_nid\": \"9876543210987\",\n  \"nominee_mobile\": \"01812345678\",\n  \"nominee_relation\": \"SPOUSE\",\n  \"nominee_percentage\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/applications/:application_id/step7/nominee",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "applications", ":application_id", "step7", "nominee"],
+              "variable": [
+                {
+                  "key": "application_id",
+                  "value": "{{application_id}}"
+                }
+              ]
+            },
+            "description": "Save Step 7: Nominee\n\nProcedure: 523 (save_nominee)"
+          },
+          "response": []
+        },
+        {
+          "name": "Step 8: Supplementary Card",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"want_supplementary\": true,\n  \"supplementary_cards\": [\n    {\n      \"name\": \"Jane Doe\",\n      \"nid_number\": \"9876543210987\",\n      \"mobile_number\": \"01812345678\",\n      \"relation\": \"SPOUSE\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/applications/:application_id/step8/supplementary",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "applications", ":application_id", "step8", "supplementary"],
+              "variable": [
+                {
+                  "key": "application_id",
+                  "value": "{{application_id}}"
+                }
+              ]
+            },
+            "description": "Save Step 8: Supplementary Card\n\nProcedure: 524 (save_supplementary)"
+          },
+          "response": []
+        },
+        {
+          "name": "Step 9: References",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"references\": [\n    {\n      \"name\": \"Reference 1\",\n      \"mobile_number\": \"01912345678\",\n      \"relation\": \"FRIEND\",\n      \"address\": \"456 Reference Street\"\n    },\n    {\n      \"name\": \"Reference 2\",\n      \"mobile_number\": \"01612345678\",\n      \"relation\": \"COLLEAGUE\",\n      \"address\": \"789 Reference Road\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/applications/:application_id/step9/references",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "applications", ":application_id", "step9", "references"],
+              "variable": [
+                {
+                  "key": "application_id",
+                  "value": "{{application_id}}"
+                }
+              ]
+            },
+            "description": "Save Step 9: References\n\nProcedure: 525 (save_references)"
+          },
+          "response": []
+        },
+        {
+          "name": "Step 10: Documents",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nid_document",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "photo",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "signature",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/applications/:application_id/step10/documents",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "applications", ":application_id", "step10", "documents"],
+              "variable": [
+                {
+                  "key": "application_id",
+                  "value": "{{application_id}}"
+                }
+              ]
+            },
+            "description": "Save Step 10: Documents\n\nProcedure: 526 (save_documents)"
+          },
+          "response": []
+        },
+        {
+          "name": "Step 11: Auto Debit",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enable_auto_debit\": true,\n  \"bank_code\": \"MTB\",\n  \"account_number\": \"1234567890\",\n  \"account_type\": \"SAVINGS\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/applications/:application_id/step11/auto-debit",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "applications", ":application_id", "step11", "auto-debit"],
+              "variable": [
+                {
+                  "key": "application_id",
+                  "value": "{{application_id}}"
+                }
+              ]
+            },
+            "description": "Save Step 11: Auto Debit Setup\n\nProcedure: 527 (save_auto_debit)"
+          },
+          "response": []
+        },
+        {
+          "name": "Step 12: Declarations",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"terms_accepted\": true,\n  \"privacy_accepted\": true,\n  \"data_accuracy_confirmed\": true,\n  \"electronic_communication_accepted\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/applications/:application_id/step12/declarations",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "applications", ":application_id", "step12", "declarations"],
+              "variable": [
+                {
+                  "key": "application_id",
+                  "value": "{{application_id}}"
+                }
+              ]
+            },
+            "description": "Save Step 12: Declarations\n\nProcedure: 528 (save_declarations)"
+          },
+          "response": []
+        }
+      ],
+      "description": "12-step form endpoints for application process"
+    },
+    {
+      "name": "9. Landing Page",
+      "item": [
+        {
+          "name": "Get Features",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/landing/features",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "landing", "features"]
+            },
+            "description": "Get product features for landing page"
+          },
+          "response": []
+        }
+      ],
+      "description": "Landing page content endpoints"
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "api_prefix",
+      "value": "/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "session_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "application_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

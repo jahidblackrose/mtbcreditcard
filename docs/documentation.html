@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MTB Credit Card Application System - Documentation</title>
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --secondary-color: #1e40af;
+            --bg-color: #f8fafc;
+            --text-color: #1e293b;
+            --sidebar-bg: #f1f5f9;
+            --code-bg: #e2e8f0;
+            --border-color: #cbd5e1;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+        }
+        aside {
+            width: 280px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        main {
+            margin-left: 320px;
+            padding: 40px;
+            max-width: 900px;
+        }
+        h1, h2, h3 {
+            color: var(--secondary-color);
+        }
+        h1 {
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+        pre {
+            background-color: var(--code-bg);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+        }
+        code {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+        }
+        .nav-link {
+            display: block;
+            padding: 8px 12px;
+            text-decoration: none;
+            color: var(--text-color);
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+        .nav-link:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        .tag-frontend { background-color: #61dafb; color: #000; }
+        .tag-backend { background-color: #05998b; color: #fff; }
+        .tag-db { background-color: #f06529; color: #fff; }
+        .important {
+            background-color: #fef2f2;
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: var(--sidebar-bg);
+        }
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+</head>
+<body>
+    <aside>
+        <h3>Contents</h3>
+        <a href="#overview" class="nav-link">1. System Overview</a>
+        <a href="#frontend-setup" class="nav-link">2. Frontend Setup</a>
+        <a href="#backend-setup" class="nav-link">3. Backend Setup</a>
+        <a href="#database-setup" class="nav-link">4. Database Setup</a>
+        <a href="#app-modes" class="nav-link">5. MOCK vs REAL Mode</a>
+        <a href="#new-features" class="nav-link">6. Adding New Features</a>
+        <a href="#db-changes" class="nav-link">7. Database Level Changes</a>
+        <a href="#er-diagram" class="nav-link">8. Database ER Diagram</a>
+        <a href="#security" class="nav-link">9. Security & Best Practices</a>
+        <a href="#troubleshooting" class="nav-link">10. Troubleshooting</a>
+    </aside>
+
+    <main>
+        <section id="overview">
+            <h1>System Overview</h1>
+            <p>The MTB Credit Card Application System is a modern, banking-grade web application designed for processing credit card applications. It supports both self-service applications and RM-assisted applications.</p>
+            <h3>Tech Stack</h3>
+            <ul>
+                <li><span class="tag tag-frontend">Frontend</span> React, Vite, TypeScript, Tailwind CSS, shadcn/ui</li>
+                <li><span class="tag tag-backend">Backend</span> Python, FastAPI, Uvicorn</li>
+                <li><span class="tag tag-db">Database</span> Oracle (XE/Standard), PL/SQL Packages</li>
+            </ul>
+        </section>
+
+        <section id="frontend-setup">
+            <h2>2. Frontend Setup</h2>
+            <p>The frontend is located in the root <code>mtbcreditcard</code> directory.</p>
+            <h3>Prerequisites</h3>
+            <ul>
+                <li>Node.js (v18+)</li>
+                <li>npm or bun</li>
+            </ul>
+            <h3>Installation</h3>
+            <pre><code>cd mtbcreditcard
+npm install</code></pre>
+            <h3>Running Development Server</h3>
+            <pre><code>npm run dev</code></pre>
+            <p>By default, the application runs on <code>http://localhost:5173</code>.</p>
+        </section>
+
+        <section id="backend-setup">
+            <h2>3. Backend Setup</h2>
+            <p>The backend is located in the <code>backend/</code> directory.</p>
+            <h3>Prerequisites</h3>
+            <ul>
+                <li>Python 3.10+</li>
+                <li>Oracle Instant Client (for <code>oracledb</code>)</li>
+            </ul>
+            <h3>Installation</h3>
+            <pre><code>cd backend
+python -m venv venv
+# Windows
+.\venv\Scripts\activate
+# Linux/Mac
+source venv/bin/activate
+
+pip install -e .</code></pre>
+            <h3>Configuration</h3>
+            <p>Create a <code>.env</code> file in the <code>backend/</code> folder:</p>
+            <pre><code>DB_USER=mtb_credit
+DB_PASSWORD=your_password
+DB_HOST=localhost
+DB_PORT=1521
+DB_SERVICE_NAME=XE
+JWT_SECRET_KEY=generate_a_random_string</code></pre>
+            <h3>Running the Server</h3>
+            <pre><code>uvicorn app.main:app --reload --port 8000</code></pre>
+        </section>
+
+        <section id="database-setup">
+            <h2>4. Database Setup</h2>
+            <p>The database schema and procedures are located in the <code>database/</code> directory.</p>
+            <h3>Installation Order</h3>
+            <ol>
+                <li>Run <code>ddl/</code> scripts to create tables and sequences.</li>
+                <li>Compile <code>packages/pkg_credit_card_application_spec.sql</code> (Package Specification).</li>
+                <li>Compile <code>packages/pkg_credit_card_application_body.sql</code> (Package Body).</li>
+                <li>Run <code>ddl/01_tables_reference.sql</code> to populate lookup data (Card types, branches, etc.).</li>
+            </ol>
+            <div class="important">
+                <strong>Note:</strong> Most business logic resides in the <code>pkg_credit_card_application</code> package to ensure data integrity and performance.
+            </div>
+        </section>
+
+        <section id="app-modes">
+            <h2>5. MOCK vs REAL Mode</h2>
+            <p>The frontend can run in two modes, controlled by <code>.env</code>:</p>
+            <table>
+                <tr>
+                    <th>Mode</th>
+                    <th>VITE_APP_MODE</th>
+                    <th>Behavior</th>
+                </tr>
+                <tr>
+                    <td><strong>MOCK</strong></td>
+                    <td><code>MOCK</code></td>
+                    <td>Uses local mock data. No backend/DB needed. Perfect for UI development.</td>
+                </tr>
+                <tr>
+                    <td><strong>REAL</strong></td>
+                    <td><code>REAL</code></td>
+                    <td>Calls the FastAPI backend. Requires backend and Oracle DB to be running.</td>
+                </tr>
+            </table>
+            <p>To switch to REAL mode, update <code>mtbcreditcard/.env</code>:</p>
+            <pre><code>VITE_APP_MODE=REAL
+VITE_API_BASE_URL=http://localhost:8000/api/v1</code></pre>
+        </section>
+
+        <section id="new-features">
+            <h2>6. Adding New Features</h2>
+            <h3>Adding a New Form Step</h3>
+            <ol>
+                <li>Create the UI component in <code>src/ui/application/components/steps/</code>.</li>
+                <li>Wrap the component with <code>StepFormWrapper</code> for consistent layout and validation.</li>
+                <li>Define the Zod validation schema in <code>src/lib/validation-schemas.ts</code>.</li>
+                <li>Register the step in the main <code>ApplicationPage.tsx</code> flow.</li>
+            </ol>
+            <h3>Adding a New API Endpoint</h3>
+            <ol>
+                <li><strong>Backend:</strong> Define Pydantic models in <code>app/api/models/</code>.</li>
+                <li><strong>Backend:</strong> Add the route in <code>app/api/</code> (e.g., <code>applications.py</code>).</li>
+                <li><strong>Frontend:</strong> Add the API call in <code>src/api/</code> (e.g., <code>application.api.ts</code>).</li>
+            </ol>
+        </section>
+
+        <section id="db-changes">
+            <h2>7. Database Level Changes</h2>
+            <p>When modifying the database:</p>
+            <h3>1. Table Changes</h3>
+            <ul>
+                <li>Add the migration script to <code>database/ddl/</code>.</li>
+                <li>Update the <code>README.md</code> in the database folder to reflect the change.</li>
+            </ul>
+            <h3>2. Procedure Changes</h3>
+            <ul>
+                <li>Update the package body in <code>pkg_credit_card_application_body.sql</code>.</li>
+                <li>All procedures should return <code>p_status</code>, <code>p_message</code>, and <code>p_json_out</code> (CLOB).</li>
+            </ul>
+            <h3>3. Frontend Integration</h3>
+            <ul>
+                <li>If the JSON output structure changes, update the corresponding TypeScript interfaces in <code>src/types/</code>.</li>
+            </ul>
+        </section>
+
+        <section id="er-diagram">
+            <h2>8. Database ER Diagram</h2>
+            <p>The following diagram illustrates the core entities and their relationships within the MTB Credit Card system.</p>
+            <div class="mermaid">
+erDiagram
+    APPLICANT ||--o{ APPLICATION : "submits"
+    APPLICANT {
+        number applicant_id PK
+        string nid_number
+        string mobile_number
+        string email
+    }
+    APPLICATION ||--o{ DOCUMENT : "contains"
+    APPLICATION ||--o{ REFERENCE : "has"
+    APPLICATION ||--o{ DRAFT : "persists"
+    APPLICATION {
+        number application_id PK
+        number applicant_id FK
+        string reference_number
+        string status
+    }
+    REFERENCE {
+        number reference_id PK
+        number application_id FK
+        string name
+        string relation
+    }
+    DOCUMENT {
+        number document_id PK
+        number application_id FK
+        string document_type
+        string file_path
+    }
+    SESSION ||--o| DRAFT : "manages"
+    SESSION {
+        string session_id PK
+        string mobile_number
+        timestamp expires_at
+    }
+    DRAFT {
+        number draft_id PK
+        string session_id FK
+        number application_id FK
+        json step_data
+        number last_step
+    }
+    CARD_PRODUCT ||--o{ APPLICATION : "selected_in"
+    CARD_PRODUCT {
+        number card_id PK
+        string product_name
+        number annual_fee
+    }
+            </div>
+        </section>
+
+        <section id="security">
+            <h2>8. Security & Best Practices</h2>
+            <ul>
+                <li><strong>Session Security:</strong> In REAL mode, sessions are managed via JWT. In MOCK mode, <code>localStorage</code> is used (do not use in production).</li>
+                <li><strong>PII Protection:</strong> NID and Mobile numbers should be masked in logs and non-essential UI views.</li>
+                <li><strong>Input Validation:</strong> Always validate on both Frontend (Zod) and Backend (Pydantic).</li>
+                <li><strong>Encryption:</strong> Sensitive configuration must be stored in <code>.env</code> and never committed to version control.</li>
+            </ul>
+        </section>
+
+        <section id="troubleshooting">
+            <h2>9. Troubleshooting</h2>
+            <h3>Frontend Port Conflicts</h3>
+            <p>If port 5173 is busy, Vite will try 5174, 5175, etc. Check the terminal output for the active URL.</p>
+            <h3>Oracle Connection Errors</h3>
+            <p>Ensure the <code>TNS_ADMIN</code> or <code>PATH</code> is set for Oracle Instant Client. Use <code>lsnrctl status</code> to verify the listener.</p>
+            <h3>Backend "Module Not Found"</h3>
+            <p>Ensure you installed the package in editable mode: <code>pip install -e .</code> from the backend directory.</p>
+        </section>
+    </main>
+</body>
+</html>

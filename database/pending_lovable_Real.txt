@@ -1,0 +1,845 @@
+================================================================================
+MTB CREDIT CARD SYSTEM - FRONTEND COMPLETION TASKS FOR LOVABLE AI
+================================================================================
+
+PROJECT CONTEXT:
+---------------
+This is an MTB (Mutual Trust Bank) Credit Card Application System with:
+- Backend: FastAPI with 47 API endpoints and 60 Oracle database procedures
+- Frontend: React + Vite + TypeScript with Tailwind CSS and Radix UI
+- Database: Oracle Database 21c with 60+ tables
+- Current Status: Backend 100% complete, Frontend 85% complete (MOCK mode)
+
+CRITICAL ISSUE:
+---------------
+The frontend is currently in MOCK mode and needs to be switched to REAL mode to
+connect with the actual backend API and database. All UI components exist, but they
+use mock data instead of real API calls.
+
+YOUR TASK:
+---------
+Complete ALL pending frontend integration work to make the system fully functional
+with real backend API and database integration.
+
+================================================================================
+PHASE 1: ENVIRONMENT SETUP (CRITICAL - FIRST STEP)
+================================================================================
+
+TASK 1.1: Create .env file at project root
+--------------------------------------------
+Create a file named .env in the project root directory (E:\project\creditcard\mtbcreditcard\)
+
+Add these lines:
+```
+VITE_API_BASE_URL=http://localhost:8000/api/v1
+VITE_APP_MODE=REAL
+VITE_ENABLE_DRAFT_AUTOSAVE=true
+```
+
+TASK 1.2: Verify existing .env.example
+--------------------------------------
+The backend already has backend/.env.example - verify frontend has no conflicts.
+
+TASK 1.3: Do NOT modify existing file structure
+-----------------------------------------------
+- Keep all existing UI components as-is
+- Keep all existing API client files
+- Only modify the MOCK mode checks to use REAL API
+
+================================================================================
+PHASE 2: SWITCH FROM MOCK TO REAL MODE
+================================================================================
+
+TASK 2.1: Update API Client Files
+----------------------------------
+For each file in src/api/, locate and update MOCK mode checks:
+
+FILES TO UPDATE:
+1. src/api/auth.api.ts
+2. src/api/application.api.ts
+3. src/api/dashboard.api.ts
+4. src/api/draft.api.ts
+5. src/api/otp.api.ts
+6. src/api/session.api.ts
+7. src/api/submission.api.ts
+8. src/api/reference.api.ts
+
+PATTERN TO FIND:
+```typescript
+if (env.MODE === 'MOCK') {
+  // mock implementation
+  return mockData;
+}
+return http.get(...);  // This is the REAL implementation
+```
+
+ACTION REQUIRED:
+The REAL implementation already exists! Just remove the MOCK fallback OR ensure
+env.MODE === 'REAL' returns the real API call.
+
+Example for src/api/dashboard.api.ts:
+CURRENT (Line 63):
+```typescript
+export async function getMyApplications(page: number = 1, limit: number = 10) {
+  if (env.MODE === 'MOCK') {
+    await new Promise(resolve => setTimeout(resolve, 400));
+    return { status: 200, message: 'Applications retrieved successfully', data: {...} };
+  }
+  return http.get(`/applications?page=${page}&limit=${limit}`);
+}
+```
+
+This is ALREADY CORRECT! Just needs VITE_APP_MODE=REAL in .env file.
+
+TASK 2.2: Update src/config/env.ts
+----------------------------------
+No changes needed - this file already reads VITE_APP_MODE correctly.
+
+TASK 2.3: Update src/api/httpClient.ts
+---------------------------------------
+Verify the HTTP client is configured correctly for REAL mode.
+
+CURRENT (Line 53):
+```typescript
+if (env.MODE === 'MOCK') {
+  // Mock delays and responses
+}
+```
+
+ACTION: Ensure all API calls bypass MOCK logic when env.MODE === 'REAL'
+
+================================================================================
+PHASE 3: COMPLETE 5 CRITICAL FEATURES
+================================================================================
+
+FEATURE 1: ASSISTED APPLICATION (RM MODE)
+------------------------------------------
+CURRENT STATUS: UI exists at src/ui/pages/RMLoginPage.tsx but uses mock login
+
+REQUIRED CHANGES:
+
+FILE: src/ui/pages/RMLoginPage.tsx
+
+UPDATE THE handleSubmit FUNCTION:
+```typescript
+// Current mock code around line 150-180
+// Replace mock login with real API call
+
+import { staffLogin } from '@/api/auth.api';
+
+const handleLogin = async (data: StaffLoginForm) => {
+  setIsLoading(true);
+  setError(null);
+
+  try {
+    const response = await staffLogin({
+      staff_id: data.staffId,
+      password: data.password
+    });
+
+    if (response.status === 200) {
+      // Store tokens
+      localStorage.setItem('access_token', response.data.access_token);
+      localStorage.setItem('refresh_token', response.data.refresh_token);
+      localStorage.setItem('user_role', response.data.user.role);
+
+      // Create ASSISTED mode session
+      const sessionResponse = await createSession({ mode: 'ASSISTED' });
+      localStorage.setItem('session_id', sessionResponse.data.session_id);
+
+      // Navigate to RM dashboard
+      navigate('/rm/dashboard');
+    }
+  } catch (error) {
+    setError('Invalid credentials');
+  } finally {
+    setIsLoading(false);
+  }
+};
+```
+
+FILE: src/api/auth.api.ts
+
+Add this function (around line 270):
+```typescript
+export async function staffLogin(credentials: {
+  staff_id: string;
+  password: string;
+}): Promise<ApiResponse<StaffLoginResponse>> {
+  if (env.MODE === 'MOCK') {
+    // Keep mock for development
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return {
+      status: 200,
+      message: 'Login successful',
+      data: {
+        access_token: 'mock_token',
+        refresh_token: 'mock_refresh',
+        token_type: 'bearer',
+        expires_in: 900,
+        user: {
+          user_id: 'STAFF_001',
+          staff_id: credentials.staff_id,
+          name: 'Administrator',
+          role: 'ADMIN' as UserRole,
+          branch_id: 'HEAD_OFFICE',
+          branch_name: 'Head Office'
+        }
+      }
+    };
+  }
+
+  return http.post('/auth/staff/login', credentials);
+}
+```
+
+FEATURE 2: EXISTING APPLICATION CHECK
+--------------------------------------
+CURRENT STATUS: UI exists at ResumeDashboard.tsx but uses mock data
+
+REQUIRED CHANGES:
+
+FILE: src/ui/application/components/ResumeDashboard.tsx
+
+UPDATE handleResumeSubmit function (around line 50-54):
+```typescript
+import { checkExistingApplicant } from '@/api/auth.api';
+import { getApplicationsByMobile } from '@/api/application.api';
+
+const handleResumeSubmit = async () => {
+  if (mobileNumber.length !== 11) {
+    setError('Please enter a valid 11-digit mobile number');
+    return;
+  }
+
+  setIsSearching(true);
+  setError(null);
+
+  try {
+    // Step 1: Check if applicant exists
+    const checkResponse = await checkExistingApplicant({
+      nid_number: '',
+      mobile_number: mobileNumber
+    });
+
+    if (checkResponse.data?.exists) {
+      // Step 2: Get existing applications
+      const appsResponse = await getApplicationsByMobile(mobileNumber, 1, 10);
+
+      if (appsResponse.data?.applications?.length > 0) {
+        // Show list of applications
+        setShowApplicationsList(true);
+        setExistingApplications(appsResponse.data.applications);
+      } else {
+        setError('No applications found for this mobile number');
+      }
+    } else {
+      // New applicant - redirect to new application flow
+      onCreateNew?.();
+    }
+  } catch (error) {
+    setError('Unable to fetch applications. Please try again.');
+  } finally {
+    setIsSearching(false);
+  }
+};
+```
+
+FILE: src/api/auth.api.ts
+
+Ensure this function exists (around line 50-94):
+```typescript
+export async function checkExistingApplicant(request: {
+  nid_number: string;
+  mobile_number: string;
+}): Promise<ApiResponse<CheckExistingResponse>> {
+  if (env.MODE === 'MOCK') {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return {
+      status: 200,
+      message: 'Applicant check completed',
+      data: {
+        exists: false,
+        applicant_id: null,
+        has_pending_applications: false
+      }
+    };
+  }
+
+  return http.post('/auth/check-existing', request);
+}
+```
+
+FEATURE 3: TRACK APPLICATION
+----------------------------
+CURRENT STATUS: UI exists but returns mock data
+
+REQUIRED CHANGES:
+
+FILE: src/ui/application/components/ResumeDashboard.tsx
+
+UPDATE handleStatusCheck function (around line 56-80):
+```typescript
+import { trackApplication } from '@/api/dashboard.api';
+
+const handleStatusCheck = async () => {
+  if (!referenceNumber.trim()) {
+    setStatusError('Please enter a reference number');
+    return;
+  }
+
+  setIsSearching(true);
+  setStatusError(null);
+  setStatusResult(null);
+
+  try {
+    const response = await trackApplication(referenceNumber.trim());
+
+    if (response.status === 200 && response.data) {
+      setStatusResult({
+        referenceNumber: response.data.reference_number,
+        status: mapStatusFromAPI(response.data.status),
+        applicantName: response.data.applicant_name,
+        submittedDate: response.data.created_at,
+        cardType: response.data.card_product_name
+      });
+    } else {
+      setStatusError('No application found with this reference number.');
+    }
+  } catch (error) {
+    setStatusError('Unable to fetch application status. Please try again.');
+  } finally {
+    setIsSearching(false);
+  }
+};
+
+// Helper function to map API status to UI status
+const mapStatusFromAPI = (apiStatus: string): ApplicationStatusResult['status'] => {
+  const statusMap: Record<string, ApplicationStatusResult['status']> = {
+    'DRAFT': 'pending',
+    'SUBMITTED': 'processing',
+    'UNDER_REVIEW': 'processing',
+    'APPROVED': 'approved',
+    'REJECTED': 'rejected',
+    'DOCUMENTS_REQUIRED': 'pending'
+  };
+  return statusMap[apiStatus] || 'pending';
+};
+```
+
+FILE: src/api/dashboard.api.ts
+
+Already has the correct implementation (line 87-112), just needs REAL mode.
+
+FEATURE 4: RESUME APPLICATION (DRAFT RESTORATION)
+---------------------------------------------------
+CURRENT STATUS: Hooks exist but not integrated with main form flow
+
+REQUIRED CHANGES:
+
+FILE: src/ui/application/hooks/useApplicationForm.ts
+
+ADD draft restoration logic:
+
+```typescript
+import { useEffect } from 'react';
+import { getDraft } from '@/api/draft.api';
+import { useDraft } from '@/hooks/useDraft';
+
+export function useApplicationForm(sessionId: string) {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [formData, setFormData] = useState<FormData>({});
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Restore draft on mount
+  useEffect(() => {
+    const restoreDraft = async () => {
+      if (!sessionId) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const response = await getDraft(sessionId);
+
+        if (response.status === 200 && response.data?.steps) {
+          const steps = response.data.steps;
+
+          // Find the last incomplete step
+          let lastIncompleteStep = 1;
+          for (let i = 1; i <= 12; i++) {
+            const step = steps[i];
+            if (step?.is_complete === 'Y' || step?.is_complete === true) {
+              lastIncompleteStep = i + 1;
+              // Restore form data
+              setFormData(prev => ({
+                ...prev,
+                ...step.data
+              }));
+            } else {
+              break;
+            }
+          }
+
+          setCurrentStep(lastIncompleteStep);
+        }
+      } catch (error) {
+        console.error('Failed to restore draft:', error);
+        // Start fresh if no draft exists
+        setCurrentStep(1);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    restoreDraft();
+  }, [sessionId]);
+
+  // Auto-save on form data change
+  useEffect(() => {
+    if (!isLoading && sessionId && Object.keys(formData).length > 0) {
+      const saveTimer = setTimeout(async () => {
+        try {
+          await saveDraftStep(sessionId, {
+            session_id: sessionId,
+            step_number: currentStep,
+            step_name: getStepName(currentStep),
+            data: formData,
+            is_complete: false
+          });
+        } catch (error) {
+          console.error('Auto-save failed:', error);
+        }
+      }, 3000); // Auto-save after 3 seconds of inactivity
+
+      return () => clearTimeout(saveTimer);
+    }
+  }, [formData, currentStep, sessionId, isLoading]);
+
+  return {
+    currentStep,
+    setCurrentStep,
+    formData,
+    setFormData,
+    isLoading,
+    isRestoring: isLoading
+  };
+}
+```
+
+FILE: src/api/draft.api.ts
+
+Already has correct implementation (line 35-102), verify all functions work:
+- initializeDraft()
+- getDraft()
+- saveDraftStep()
+- clearDraft()
+
+FEATURE 5: SUPPLEMENTARY CARD
+------------------------------
+CURRENT STATUS: UI components exist, need to wire up to real API
+
+REQUIRED CHANGES:
+
+FILE: src/ui/application/components/SupplementaryCardForm.tsx
+
+UPDATE handleSubmit function:
+
+```typescript
+import { saveSupplementaryCard } from '@/api/application.api';
+
+const handleSubmit = async (cards: SupplementaryCard[]) => {
+  setIsSubmitting(true);
+  setError(null);
+
+  try {
+    if (!applicationId) {
+      setError('Application ID is required');
+      return;
+    }
+
+    const response = await saveSupplementaryCard(applicationId, cards);
+
+    if (response.status === 200) {
+      onSuccess?.(cards);
+    } else {
+      setError('Failed to save supplementary cards');
+    }
+  } catch (error) {
+    setError('Unable to save supplementary cards. Please try again.');
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+```
+
+FILE: src/api/application.api.ts
+
+ADD this function (around line 180-213):
+
+```typescript
+export async function saveSupplementaryCard(
+  applicationId: string,
+  cards: SupplementaryCard[]
+): Promise<ApiResponse> {
+  if (env.MODE === 'MOCK') {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return {
+      status: 200,
+      message: 'Supplementary cards saved successfully',
+      data: { application_id: applicationId }
+    };
+  }
+
+  return http.post(`/applications/${applicationId}/supplementary`, { cards });
+}
+
+export async function getSupplementaryCard(
+  applicationId: string
+): Promise<ApiResponse> {
+  if (env.MODE === 'MOCK') {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return {
+      status: 200,
+      message: 'Supplementary cards retrieved',
+      data: { cards: [] }
+    };
+  }
+
+  return http.get(`/applications/${applicationId}/supplementary`);
+}
+
+export async function deleteSupplementaryCard(
+  applicationId: string,
+  suppId: string
+): Promise<ApiResponse> {
+  if (env.MODE === 'MOCK') {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return {
+      status: 200,
+      message: 'Supplementary card deleted',
+      data: { supp_id: suppId }
+    };
+  }
+
+  return http.delete(`/applications/${applicationId}/supplementary/${suppId}`);
+}
+```
+
+================================================================================
+PHASE 4: ERROR HANDLING & LOADING STATES
+================================================================================
+
+TASK 4.1: Add proper error boundaries
+-------------------------------------
+FILE: src/ui/application/components/ErrorBoundary.tsx (create if not exists)
+
+```typescript
+import React from 'react';
+import { AlertTriangle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+interface Props {
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+}
+
+interface State {
+  hasError: boolean;
+  error: Error | null;
+}
+
+export class ErrorBoundary extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): State {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: any) {
+    console.error('Error caught by boundary:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback || (
+        <div className="flex flex-col items-center justify-center min-h-[400px] p-8">
+          <AlertTriangle className="h-12 w-12 text-destructive mb-4" />
+          <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
+          <p className="text-muted-foreground mb-4">{this.state.error?.message}</p>
+          <Button onClick={() => window.location.reload()}>
+            Reload Page
+          </Button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+```
+
+TASK 4.2: Add loading skeletons
+------------------------------
+Create loading components for:
+- Application list
+- Draft restoration
+- API calls
+
+FILE: src/ui/application/components/LoadingSkeleton.tsx
+
+```typescript
+import { Skeleton } from '@/components/ui/skeleton';
+
+export function ApplicationListSkeleton() {
+  return (
+    <div className="space-y-4">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="p-4 border rounded-lg">
+          <Skeleton className="h-4 w-1/4 mb-2" />
+          <Skeleton className="h-3 w-1/3" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function FormSkeleton() {
+  return (
+    <div className="space-y-6">
+      <Skeleton className="h-10 w-full" />
+      <Skeleton className="h-20 w-full" />
+      <Skeleton className="h-20 w-full" />
+    </div>
+  );
+}
+```
+
+TASK 4.3: Add toast notifications
+---------------------------------
+Use the existing Sonner toast for all actions:
+
+```typescript
+import { toast } from 'sonner';
+
+// Success
+toast.success('Application saved successfully');
+
+// Error
+toast.error('Failed to save. Please try again.');
+
+// Loading
+toast.promise(
+  saveApplication(data),
+  {
+    loading: 'Saving...',
+    success: 'Saved!',
+    error: 'Failed to save'
+  }
+);
+```
+
+================================================================================
+PHASE 5: VERIFICATION & TESTING
+================================================================================
+
+TASK 5.1: Create integration test file
+--------------------------------------
+FILE: src/integration/real-api-test.ts
+
+```typescript
+/**
+ * Integration test to verify REAL API is working
+ */
+
+import { env } from '@/config/env';
+import { checkExistingApplicant } from '@/api/auth.api';
+import { getMyApplications } from '@/api/dashboard.api';
+import { getDraft } from '@/api/draft.api';
+
+export async function testRealAPIIntegration() {
+  console.log('=== REAL API INTEGRATION TEST ===');
+  console.log('Mode:', env.MODE);
+  console.log('API Base URL:', env.API_BASE_URL);
+
+  if (env.MODE !== 'REAL') {
+    console.error('❌ NOT IN REAL MODE! Set VITE_APP_MODE=REAL in .env');
+    return false;
+  }
+
+  try {
+    // Test 1: Check existing applicant
+    console.log('\nTest 1: Check Existing Applicant');
+    const checkResponse = await checkExistingApplicant({
+      nid_number: '1234567890123',
+      mobile_number: '01712345678'
+    });
+    console.log('✅ Check existing applicant:', checkResponse.status);
+
+    // Test 2: Get applications
+    console.log('\nTest 2: Get Applications');
+    const appsResponse = await getMyApplications(1, 10);
+    console.log('✅ Get applications:', appsResponse.status);
+
+    console.log('\n✅ ALL TESTS PASSED');
+    return true;
+  } catch (error) {
+    console.error('❌ TEST FAILED:', error);
+    return false;
+  }
+}
+
+// Run from browser console
+if (typeof window !== 'undefined') {
+  (window as any).testRealAPI = testRealAPIIntegration;
+}
+```
+
+TASK 5.2: Verification checklist
+------------------------------
+After completing all changes, verify:
+
+FRONTEND VERIFICATION:
+- [ ] .env file exists with VITE_APP_MODE=REAL
+- [ ] All API files return real data (not mock)
+- [ ] RM login works with real authentication
+- [ ] Existing application check returns real data from database
+- [ ] Application tracking shows real status
+- [ ] Draft auto-save works on every step
+- [ ] Supplementary card saves to database
+- [ ] All 12 steps save correctly
+- [ ] OTP verification works with real backend
+
+BACKEND VERIFICATION:
+- [ ] Backend server running on http://localhost:8000
+- [ ] Swagger UI accessible at http://localhost:8000/docs
+- [ ] Database connection pool active
+- [ ] All 60 procedures accessible
+- [ ] No errors in backend logs
+
+INTEGRATION VERIFICATION:
+- [ ] Frontend can successfully call backend APIs
+- [ ] Data flows from Frontend → Backend → Database
+- [ ] Drafts are saved and restored correctly
+- [ ] Session management works
+- [ ] OTP flow completes end-to-end
+
+================================================================================
+PHASE 6: FINAL POLISH
+================================================================================
+
+TASK 6.1: Add console logging for debugging
+-----------------------------------------
+Add to src/api/httpClient.ts:
+
+```typescript
+// Log all API calls in development
+if (env.MODE === 'REAL' && import.meta.env.DEV) {
+  console.log(`[API] ${method.toUpperCase()} ${url}`, config?.data || {});
+}
+
+// Log responses
+if (env.MODE === 'REAL' && import.meta.env.DEV) {
+  console.log(`[API Response]`, response.data);
+}
+```
+
+TASK 6.2: Add API timeout handling
+-----------------------------------
+Ensure all API calls have reasonable timeouts:
+
+```typescript
+// In src/api/httpClient.ts
+const http = axios.create({
+  baseURL: env.API_BASE_URL,
+  timeout: 30000, // 30 seconds
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+```
+
+TASK 6.3: Handle network errors gracefully
+-------------------------------------------
+Add error interceptor in src/api/httpClient.ts:
+
+```typescript
+http.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.code === 'ERR_NETWORK') {
+      toast.error('Network error. Please check your connection.');
+    } else if (error.response?.status === 401) {
+      toast.error('Session expired. Please login again.');
+      // Redirect to login
+      window.location.href = '/login';
+    } else if (error.response?.status === 500) {
+      toast.error('Server error. Please try again later.');
+    }
+    return Promise.reject(error);
+  }
+);
+```
+
+================================================================================
+IMPORTANT NOTES FOR LOVABLE AI
+================================================================================
+
+DO NOT MODIFY:
+- ❌ Database schema or DDL scripts
+- ❌ Backend API endpoints or procedures
+- ❌ Frontend UI component structure
+- ❌ TypeScript types/interfaces
+- ❌ Form validation schemas (Zod)
+
+ONLY MODIFY:
+- ✅ Frontend API client files to use REAL mode
+- ✅ Frontend components to call real APIs instead of mock data
+- ✅ Add error handling and loading states
+- ✅ Integrate existing features with backend
+- ✅ Add missing API client functions
+
+CODE STYLE:
+- Follow existing TypeScript patterns
+- Use existing component library (Radix UI + shadcn/ui)
+- Match existing Tailwind CSS styling
+- Use existing API client pattern with http.get/post/put/delete
+- Use existing toast notifications (sonner)
+
+TESTING APPROACH:
+- Start with Feature 1 (Assisted Application)
+- Test each feature completely before moving to next
+- Use browser DevTools to verify API calls
+- Check database after each operation
+- Verify with real data, not mock data
+
+FILES TO PRIORITIZE:
+1. src/api/auth.api.ts - Critical for all auth flows
+2. src/api/draft.api.ts - Critical for resume functionality
+3. src/api/dashboard.api.ts - Critical for tracking
+4. src/api/application.api.ts - Critical for applications
+5. src/ui/application/components/ResumeDashboard.tsx - Main UI
+
+SUCCESS CRITERIA:
+After completion, a user should be able to:
+1. Login as RM and create assisted application
+2. Check if they have existing applications
+3. Track application status with real reference number
+4. Resume a partially filled application (all 12 steps restored)
+5. Add supplementary cards to existing applications
+6. See real data from database (not mock data)
+
+================================================================================
+END OF PROMPT - READY FOR LOVABLE AI TO EXECUTE
+================================================================================
+
+Estimated completion time: 4-6 hours of focused development
+
+All backend APIs are ready and waiting. The frontend UI is complete.
+You just need to wire them together by switching from MOCK to REAL mode
+and ensuring all error handling is in place.
+
+Good luck! 🚀

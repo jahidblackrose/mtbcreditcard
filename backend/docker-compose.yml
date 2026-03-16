@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  # FastAPI Backend
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mtb-credit-card-api
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=oracle
+      - DB_PORT=1521
+      - DB_SERVICE_NAME=XE
+      - DB_USER=mtb_credit
+      - DB_PASSWORD=mtb_credit_password
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - FRONTEND_URL=http://localhost:5173
+    depends_on:
+      - oracle
+      - redis
+    volumes:
+      - ./app:/app/app
+      - ./uploads:/app/uploads
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - mtb-network
+
+  # Oracle XE Database
+  oracle:
+    image: gvenzl/oracle-xe:21-slim-faststart
+    container_name: mtb-oracle-xe
+    ports:
+      - "1521:1521"
+      - "5500:5500"
+    environment:
+      - ORACLE_PASSWORD=mtb_credit_password
+      - APP_USER=mtb_credit
+      - APP_USER_PASSWORD=mtb_credit_password
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+      - ../database:/docker-entrypoint-initdb.d:ro
+    networks:
+      - mtb-network
+    healthcheck:
+      test: ["CMD", "sqlplus", "-L", "mtb_credit/mtb_credit_password@//localhost:1521/XE", "as sysdba", "@@/tmp/healthcheck.sql"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: mtb-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes --requirepass mtb_redis_password
+    networks:
+      - mtb-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  oracle-data:
+    driver: local
+  redis-data:
+    driver: local
+
+networks:
+  mtb-network:
+    driver: bridge

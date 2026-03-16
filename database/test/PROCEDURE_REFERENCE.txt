@@ -1,0 +1,357 @@
+=============================================================================
+MTB CREDIT CARD APPLICATION - PROCEDURE QUICK REFERENCE
+All 60 Procedures (501-560) for Manual Testing
+=============================================================================
+
+REFERENCE DATA (501-504)
+=============================================================================
+501 get_card_products
+   IN:  (none)
+   OUT: p_status, p_message, p_json_out
+   TEST: Returns all card products (network x tier combinations)
+
+502 get_reference_data
+   IN:  p_reference_type (CARD_NETWORK, CARD_TIER, etc.)
+   OUT: p_status, p_message, p_json_out
+   TEST: Get dropdown values for any reference type
+
+503 check_eligibility
+   IN:  p_date_of_birth, p_citizen_status
+   OUT: p_status, p_message, p_json_out
+   TEST: Check if applicant is eligible (age >= 18, citizen)
+
+504 get_bank_list
+   IN:  (none)
+   OUT: p_status, p_message, p_json_out
+   TEST: Returns list of banks for dropdown
+
+APPLICATION CRUD (505-510)
+=============================================================================
+505 create_application
+   IN:  p_json_in (applicantId, cardNetwork, cardTier, etc.)
+   OUT: p_status, p_message, p_json_out (applicationId, referenceNo)
+   TEST: Create new application, returns new ID and reference number
+
+506 get_application
+   IN:  p_application_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Get full application details by ID
+
+507 get_application_by_reference
+   IN:  p_reference_no (e.g., MTB-CC-2024-000001)
+   OUT: p_status, p_message, p_json_out
+   TEST: Find application by reference number
+
+508 get_application_by_mobile
+   IN:  p_mobile_number
+   OUT: p_status, p_message, p_json_out
+   TEST: Get all applications for a mobile number
+
+509 update_application_status
+   IN:  p_application_id, p_application_status
+   OUT: p_status, p_message, p_json_out
+   TEST: Update application status (DRAFT, SUBMITTED, etc.)
+
+510 submit_application
+   IN:  p_application_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Mark application as submitted
+
+PRE-APPLICATION & OTP (511-516)
+=============================================================================
+511 check_existing_applicant
+   IN:  p_mobile_number, p_nid_number
+   OUT: p_status, p_message, p_json_out
+   TEST: Check if applicant already exists
+
+512 request_otp
+   IN:  p_mobile_number, p_session_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Generate and send OTP (logs to TCC_OTP_ATTEMPT)
+
+513 verify_otp
+   IN:  p_mobile_number, p_otp_code, p_session_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Verify OTP code
+
+514 get_otp_status
+   IN:  p_mobile_number, p_session_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Get OTP attempts remaining, locked status
+
+515 verify_otp_extended
+   IN:  p_mobile_number, p_otp_code, p_session_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Verify OTP and cleanup session
+
+STEP 1: CARD SELECTION (517)
+=============================================================================
+517 save_card_selection
+   IN:  p_application_id, p_json_in (cardNetwork, cardTier, etc.)
+   OUT: p_status, p_message, p_json_out
+   TEST: Save selected card product
+
+STEP 2: PERSONAL INFO (518-519)
+=============================================================================
+518 save_personal_info
+   IN:  p_application_id, p_json_in (fullName, fatherName, etc.)
+   OUT: p_status, p_message, p_json_out
+   TEST: Save personal details to TCC_APPLICANT
+
+519 save_addresses
+   IN:  p_application_id, p_json_in (presentAddress, permanentAddress)
+   OUT: p_status, p_message, p_json_out
+   TEST: Save addresses as JSON to applicant table
+
+STEP 3: PROFESSIONAL INFO (520)
+=============================================================================
+520 save_professional_info
+   IN:  p_application_id, p_json_in (customerSegment, organizationName, etc.)
+   OUT: p_status, p_message, p_json_out
+   TEST: Save to TCC_PROFESSIONAL_DETAILS
+
+STEP 4: MONTHLY INCOME (521)
+=============================================================================
+521 save_monthly_income
+   IN:  p_application_id, p_json_in (isSalaried, grossSalary, etc.)
+   OUT: p_status, p_message, p_json_out
+   TEST: Save to TCC_INCOME_DETAILS
+
+STEP 5: BANK ACCOUNTS (522-524)
+=============================================================================
+522 save_bank_accounts
+   IN:  p_application_id, p_json_in (bankAccounts: [...])
+   OUT: p_status, p_message, p_json_out
+   TEST: Save multiple bank accounts
+
+523 get_bank_accounts
+   IN:  p_application_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Get all bank accounts for application
+
+524 delete_bank_account
+   IN:  p_bank_account_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Delete specific bank account
+
+STEP 6: CREDIT FACILITIES (525-527)
+=============================================================================
+525 save_credit_facilities
+   IN:  p_application_id, p_json_in (creditFacilities: [...])
+   OUT: p_status, p_message, p_json_out
+   TEST: Save existing cards/loans
+
+526 get_credit_facilities
+   IN:  p_application_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Get all credit facilities
+
+527 delete_credit_facility
+   IN:  p_facility_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Delete specific credit facility
+
+STEP 7: NOMINEE/MPP (528-529)
+=============================================================================
+528 save_nominee_details
+   IN:  p_application_id, p_json_in (nomineeName, relationship, etc.)
+   OUT: p_status, p_message, p_json_out
+   TEST: Save nominee for MTB Protection Plan
+
+529 get_nominee_details
+   IN:  p_application_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Get nominee details
+
+STEP 8: SUPPLEMENTARY CARD (530-532)
+=============================================================================
+530 save_supplementary_card
+   IN:  p_application_id, p_json_in (fullName, relationship, etc.)
+   OUT: p_status, p_message, p_json_out
+   TEST: Add supplementary card holder
+
+531 get_supplementary_card
+   IN:  p_application_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Get all supplementary cards
+
+532 delete_supplementary_card
+   IN:  p_supplementary_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Delete specific supplementary card
+
+STEP 9: REFERENCES (533-534)
+=============================================================================
+533 save_references
+   IN:  p_application_id, p_json_in (reference1, reference2)
+   OUT: p_status, p_message, p_json_out
+   TEST: Save two mandatory references
+
+534 get_references
+   IN:  p_application_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Get both references
+
+STEP 10: IMAGES & SIGNATURES (535-538)
+=============================================================================
+535 save_applicant_media
+   IN:  p_application_id, p_json_in (photo/signature URLs)
+   OUT: p_status, p_message, p_json_out
+   TEST: Save photo and signature URLs
+
+536 get_applicant_media
+   IN:  p_application_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Get all media URLs
+
+537 upload_document
+   IN:  p_application_id, p_json_in (documentType, fileUrl, etc.)
+   OUT: p_status, p_message, p_json_out
+   TEST: Save document metadata
+
+538 get_documents
+   IN:  p_application_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Get all uploaded documents
+
+STEP 11: AUTO DEBIT (539-540)
+=============================================================================
+539 save_auto_debit
+   IN:  p_application_id, p_json_in (autoDebitPreference, etc.)
+   OUT: p_status, p_message, p_json_out
+   TEST: Save auto debit instruction
+
+540 get_auto_debit
+   IN:  p_application_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Get auto debit details
+
+STEP 12: MID DECLARATIONS (541-542)
+=============================================================================
+541 save_mid_declarations
+   IN:  p_application_id, p_json_in (declarations, checklist, etc.)
+   OUT: p_status, p_message, p_json_out
+   TEST: Save MID declarations and document checklist
+
+542 get_mid_declarations
+   IN:  p_application_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Get declarations
+
+FULL APPLICATION SAVE (543)
+=============================================================================
+543 save_full_application
+   IN:  p_application_id, p_json_in (all sections)
+   OUT: p_status, p_message, p_json_out
+   TEST: Save complete application in one call
+
+SESSION MANAGEMENT (544-548)
+=============================================================================
+544 create_session
+   IN:  p_mode (SELF/ASSISTED)
+   OUT: p_status, p_message, p_json_out (sessionId)
+   TEST: Create new session, returns session ID
+
+545 get_session
+   IN:  p_session_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Get session details
+
+546 extend_session
+   IN:  p_session_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Extend session by 30 minutes
+
+547 end_session
+   IN:  p_session_id
+   OUT: p_status, p_message
+   TEST: Mark session as inactive
+
+548 validate_session
+   IN:  p_session_id
+   OUT: p_status, p_message, p_json_out (valid, expired)
+   TEST: Check if session is valid
+
+DRAFT MANAGEMENT (549-553)
+=============================================================================
+549 initialize_draft
+   IN:  p_session_id, p_mode, p_application_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Create new draft record
+
+550 get_draft
+   IN:  p_session_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Get current draft data
+
+551 save_draft_step
+   IN:  p_session_id, p_step_number, p_json_in
+   OUT: p_status, p_message, p_json_out
+   TEST: Save step data to draft
+
+552 clear_draft
+   IN:  p_session_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Clear all draft data
+
+553 get_step_versions
+   IN:  p_session_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Get version history for all steps
+
+SUBMISSION (554-556)
+=============================================================================
+554 submit_by_session
+   IN:  p_session_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Submit application from session
+
+555 submit_full_application
+   IN:  p_json_in (sessionId)
+   OUT: p_status, p_message, p_json_out
+   TEST: Wrapper for submit_by_session
+
+556 get_submission_status
+   IN:  p_application_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Get submission status and timestamp
+
+DASHBOARD & REPORTING (557-560)
+=============================================================================
+557 get_my_applications
+   IN:  p_applicant_id, p_page, p_page_size
+   OUT: p_status, p_message, p_json_out
+   TEST: Get paginated list of applicant's applications
+
+558 track_by_reference
+   IN:  p_reference_no
+   OUT: p_status, p_message, p_json_out
+   TEST: Track application status by reference number
+
+559 get_dashboard_stats
+   IN:  p_applicant_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Get dashboard statistics
+
+560 get_application_details
+   IN:  p_application_id
+   OUT: p_status, p_message, p_json_out
+   TEST: Get COMPLETE application with all related data
+
+=============================================================================
+TESTING CHECKLIST
+=============================================================================
+[ ] All reference procedures return valid JSON
+[ ] Application creation generates unique reference number
+[ ] OTP procedures work (check TCC_OTP_ATTEMPT table)
+[ ] All 12 form steps save data correctly
+[ ] Bank accounts and credit facilities handle arrays
+[ ] Supplementary card CRUD operations work
+[ ] Document upload saves metadata
+[ ] Session creation, validation, expiry work
+[ ] Draft auto-save and retrieval work
+[ ] Full application submission completes
+[ ] Dashboard queries return paginated results
+[ ] No errors logged to TCC_ERROR_LOG
+
+=============================================================================
