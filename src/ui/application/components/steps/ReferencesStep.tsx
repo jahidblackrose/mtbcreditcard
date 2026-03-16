@@ -1,23 +1,27 @@
 /**
  * Step 9: References (Mandatory - Two)
- * 
+ * Enhanced with better UX, clear validation, and professional design
  * Fixed focus/cursor issues by using proper input styling
  */
 
 import { useForm } from 'react-hook-form';
+import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Users, UserCircle } from 'lucide-react';
 import { referencesSchema, type ReferencesFormData } from '@/lib/validation-schemas';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { StepFormWrapper, FormSection, FieldRow } from '@/components';
 import { cn } from '@/lib/utils';
 import type { ReferencesData } from '@/types/application-form.types';
 
 interface ReferencesStepProps {
   initialData?: Partial<ReferencesData>;
   onSave: (data: ReferencesData) => void;
+  onFormReady?: (form: any) => void;
 }
 
 const RELATIONSHIPS = [
@@ -79,7 +83,7 @@ const ReferenceInput = ({
   />
 );
 
-export function ReferencesStep({ initialData, onSave }: ReferencesStepProps) {
+export function ReferencesStep({ initialData, onSave, onFormReady }: ReferencesStepProps) {
   const form = useForm<ReferencesFormData>({
     resolver: zodResolver(referencesSchema),
     defaultValues: {
@@ -88,6 +92,13 @@ export function ReferencesStep({ initialData, onSave }: ReferencesStepProps) {
     },
     mode: 'onChange',
   });
+
+  // Expose form to parent when ready
+  useEffect(() => {
+    if (onFormReady) {
+      onFormReady(form);
+    }
+  }, [form, onFormReady]);
 
   const handleFieldChange = () => {
     const values = form.getValues();
@@ -222,21 +233,21 @@ export function ReferencesStep({ initialData, onSave }: ReferencesStepProps) {
   };
 
   return (
-    <Form {...form}>
-      <form className="space-y-6" onChange={handleFieldChange}>
-        <div className="space-y-2">
-          <h3 className="text-lg font-semibold">References</h3>
-          <p className="text-sm text-muted-foreground">
-            Please provide details of two references. These should be people who know you personally or professionally.
-          </p>
-        </div>
+    <StepFormWrapper form={form}
+      stepNumber={9}
+      title="References"
+      description="Please provide details of two references who know you personally or professionally"
+      hint="References help us verify your information. Please ensure your referees are aware and can be contacted if needed."
+    >
+      <Form {...form}>
+        <form className="space-y-6" onChange={handleFieldChange}>
+          <ReferenceCard refNum={1} />
 
-        <ReferenceCard refNum={1} />
-        
-        <Separator />
-        
-        <ReferenceCard refNum={2} />
-      </form>
-    </Form>
+          <Separator />
+
+          <ReferenceCard refNum={2} />
+        </form>
+      </Form>
+    </StepFormWrapper>
   );
 }

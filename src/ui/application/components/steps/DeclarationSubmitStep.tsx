@@ -1,13 +1,15 @@
 /**
- * Step 12: Declaration & Submit
+ * Step 13: Declaration & Submit
  * Final step with terms, declaration, live photo, and submit
+ * Enhanced with consistent UX patterns
  */
 
 import { useState, useEffect, useRef } from 'react';
+import { Shield, FileText, Camera, Check, Loader2, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
-import { AlertTriangle, Camera, Check, FileText, Shield, Loader2 } from 'lucide-react';
+import { StepFormWrapper } from '@/components';
 import { FaceCapture } from '@/ui/application/components/FaceCapture';
 import { cn } from '@/lib/utils';
 import type { SupplementaryCardData } from '@/types/application-form.types';
@@ -81,7 +83,14 @@ export function DeclarationSubmitStep({
   const isReadyToSubmit = localTerms && localDeclaration && livePhoto !== null;
 
   return (
-    <div className="space-y-6">
+    <StepFormWrapper
+      stepNumber={13}
+      title="Final Review & Submit"
+      description="Review your information and submit your application"
+      hint="Please review all information before submitting. Once submitted, you cannot make changes without contacting customer service."
+      showValidationSummary={false}
+    >
+      <div className="space-y-6">
       {/* Live Photo Verification */}
       <Card className="border-primary/20">
         <CardHeader>
@@ -274,5 +283,6 @@ export function DeclarationSubmitStep({
         </CardContent>
       </Card>
     </div>
+    </StepFormWrapper>
   );
 }

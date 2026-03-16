@@ -1,24 +1,28 @@
 /**
  * Step 4: Monthly Income Details
+ * Enhanced with better UX, clear sections, and helpful hints
  */
 
 import { useForm, useFieldArray } from 'react-hook-form';
+import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { DollarSign, Briefcase, TrendingUp, Plus, Trash2 } from 'lucide-react';
 import { monthlyIncomeSchema, type MonthlyIncomeFormData } from '@/lib/validation-schemas';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Trash2 } from 'lucide-react';
+import { StepFormWrapper, FormSection, FieldRow } from '@/components';
 import type { MonthlyIncomeData } from '@/types/application-form.types';
 
 interface MonthlyIncomeStepProps {
   initialData?: Partial<MonthlyIncomeData>;
   onSave: (data: MonthlyIncomeData) => void;
+  onFormReady?: (form: any) => void;
 }
 
-export function MonthlyIncomeStep({ initialData, onSave }: MonthlyIncomeStepProps) {
+export function MonthlyIncomeStep({ initialData, onSave, onFormReady }: MonthlyIncomeStepProps) {
   const form = useForm<MonthlyIncomeFormData>({
     resolver: zodResolver(monthlyIncomeSchema),
     defaultValues: {
@@ -37,6 +41,13 @@ export function MonthlyIncomeStep({ initialData, onSave }: MonthlyIncomeStepProp
     },
     mode: 'onChange',
   });
+
+  // Expose form to parent when ready
+  useEffect(() => {
+    if (onFormReady) {
+      onFormReady(form);
+    }
+  }, [form, onFormReady]);
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -57,8 +68,14 @@ export function MonthlyIncomeStep({ initialData, onSave }: MonthlyIncomeStepProp
   };
 
   return (
-    <Form {...form}>
-      <form className="space-y-6" onChange={handleFieldChange}>
+    <StepFormWrapper form={form}
+      stepNumber={4}
+      title="Income Information"
+      description="Please provide your monthly income details"
+      hint="Your income information helps us assess your credit eligibility. All amounts are in Bangladeshi Taka (BDT)."
+    >
+      <Form {...form}>
+        <form className="space-y-6" onChange={handleFieldChange}>
         {/* Employment Type Toggle */}
         <FormField
           control={form.control}
@@ -84,26 +101,22 @@ export function MonthlyIncomeStep({ initialData, onSave }: MonthlyIncomeStepProp
         {/* Salaried Income Section */}
         {isSalaried && (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Salaried Income (BDT)</h3>
+            <h3 className="text-lg font-semibold">Salaried Income</h3>
             
             <FormField
               control={form.control}
               name="salariedIncome.grossSalary"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Gross Salary</FormLabel>
+                  <FormLabel>Gross Salary (৳)</FormLabel>
                   <FormControl>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">৳</span>
-                      <Input
-                        {...field}
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="0"
-                        className="pl-8"
-                        onChange={(e) => field.onChange(formatAmount(e.target.value))}
-                      />
-                    </div>
+                    <Input
+                      {...field}
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="0"
+                      onChange={(e) => field.onChange(formatAmount(e.target.value))}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -115,19 +128,15 @@ export function MonthlyIncomeStep({ initialData, onSave }: MonthlyIncomeStepProp
               name="salariedIncome.totalDeduction"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Total Deduction</FormLabel>
+                  <FormLabel>Total Deduction (৳)</FormLabel>
                   <FormControl>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">৳</span>
-                      <Input
-                        {...field}
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="0"
-                        className="pl-8"
-                        onChange={(e) => field.onChange(formatAmount(e.target.value))}
-                      />
-                    </div>
+                    <Input
+                      {...field}
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="0"
+                      onChange={(e) => field.onChange(formatAmount(e.target.value))}
+                    />
                   </FormControl>
                   <FormDescription>Tax, PF, Insurance, etc.</FormDescription>
                   <FormMessage />
@@ -140,19 +149,15 @@ export function MonthlyIncomeStep({ initialData, onSave }: MonthlyIncomeStepProp
               name="salariedIncome.netSalary"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Net Salary</FormLabel>
+                  <FormLabel>Net Salary (৳)</FormLabel>
                   <FormControl>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">৳</span>
-                      <Input
-                        {...field}
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="0"
-                        className="pl-8"
-                        onChange={(e) => field.onChange(formatAmount(e.target.value))}
-                      />
-                    </div>
+                    <Input
+                      {...field}
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="0"
+                      onChange={(e) => field.onChange(formatAmount(e.target.value))}
+                    />
                   </FormControl>
                   <FormDescription>Take-home salary after deductions</FormDescription>
                   <FormMessage />
@@ -165,26 +170,22 @@ export function MonthlyIncomeStep({ initialData, onSave }: MonthlyIncomeStepProp
         {/* Business Income Section */}
         {!isSalaried && (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Business Income (BDT)</h3>
+            <h3 className="text-lg font-semibold">Business Income</h3>
             
             <FormField
               control={form.control}
               name="businessIncome.grossIncome"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Gross Income</FormLabel>
+                  <FormLabel>Gross Income (৳)</FormLabel>
                   <FormControl>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">৳</span>
-                      <Input
-                        {...field}
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="0"
-                        className="pl-8"
-                        onChange={(e) => field.onChange(formatAmount(e.target.value))}
-                      />
-                    </div>
+                    <Input
+                      {...field}
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="0"
+                      onChange={(e) => field.onChange(formatAmount(e.target.value))}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -196,19 +197,15 @@ export function MonthlyIncomeStep({ initialData, onSave }: MonthlyIncomeStepProp
               name="businessIncome.totalExpenses"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Total Expenses</FormLabel>
+                  <FormLabel>Total Expenses (৳)</FormLabel>
                   <FormControl>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">৳</span>
-                      <Input
-                        {...field}
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="0"
-                        className="pl-8"
-                        onChange={(e) => field.onChange(formatAmount(e.target.value))}
-                      />
-                    </div>
+                    <Input
+                      {...field}
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="0"
+                      onChange={(e) => field.onChange(formatAmount(e.target.value))}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -220,19 +217,15 @@ export function MonthlyIncomeStep({ initialData, onSave }: MonthlyIncomeStepProp
               name="businessIncome.netIncome"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Net Income</FormLabel>
+                  <FormLabel>Net Income (৳)</FormLabel>
                   <FormControl>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">৳</span>
-                      <Input
-                        {...field}
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="0"
-                        className="pl-8"
-                        onChange={(e) => field.onChange(formatAmount(e.target.value))}
-                      />
-                    </div>
+                    <Input
+                      {...field}
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="0"
+                      onChange={(e) => field.onChange(formatAmount(e.target.value))}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -288,19 +281,15 @@ export function MonthlyIncomeStep({ initialData, onSave }: MonthlyIncomeStepProp
                   name={`additionalIncomeSources.${index}.amount`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Amount (BDT)</FormLabel>
+                      <FormLabel>Amount (৳)</FormLabel>
                       <FormControl>
-                        <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">৳</span>
-                          <Input
-                            {...field}
-                            type="text"
-                            inputMode="numeric"
-                            placeholder="0"
-                            className="pl-8"
-                            onChange={(e) => field.onChange(formatAmount(e.target.value))}
-                          />
-                        </div>
+                        <Input
+                          {...field}
+                          type="text"
+                          inputMode="numeric"
+                          placeholder="0"
+                          onChange={(e) => field.onChange(formatAmount(e.target.value))}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -320,7 +309,8 @@ export function MonthlyIncomeStep({ initialData, onSave }: MonthlyIncomeStepProp
             </div>
           ))}
         </div>
-      </form>
-    </Form>
+        </form>
+      </Form>
+    </StepFormWrapper>
   );
 }

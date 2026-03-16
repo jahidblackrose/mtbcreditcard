@@ -1,13 +1,15 @@
 /**
  * Step 6: Banking Activity - Credit Cards/Loans (Optional)
+ * Enhanced with consistent UX patterns
  */
 
 import { useForm, useFieldArray } from 'react-hook-form';
+import { CreditCard, Plus, Trash2, Building2 } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2 } from 'lucide-react';
+import { StepFormWrapper, FormSection } from '@/components';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { CreditFacilityData } from '@/types/application-form.types';
@@ -75,20 +77,26 @@ export function CreditFacilitiesStep({ initialData = [], onSave }: CreditFacilit
   };
 
   return (
-    <Form {...form}>
-      <form className="space-y-6" onChange={handleFieldChange}>
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold">Existing Credit Facilities</h3>
-            <p className="text-sm text-muted-foreground">
-              This section is optional. Add any existing credit cards or loans.
-            </p>
+    <StepFormWrapper form={form}
+      stepNumber={6}
+      title="Existing Credit Facilities"
+      description="Add any existing credit cards or loans (Optional)"
+      hint="Information about existing credit facilities helps us assess your creditworthiness. This includes credit cards from any bank."
+    >
+      <Form {...form}>
+        <form className="space-y-6" onChange={handleFieldChange}>
+        <FormSection
+          title="Existing Credit Facilities"
+          description="This section is optional. Add any existing credit cards or loans."
+          icon={<Building2 className="h-5 w-5" />}
+        >
+          <div className="flex justify-end mb-4">
+            <Button type="button" variant="outline" onClick={addFacility}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Facility
+            </Button>
           </div>
-          <Button type="button" variant="outline" onClick={addFacility}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Facility
-          </Button>
-        </div>
+        </FormSection>
 
         {fields.length === 0 && (
           <div className="text-center py-12 border-2 border-dashed border-muted rounded-lg">
@@ -176,19 +184,15 @@ export function CreditFacilitiesStep({ initialData = [], onSave }: CreditFacilit
                 name={`facilities.${index}.limit`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Limit (BDT)</FormLabel>
+                    <FormLabel>Limit (৳)</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">৳</span>
-                        <Input
-                          {...field}
-                          type="text"
-                          inputMode="numeric"
-                          placeholder="0"
-                          className="pl-8"
-                          onChange={(e) => field.onChange(formatAmount(e.target.value))}
-                        />
-                      </div>
+                      <Input
+                        {...field}
+                        type="text"
+                        inputMode="numeric"
+                        placeholder="0"
+                        onChange={(e) => field.onChange(formatAmount(e.target.value))}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -200,19 +204,15 @@ export function CreditFacilitiesStep({ initialData = [], onSave }: CreditFacilit
                 name={`facilities.${index}.monthlyInstallment`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Monthly Installment (BDT)</FormLabel>
+                    <FormLabel>Monthly Installment (৳)</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">৳</span>
-                        <Input
-                          {...field}
-                          type="text"
-                          inputMode="numeric"
-                          placeholder="0"
-                          className="pl-8"
-                          onChange={(e) => field.onChange(formatAmount(e.target.value))}
-                        />
-                      </div>
+                      <Input
+                        {...field}
+                        type="text"
+                        inputMode="numeric"
+                        placeholder="0"
+                        onChange={(e) => field.onChange(formatAmount(e.target.value))}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -221,7 +221,8 @@ export function CreditFacilitiesStep({ initialData = [], onSave }: CreditFacilit
             </div>
           </div>
         ))}
-      </form>
-    </Form>
+        </form>
+      </Form>
+    </StepFormWrapper>
   );
 }

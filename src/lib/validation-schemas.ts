@@ -13,15 +13,15 @@ import { z } from 'zod';
 // Bangladesh NID: 10, 13, or 17 digits
 const nidSchema = z.string()
   .refine((val) => /^\d{10}$|^\d{13}$|^\d{17}$/.test(val), {
-    message: 'NID must be 10, 13, or 17 digits',
+    message: 'Please enter a valid NID (10, 13, or 17 digits)',
   });
 
 // Bangladesh Mobile: 11 digits starting with 01 (allows 01[3-9]XXXXXXXX)
 const bdMobileSchema = z.string()
-  .min(11, { message: 'Mobile number must be 11 digits' })
+  .min(11, { message: 'Mobile number is required (11 digits)' })
   .max(11, { message: 'Mobile number must be 11 digits' })
   .refine((val) => /^01[3-9]\d{8}$/.test(val), {
-    message: 'Enter a valid Bangladesh mobile number (01XXXXXXXXX)',
+    message: 'Please enter a valid mobile number (01XXXXXXXXX)',
   });
 
 // Age validation (18+)
@@ -38,40 +38,42 @@ const ageValidator = (dateString: string): boolean => {
 
 // Email validation
 const emailSchema = z.string()
-  .email({ message: 'Invalid email address' })
-  .max(255, { message: 'Email must be less than 255 characters' });
+  .email({ message: 'Please enter a valid email address' })
+  .max(255, { message: 'Email is too long' });
 
 // Name validation (block letters)
 const blockLettersNameSchema = z.string()
-  .min(2, { message: 'Name must be at least 2 characters' })
-  .max(100, { message: 'Name must be less than 100 characters' })
-  .regex(/^[A-Z\s.]+$/, { message: 'Name must be in BLOCK LETTERS (A-Z only)' });
+  .min(2, { message: 'Name is required (at least 2 characters)' })
+  .max(100, { message: 'Name is too long (max 100 characters)' })
+  .regex(/^[A-Z\s.]+$/, { message: 'Please enter in BLOCK LETTERS only (e.g., JOHN DOE)' });
 
 // Regular name
 const nameSchema = z.string()
-  .min(2, { message: 'Name must be at least 2 characters' })
-  .max(100, { message: 'Name must be less than 100 characters' })
-  .regex(/^[A-Za-z\s.]+$/, { message: 'Name can only contain letters, spaces, and dots' });
+  .min(2, { message: 'Name is required (at least 2 characters)' })
+  .max(100, { message: 'Name is too long (max 100 characters)' })
+  .regex(/^[A-Za-z\s.]+$/, { message: 'Please enter a valid name (letters only)' });
 
 // Amount as string
 const amountSchema = z.string()
-  .regex(/^\d+(\.\d{1,2})?$/, { message: 'Invalid amount format' });
+  .min(1, { message: 'Amount is required' })
+  .regex(/^\d+(\.\d{1,2})?$/, { message: 'Please enter a valid amount' });
 
 // Date string (ISO format)
 const dateStringSchema = z.string()
-  .refine((val) => !isNaN(Date.parse(val)), { message: 'Invalid date' });
+  .min(1, { message: 'Date is required' })
+  .refine((val) => !isNaN(Date.parse(val)), { message: 'Please enter a valid date' });
 
 // ============================================
 // ADDRESS SCHEMA
 // ============================================
 
 export const addressSchema = z.object({
-  addressLine1: z.string().min(5, 'Address is required').max(200),
+  addressLine1: z.string().min(5, { message: 'Address is required (min 5 characters)' }).max(200, { message: 'Address is too long' }),
   addressLine2: z.string().max(200).optional(),
-  city: z.string().min(2, 'City is required').max(50),
-  district: z.string().min(2, 'District is required').max(50),
-  thana: z.string().min(2, 'Thana is required').max(50).optional(),
-  postalCode: z.string().regex(/^\d{4}$/, 'Postal code must be 4 digits'),
+  city: z.string().min(2, { message: 'City is required' }).max(50),
+  district: z.string().min(2, { message: 'District is required' }).max(50),
+  thana: z.string().min(2, { message: 'Thana is required' }).max(50).optional(),
+  postalCode: z.string().regex(/^\d{4}$/, { message: 'Postal code must be 4 digits' }),
   country: z.string().min(2).max(50).default('Bangladesh'),
 });
 
@@ -110,17 +112,17 @@ export const cardSelectionSchema = z.object({
 export const personalInfoSchema = z.object({
   nameOnCard: blockLettersNameSchema,
   nationality: z.string().min(2).max(50).default('Bangladeshi'),
-  homeDistrict: z.string().min(2, 'Home District is required').max(50),
-  gender: z.enum(['MALE', 'FEMALE', 'OTHER']),
+  homeDistrict: z.string().min(2, { message: 'Home District is required' }).max(50),
+  gender: z.enum(['MALE', 'FEMALE', 'OTHER'], { required_error: 'Gender is required' }),
   dateOfBirth: dateStringSchema,
-  religion: z.enum(['ISLAM', 'HINDUISM', 'CHRISTIANITY', 'BUDDHISM', 'OTHER']),
+  religion: z.enum(['ISLAM', 'HINDUISM', 'CHRISTIANITY', 'BUDDHISM', 'OTHER'], { required_error: 'Religion is required' }),
   fatherName: nameSchema,
   motherName: nameSchema,
-  maritalStatus: z.enum(['SINGLE', 'MARRIED']),
+  maritalStatus: z.enum(['SINGLE', 'MARRIED'], { required_error: 'Marital status is required' }),
   spouseName: nameSchema.optional(),
   spouseProfession: z.string().max(100).optional(),
   nidNumber: nidSchema,
-  tin: z.string().regex(/^\d{12}$/, 'TIN must be 12 digits').optional().or(z.literal('')),
+  tin: z.string().regex(/^\d{12}$/, { message: 'TIN must be 12 digits' }).optional().or(z.literal('')),
   passportNumber: z.string().max(20).optional().or(z.literal('')),
   passportIssueDate: dateStringSchema.optional().or(z.literal('')),
   passportExpiryDate: dateStringSchema.optional().or(z.literal('')),
@@ -130,7 +132,7 @@ export const personalInfoSchema = z.object({
   mailingAddressType: z.enum(['PRESENT', 'PERMANENT', 'OFFICE']),
   mobileNumber: bdMobileSchema,
   email: emailSchema,
-  educationalQualification: z.enum(['SSC', 'HSC', 'GRADUATE', 'POST_GRADUATE', 'PHD', 'OTHER']),
+  educationalQualification: z.enum(['SSC', 'HSC', 'GRADUATE', 'POST_GRADUATE', 'PHD', 'OTHER'], { required_error: 'Education is required' }),
 }).refine(
   (data) => data.maritalStatus !== 'MARRIED' || (data.spouseName && data.spouseName.length > 0),
   { message: 'Spouse name is required for married applicants', path: ['spouseName'] }
@@ -141,11 +143,11 @@ export const personalInfoSchema = z.object({
 // ============================================
 
 export const professionalInfoSchema = z.object({
-  customerSegment: z.enum(['SALARIED', 'BUSINESS_PERSON', 'SELF_EMPLOYED', 'LANDLORD', 'OTHER']),
-  organizationName: z.string().min(2, 'Organization name is required').max(150),
+  customerSegment: z.enum(['SALARIED', 'BUSINESS_PERSON', 'SELF_EMPLOYED', 'LANDLORD', 'OTHER'], { required_error: 'Customer segment is required' }),
+  organizationName: z.string().min(2, { message: 'Organization name is required' }).max(150),
   parentGroup: z.string().max(150).optional().or(z.literal('')),
   department: z.string().max(100).optional().or(z.literal('')),
-  designation: z.string().min(2, 'Designation is required').max(100),
+  designation: z.string().min(2, { message: 'Designation is required' }).max(100),
   officeAddress: addressSchema,
   lengthOfServiceYears: z.number().min(0).max(50),
   lengthOfServiceMonths: z.number().min(0).max(11),

@@ -1,25 +1,29 @@
 /**
- * Step 1: Card & Credit Limit Details - Mobile Banking App Style
+ * Step 1: Card & Credit Limit Details
+ * Using standard FormSection pattern like ProfessionalInfoStep
  */
 
 import { useForm } from 'react-hook-form';
+import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { CreditCard, Sparkles } from 'lucide-react';
 import { cardSelectionSchema, type CardSelectionFormData } from '@/lib/validation-schemas';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
-import { CreditCard, Check } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { StepFormWrapper, FormSection, FieldRow } from '@/components';
 import type { CardSelectionData } from '@/types/application-form.types';
-import { MobileFormCard, MobileFormSection } from '@/ui/mobile/components';
 
 interface CardSelectionStepProps {
   initialData?: Partial<CardSelectionData>;
   onSave: (data: CardSelectionData) => void;
+  onFormReady?: (form: any) => void;
 }
 
 const CARD_NETWORKS = [
-  { value: 'MASTERCARD', label: 'Mastercard', icon: '💳' },
-  { value: 'VISA', label: 'Visa', icon: '💳' },
-  { value: 'UNIONPAY', label: 'UnionPay', icon: '💳' },
+  { value: 'MASTERCARD', label: 'Mastercard' },
+  { value: 'VISA', label: 'Visa' },
+  { value: 'UNIONPAY', label: 'UnionPay' },
 ];
 
 const CARD_TIERS = [
@@ -37,7 +41,7 @@ const CARD_CATEGORIES = [
   { value: 'CO_BRANDED', label: 'Co-Branded' },
 ];
 
-export function CardSelectionStep({ initialData, onSave }: CardSelectionStepProps) {
+export function CardSelectionStep({ initialData, onSave, onFormReady }: CardSelectionStepProps) {
   const form = useForm<CardSelectionFormData>({
     resolver: zodResolver(cardSelectionSchema),
     defaultValues: {
@@ -49,9 +53,12 @@ export function CardSelectionStep({ initialData, onSave }: CardSelectionStepProp
     mode: 'onChange',
   });
 
-  const selectedNetwork = form.watch('cardNetwork');
-  const selectedTier = form.watch('cardTier');
-  const selectedCategory = form.watch('cardCategory');
+  // Expose form to parent when ready
+  useEffect(() => {
+    if (onFormReady) {
+      onFormReady(form);
+    }
+  }, [form, onFormReady]);
 
   const handleFieldChange = () => {
     const values = form.getValues();
@@ -61,182 +68,122 @@ export function CardSelectionStep({ initialData, onSave }: CardSelectionStepProp
   };
 
   return (
-    <Form {...form}>
-      <form className="space-y-6" onChange={handleFieldChange}>
-        {/* Card Network Selection */}
-        <MobileFormSection title="SELECT CARD NETWORK">
-          <div className="space-y-2">
-            {CARD_NETWORKS.map((network) => {
-              const isSelected = selectedNetwork === network.value;
-              return (
-                <button
-                  key={network.value}
-                  type="button"
-                  onClick={() => {
-                    form.setValue('cardNetwork', network.value as any);
-                    handleFieldChange();
-                  }}
-                  className={cn(
-                    'w-full flex items-center gap-4 p-4 rounded-xl',
-                    'bg-card border transition-all duration-200',
-                    'text-left',
-                    isSelected
-                      ? 'border-success ring-1 ring-success'
-                      : 'border-border/50 hover:border-border'
-                  )}
-                >
-                  <div className={cn(
-                    'w-10 h-10 rounded-xl flex items-center justify-center',
-                    isSelected ? 'bg-success/15' : 'bg-muted'
-                  )}>
-                    <CreditCard className={cn(
-                      'h-5 w-5',
-                      isSelected ? 'text-success' : 'text-muted-foreground'
-                    )} />
-                  </div>
-                  <span className={cn(
-                    'flex-1 text-base font-medium',
-                    isSelected ? 'text-foreground' : 'text-foreground/80'
-                  )}>
-                    {network.label}
-                  </span>
-                  {isSelected && (
-                    <div className="w-6 h-6 rounded-full bg-success flex items-center justify-center">
-                      <Check className="h-4 w-4 text-white" />
-                    </div>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-          <FormField
-            control={form.control}
-            name="cardNetwork"
-            render={() => (
-              <FormItem className="hidden">
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </MobileFormSection>
+    <StepFormWrapper form={form}
+      stepNumber={1}
+      title="Card Selection"
+      description="Choose your preferred credit card"
+      hint="Your selection helps us recommend the best card for your needs"
+    >
+      <Form {...form}>
+        <form className="space-y-6" onChange={handleFieldChange}>
+          {/* Card Type Selection */}
+          <FormSection
+            title="Card Type"
+            description="Select your preferred card network, tier, and category"
+            icon={<CreditCard className="h-5 w-5" />}
+          >
+            <FieldRow>
+              <FormField
+                control={form.control}
+                name="cardNetwork"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel required>Card Network</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select network" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {CARD_NETWORKS.map((network) => (
+                          <SelectItem key={network.value} value={network.value}>
+                            {network.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-        {/* Card Tier Selection */}
-        <MobileFormSection title="SELECT CARD TIER">
-          <div className="space-y-2">
-            {CARD_TIERS.map((tier) => {
-              const isSelected = selectedTier === tier.value;
-              return (
-                <button
-                  key={tier.value}
-                  type="button"
-                  onClick={() => {
-                    form.setValue('cardTier', tier.value as any);
-                    handleFieldChange();
-                  }}
-                  className={cn(
-                    'w-full flex items-center gap-3 p-4 rounded-xl',
-                    'bg-card border transition-all duration-200',
-                    'text-left',
-                    isSelected
-                      ? 'border-success ring-1 ring-success'
-                      : 'border-border/50 hover:border-border'
-                  )}
-                >
-                  <div
-                    className={cn(
-                      'w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0',
-                      'transition-all duration-200',
-                      isSelected
-                        ? 'border-success bg-success'
-                        : 'border-muted-foreground/40'
-                    )}
-                  >
-                    {isSelected && (
-                      <div className="w-2 h-2 rounded-full bg-white" />
-                    )}
-                  </div>
-                  <span className={cn(
-                    'text-base font-medium',
-                    isSelected ? 'text-foreground' : 'text-foreground/80'
-                  )}>
-                    {tier.label}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </MobileFormSection>
+              <FormField
+                control={form.control}
+                name="cardTier"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel required>Card Tier</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select tier" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {CARD_TIERS.map((tier) => (
+                          <SelectItem key={tier.value} value={tier.value}>
+                            {tier.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </FieldRow>
 
-        {/* Card Category Selection */}
-        <MobileFormSection title="SELECT CARD CATEGORY">
-          <div className="flex gap-2">
-            {CARD_CATEGORIES.map((category) => {
-              const isSelected = selectedCategory === category.value;
-              return (
-                <button
-                  key={category.value}
-                  type="button"
-                  onClick={() => {
-                    form.setValue('cardCategory', category.value as any);
-                    handleFieldChange();
-                  }}
-                  className={cn(
-                    'flex-1 py-3 px-4 rounded-xl text-sm font-medium',
-                    'border transition-all duration-200',
-                    'focus:outline-none focus:ring-2 focus:ring-success/30',
-                    isSelected
-                      ? 'bg-success/15 border-success text-success'
-                      : 'bg-card border-border/50 text-foreground/70 hover:border-border'
-                  )}
-                >
-                  {category.label}
-                </button>
-              );
-            })}
-          </div>
-        </MobileFormSection>
+            <FormField
+              control={form.control}
+              name="cardCategory"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel required>Card Category</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {CARD_CATEGORIES.map((category) => (
+                        <SelectItem key={category.value} value={category.value}>
+                          {category.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>Choose between regular, Islamic, or co-branded cards</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </FormSection>
 
-        {/* Expected Credit Limit */}
-        <MobileFormSection title="CREDIT LIMIT">
-          <MobileFormCard>
+          {/* Credit Limit */}
+          <FormSection
+            title="Credit Limit"
+            description="Specify your expected credit limit"
+            icon={<Sparkles className="h-5 w-5" />}
+          >
             <FormField
               control={form.control}
               name="expectedCreditLimit"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel required>Expected Credit Limit (BDT)</FormLabel>
                   <FormControl>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-medium text-muted-foreground">৳</span>
-                      <input
-                        {...field}
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="Enter expected limit (min. 50,000)"
-                        className={cn(
-                          'w-full bg-transparent rounded-xl',
-                          'pl-10 pr-4 py-3.5 text-base text-foreground',
-                          'placeholder:text-muted-foreground/60',
-                          'focus:outline-none',
-                          'transition-all duration-200'
-                        )}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/[^0-9]/g, '');
-                          field.onChange(value);
-                          handleFieldChange();
-                        }}
-                      />
-                    </div>
+                    <Input {...field} placeholder="50000" />
                   </FormControl>
-                  <p className="text-xs text-muted-foreground px-1 mt-2">
-                    Minimum credit limit: BDT 50,000
-                  </p>
+                  <FormDescription>Minimum credit limit: BDT 50,000</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-          </MobileFormCard>
-        </MobileFormSection>
-      </form>
-    </Form>
+          </FormSection>
+        </form>
+      </Form>
+    </StepFormWrapper>
   );
 }

@@ -1,17 +1,20 @@
 /**
  * Step 2: Personal Information
  * With District/Thana dropdowns and DD-MM-YYYY date format
+ * Enhanced with StepFormWrapper for consistent UX
  */
 
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { motion } from 'framer-motion';
+import { User, Users, FileText, MapPin, Mail, GraduationCap, AlertCircle, Info } from 'lucide-react';
 import { personalInfoSchema, type PersonalInfoFormData } from '@/lib/validation-schemas';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Separator } from '@/components/ui/separator';
+import { StepFormWrapper, FormSection, FieldRow, FieldTripleRow } from '@/components';
 import { subYears } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { BANGLADESH_DISTRICTS, getThanasByDistrict } from '@/lib/bangladesh-locations';
@@ -22,6 +25,7 @@ import type { PersonalInfoData } from '@/types/application-form.types';
 interface PersonalInfoStepProps {
   initialData?: Partial<PersonalInfoData>;
   onSave: (data: PersonalInfoData) => void;
+  onFormReady?: (form: any) => void;
 }
 
 
@@ -69,7 +73,7 @@ const emptyAddress = {
   country: 'Bangladesh',
 };
 
-export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps) {
+export function PersonalInfoStep({ initialData, onSave, onFormReady }: PersonalInfoStepProps) {
   // Date constraints
   const maxDateOfBirth = subYears(new Date(), 18);
   const minDateOfBirth = new Date('1900-01-01');
@@ -103,6 +107,13 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
     },
     mode: 'onChange',
   });
+
+  // Expose form to parent when ready
+  useEffect(() => {
+    if (onFormReady) {
+      onFormReady(form);
+    }
+  }, [form, onFormReady]);
 
   const maritalStatus = form.watch('maritalStatus');
   const sameAsPermanent = form.watch('sameAsPermanent');
@@ -144,18 +155,27 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
   };
 
   return (
-    <Form {...form}>
-      <form className="space-y-8" onChange={handleFieldChange}>
+    <StepFormWrapper form={form}
+      stepNumber={2}
+      title="Personal Information"
+      description="Please provide your personal details"
+      hint="Please ensure all information matches your National ID card. Your address will be used for card delivery."
+    >
+      <Form {...form}>
+        <form className="space-y-6" onChange={handleFieldChange}>
         {/* Basic Information */}
-        <div className="space-y-5">
-          <h3 className="text-lg font-semibold text-foreground">Basic Information</h3>
+        <FormSection
+          title="Basic Information"
+          description="Your personal details for the application"
+          icon={<User className="h-5 w-5" />}
+        >
           
           <FormField
             control={form.control}
             name="nameOnCard"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name on Card (BLOCK LETTERS) *</FormLabel>
+                <FormLabel required>Name on Card (BLOCK LETTERS)</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
@@ -176,7 +196,7 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               name="nationality"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nationality *</FormLabel>
+                  <FormLabel required>Nationality</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -190,7 +210,7 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               name="gender"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Gender *</FormLabel>
+                  <FormLabel required>Gender</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
@@ -215,7 +235,10 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               name="dateOfBirth"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Date of Birth *</FormLabel>
+                  <div className="flex items-center gap-2">
+                    <FormLabel required>Date of Birth</FormLabel>
+                    <span className="text-xs text-accent font-semibold">(Must 18 Years)</span>
+                  </div>
                   <TailwindDatePicker
                     value={field.value}
                     onChange={(date) => field.onChange(date?.toISOString() || '')}
@@ -223,9 +246,6 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
                     maxDate={maxDateOfBirth}
                     placeholder="DD/MM/YYYY"
                   />
-                  <FormDescription>
-                    You must be at least 18 years old
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -254,13 +274,14 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               )}
             />
           </div>
-        </div>
-
-        <Separator />
+        </FormSection>
 
         {/* Family Information */}
-        <div className="space-y-5">
-          <h3 className="text-lg font-semibold text-foreground">Family Information</h3>
+        <FormSection
+          title="Family Information"
+          description="Details about your family members"
+          icon={<Users className="h-5 w-5" />}
+        >
           
           <div className="grid gap-5 sm:grid-cols-2">
             <FormField
@@ -268,7 +289,7 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               name="fatherName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Father's Name *</FormLabel>
+                  <FormLabel required>Father's Name</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Father's full name" />
                   </FormControl>
@@ -282,7 +303,7 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               name="motherName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Mother's Name *</FormLabel>
+                  <FormLabel required>Mother's Name</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Mother's full name" />
                   </FormControl>
@@ -298,7 +319,7 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               name="maritalStatus"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Marital Status *</FormLabel>
+                  <FormLabel required>Marital Status</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
@@ -350,20 +371,21 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               )}
             />
           )}
-        </div>
-
-        <Separator />
+        </FormSection>
 
         {/* Identity Documents */}
-        <div className="space-y-5">
-          <h3 className="text-lg font-semibold text-foreground">Identity Documents</h3>
+        <FormSection
+          title="Identity Documents"
+          description="Your national identification and tax information"
+          icon={<FileText className="h-5 w-5" />}
+        >
           
           <FormField
             control={form.control}
             name="nidNumber"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>NID Number *</FormLabel>
+                <FormLabel required>NID Number</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
@@ -447,20 +469,21 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               )}
             />
           </div>
-        </div>
-
-        <Separator />
+        </FormSection>
 
         {/* Permanent Address */}
-        <div className="space-y-5">
-          <h3 className="text-lg font-semibold text-foreground">Permanent Address</h3>
+        <FormSection
+          title="Permanent Address"
+          description="Your permanent residential address"
+          icon={<MapPin className="h-5 w-5" />}
+        >
           
           <FormField
             control={form.control}
             name="permanentAddress.addressLine1"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Address Line 1 *</FormLabel>
+                <FormLabel required>Address Line 1</FormLabel>
                 <FormControl>
                   <Input {...field} placeholder="House/Flat, Road, Area" />
                 </FormControl>
@@ -489,7 +512,7 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               name="permanentAddress.district"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>District *</FormLabel>
+                  <FormLabel required>District</FormLabel>
                   <Select 
                     onValueChange={handlePermanentDistrictChange}
                     value={field.value}
@@ -544,7 +567,7 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               name="permanentAddress.city"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>City/Town *</FormLabel>
+                  <FormLabel required>City/Town</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="City or town name" />
                   </FormControl>
@@ -558,7 +581,7 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               name="permanentAddress.postalCode"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Postal Code *</FormLabel>
+                  <FormLabel required>Postal Code</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
@@ -586,14 +609,15 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               </FormItem>
             )}
           />
-        </div>
-
-        <Separator />
+        </FormSection>
 
         {/* Present Address */}
-        <div className="space-y-5">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-foreground">Present Address</h3>
+        <FormSection
+          title="Present Address"
+          description="Your current residential address"
+          icon={<MapPin className="h-5 w-5" />}
+        >
+          <div className="flex items-center justify-end gap-2 mb-2">
             <FormField
               control={form.control}
               name="sameAsPermanent"
@@ -620,7 +644,7 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
                 name="presentAddress.addressLine1"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Address Line 1 *</FormLabel>
+                    <FormLabel required>Address Line 1</FormLabel>
                     <FormControl>
                       <Input {...field} placeholder="House/Flat, Road, Area" />
                     </FormControl>
@@ -649,7 +673,7 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
                   name="presentAddress.district"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>District *</FormLabel>
+                      <FormLabel required>District</FormLabel>
                       <Select 
                         onValueChange={handlePresentDistrictChange}
                         value={field.value}
@@ -704,7 +728,7 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
                   name="presentAddress.city"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>City/Town *</FormLabel>
+                      <FormLabel required>City/Town</FormLabel>
                       <FormControl>
                         <Input {...field} placeholder="City or town name" />
                       </FormControl>
@@ -718,7 +742,7 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
                   name="presentAddress.postalCode"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Postal Code *</FormLabel>
+                      <FormLabel required>Postal Code</FormLabel>
                       <FormControl>
                         <Input
                           {...field}
@@ -748,40 +772,14 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               />
             </>
           )}
-        </div>
-
-        <Separator />
-
-        {/* Mailing Preference */}
-        <FormField
-          control={form.control}
-          name="mailingAddressType"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Mailing Address *</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select mailing address" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent className="bg-background border shadow-lg z-[100]">
-                  {MAILING_ADDRESS_TYPES.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormDescription>Where should we send your card and statements?</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <Separator />
+        </FormSection>
 
         {/* Contact & Education */}
-        <div className="space-y-5">
-          <h3 className="text-lg font-semibold text-foreground">Contact & Education</h3>
+        <FormSection
+          title="Contact & Education"
+          description="How to reach you and your educational background"
+          icon={<Mail className="h-5 w-5" />}
+        >
           
           <div className="grid gap-5 sm:grid-cols-2">
             <FormField
@@ -789,7 +787,7 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               name="mobileNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Mobile Number *</FormLabel>
+                  <FormLabel required>Mobile Number</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
@@ -808,7 +806,7 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email Address *</FormLabel>
+                  <FormLabel required>Email Address</FormLabel>
                   <FormControl>
                     <Input {...field} type="email" placeholder="your@email.com" />
                   </FormControl>
@@ -817,6 +815,31 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               )}
             />
           </div>
+
+          {/* Mailing Preference */}
+          <FormField
+            control={form.control}
+            name="mailingAddressType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Mailing Address *</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select mailing address" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent className="bg-background border shadow-lg z-[100]">
+                    {MAILING_ADDRESS_TYPES.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormDescription>Where should we send your card and statements?</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <FormField
             control={form.control}
@@ -840,8 +863,9 @@ export function PersonalInfoStep({ initialData, onSave }: PersonalInfoStepProps)
               </FormItem>
             )}
           />
-        </div>
+        </FormSection>
       </form>
     </Form>
+  </StepFormWrapper>
   );
 }
